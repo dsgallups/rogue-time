@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
-use bevy_tnua::{TnuaAnimatingState, prelude::*};
+use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
 use input::DefaultInputContext;
 
@@ -49,17 +49,10 @@ fn spawn_player(mut commands: Commands) {
 }
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
-    let player_character = commands
-        .spawn((
-            Name::new("Player Landmass Character"),
-            Transform::from_xyz(0.0, -PLAYER_FLOAT_HEIGHT, 0.0),
-            ChildOf(trigger.target()),
-        ))
-        .id();
-
     commands.entity(trigger.target()).insert((
         //RigidBody::Dynamic, <- the player will have gravity, so I've disabled this for now
         Actions::<DefaultInputContext>::default(),
+        Transform::from_xyz(2.0, 2., 2.0),
         // The player character needs to be configured as a dynamic rigid body of the physics
         // engine.
         Collider::capsule(PLAYER_RADIUS, PLAYER_CAPSULE_LENGTH),

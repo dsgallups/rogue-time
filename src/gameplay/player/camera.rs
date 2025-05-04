@@ -50,11 +50,7 @@ pub(super) fn plugin(app: &mut App) {
 #[require(Transform, Visibility)]
 pub(crate) struct PlayerCamera;
 
-fn spawn_view_model(
-    _trigger: Trigger<OnAdd, Player>,
-    mut commands: Commands,
-    assets: Res<AssetServer>,
-) {
+fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands.insert_resource(AmbientLight {
         color: Color::srgb(1.0, 0.7, 0.4),
         brightness: 120.0,
@@ -134,7 +130,7 @@ fn spawn_view_model(
                     Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0)),
                     Name::new("View Model"),
                     // we do this eventually
-                    SceneRoot(assets.load("assets/Stopwatch.glb")),
+                    //SceneRoot(assets.load("scenes/Stopwatch.glb#Scene0")),
                 ))
                 .observe(configure_player_view_model);
         })
