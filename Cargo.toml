@@ -65,6 +65,46 @@ bevy = { version = "0.16", default-features = false, features = [
 bevy_kira_audio = { version = "0.23.0", features = ["mp3"] }
 bevy_skein = "0.2.0"
 
+[target.x86_64-unknown-linux-gnu.dependencies]
+bevy = { version = "0.16", default-features = false, features = [
+    "animation",
+    "bevy_asset",
+    "bevy_animation",
+    "bevy_color",
+    "bevy_core_pipeline",
+    "bevy_gilrs",
+    "bevy_gizmos",
+    "bevy_gltf",
+    "bevy_input_focus",
+    "bevy_mesh_picking_backend",
+    "bevy_pbr",
+    "bevy_picking",
+    "bevy_render",
+    "bevy_scene",
+    "bevy_sprite",
+    "bevy_sprite_picking_backend",
+    "bevy_state",
+    "bevy_text",
+    "bevy_ui",
+    "bevy_ui_picking_backend",
+    "bevy_window",
+    "bevy_winit",
+    "custom_cursor",
+    "default_font",
+    "hdr",
+    "ktx2",
+    "multi_threaded",
+    "png",
+    "smaa_luts",
+    "std",
+    "sysinfo_plugin",
+    "tonemapping_luts",
+    "webgl2",
+    "wayland",
+    "async_executor",
+    "async-io",
+    "dynamic_linking"
+] }
 
 [profile.dev]
 opt-level = 1
