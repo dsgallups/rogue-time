@@ -121,7 +121,7 @@ fn smooth_follow(
     let Ok((mut cam_transl, cam)) = camera.single_mut() else {
         panic!("no td camera");
     };
-    let Ok((player, target)) = player.single() else {
+    let Ok((target_transform, target)) = player.single() else {
         // no target
         return;
     };
@@ -132,7 +132,7 @@ fn smooth_follow(
         //     Quat::from_euler(EulerRot::YXZ, yaw, pitch + target.camera_delta_pitch, roll);
 
         // Calculate the desired camera translation based, radius, and xy_offset
-        let rotation_matrix = Mat3::from_quat(player.rotation);
+        let rotation_matrix = Mat3::from_quat(target_transform.rotation);
 
         // get the offset
         let offset = rotation_matrix.mul_vec3(Vec3::new(cam.offset_x, cam.offset_y, cam.offset_z));
@@ -140,8 +140,8 @@ fn smooth_follow(
         let mut desired_translation = offset - rotation_matrix.mul_vec3(Vec3::new(0.0, 0.0, 1.));
         desired_translation.y = desired_translation.y.max(0.);
 
-        let desired_translation = player.translation + desired_translation;
-        let look_at = player.translation + Vec3::new(0., target.target_y_offset, 0.);
+        let desired_translation = target_transform.translation + desired_translation;
+        let look_at = target_transform.translation + Vec3::new(0., target.target_y_offset, 0.);
         let desired_transform = Transform::from_xyz(
             desired_translation.x,
             desired_translation.y,
@@ -163,8 +163,10 @@ fn smooth_follow(
             time.delta_secs(),
         );
     } else {
-        // we maintain our current rotation
-        let Vec3 { x, z, .. } = player.translation;
+        // we maintain our current rotation, so that means the target's offset_y prop doesn't apply.
+        //
+        // yes that condition is invariant, but it's annoying to make that an enum
+        let Vec3 { x, z, .. } = target_transform.translation;
         let direction = Vec3::new(x + cam.offset_x, cam.offset_y, z + cam.offset_z);
         // Applies a smooth effect to camera movement using stable interpolation
         // between the camera position and the player position on the x and y axes.
