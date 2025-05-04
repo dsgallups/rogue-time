@@ -4,6 +4,8 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 
+use crate::gameplay::GameState;
+
 use super::default_input::{Jump, Move};
 
 use super::PLAYER_FLOAT_HEIGHT;
@@ -28,7 +30,11 @@ fn apply_movement(
     trigger: Trigger<Fired<Move>>,
     mut controllers: Query<&mut TnuaController, With<Player>>,
     transform: Single<&Transform, With<PlayerCamera>>,
+    state: Res<State<GameState>>,
 ) {
+    if *state.get() == GameState::Paused {
+        return;
+    }
     let Ok(mut controller) = controllers.get_mut(trigger.target()) else {
         error!("Triggered movement for entity with missing components");
         return;
@@ -50,7 +56,14 @@ fn apply_movement(
     });
 }
 
-fn jump(trigger: Trigger<Fired<Jump>>, mut controllers: Query<&mut TnuaController>) {
+fn jump(
+    trigger: Trigger<Fired<Jump>>,
+    mut controllers: Query<&mut TnuaController>,
+    state: Res<State<GameState>>,
+) {
+    if *state.get() == GameState::Paused {
+        return;
+    }
     let mut controller = controllers.get_mut(trigger.target()).unwrap();
     controller.action(TnuaBuiltinJump {
         // The height is the only mandatory field of the jump button.

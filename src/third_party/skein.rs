@@ -15,6 +15,8 @@ pub fn plugin(app: &mut App) {
     //app.add_plugins(SkeinPlugin { handle_brp: true });
 }
 /// Add this component in blender to create static colliders
+///
+/// Inserted in blender
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct StaticBody;

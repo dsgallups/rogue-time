@@ -8,6 +8,7 @@ mod animation;
 mod player;
 mod scene;
 mod stopwatch;
+mod timebank;
 mod ui;
 
 use crate::{AppSet, screens::Screen};
@@ -36,6 +37,7 @@ pub fn plugin(app: &mut App) {
         stopwatch::plugin,
         player::plugin,
         animation::plugin,
+        timebank::plugin,
     ));
 
     // systems to grab the cursor in the play state
