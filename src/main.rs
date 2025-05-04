@@ -4,6 +4,7 @@ use bevy::{
     asset::AssetMetaCheck, prelude::*, render::view::RenderLayers, scene::SceneInstanceReady,
     window::WindowMode,
 };
+use bitflags::bitflags;
 
 mod asset_tracking;
 mod gameplay;
@@ -25,6 +26,7 @@ enum AppSet {
     /// do everything else
     Update,
 }
+
 fn main() {
     let mut app = App::new();
 
@@ -72,6 +74,11 @@ fn main() {
     app.run();
 }
 
+impl From<CameraOrder> for isize {
+    fn from(order: CameraOrder) -> Self {
+        order as isize
+    }
+}
 fn spawn_ui_camera(mut commands: Commands) {
     commands.spawn((
         Name::new("UI Camera"),
@@ -82,10 +89,43 @@ fn spawn_ui_camera(mut commands: Commands) {
         RenderLayers::layer(UI_RENDER_LAYER),
         Camera {
             // Bump the order to render on top of the view model.
-            order: 2,
+            order: CameraOrder::Ui.into(),
             ..default()
         },
     ));
+}
+
+/// This enum is converted to an `isize` to be used as a camera's order.
+/// Since we have three cameras, we use three enum variants.
+/// This ordering here mean UI > ViewModel > World.
+enum CameraOrder {
+    World,
+    ViewModel,
+    Ui,
+}
+
+bitflags! {
+    struct RenderLayer: u32 {
+        /// Used implicitly by all entities without a `RenderLayers` component.
+        /// Our world model camera and all objects other than the player are on this layer.
+        /// The light source belongs to both layers.
+        const DEFAULT = 0b00000001;
+        /// Used by the view model camera and the player's arm.
+        /// The light source belongs to both layers.
+        const VIEW_MODEL = 0b00000010;
+        /// Since we use multiple cameras, we need to be explicit about
+        /// which one is allowed to render particles.
+        const PARTICLES = 0b00000100;
+        /// Skip interaction with lights
+        const TRANSLUCENT = 0b00001000;
+    }
+}
+
+impl From<RenderLayer> for RenderLayers {
+    fn from(layer: RenderLayer) -> Self {
+        // Bevy's default render layer is 0, so we need to subtract 1 from our bitfalgs to get the correct value.
+        RenderLayers::from_iter(layer.iter().map(|l| l.bits() as usize - 1))
+    }
 }
 
 // bevy uses -Z as forward, but doesn't respect that GLTF uses +Z forward.

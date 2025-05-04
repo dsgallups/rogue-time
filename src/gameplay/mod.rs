@@ -4,7 +4,8 @@ use bevy::{
     window::{CursorGrabMode, PrimaryWindow},
 };
 
-mod camera;
+mod animation;
+mod player;
 mod scene;
 mod stopwatch;
 mod ui;
@@ -29,7 +30,13 @@ pub fn plugin(app: &mut App) {
     app.add_sub_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
 
-    app.add_plugins((camera::plugin, ui::plugin, scene::plugin, stopwatch::plugin));
+    app.add_plugins((
+        ui::plugin,
+        scene::plugin,
+        stopwatch::plugin,
+        player::plugin,
+        animation::plugin,
+    ));
 
     // systems to grab the cursor in the play state
     app.add_systems(OnEnter(GameState::Playing), (grab_cursor));
