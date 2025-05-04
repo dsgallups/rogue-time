@@ -50,7 +50,7 @@ fn spawn_player(mut commands: Commands) {
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands.entity(trigger.target()).insert((
-        //RigidBody::Dynamic, <- the player will have gravity, so I've disabled this for now
+        RigidBody::Dynamic,
         Actions::<DefaultInputContext>::default(),
         Transform::from_xyz(2.0, 2., 2.0),
         // The player character needs to be configured as a dynamic rigid body of the physics
