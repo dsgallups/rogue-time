@@ -3,6 +3,8 @@ use bevy::{
     window::{CursorGrabMode, PrimaryWindow},
 };
 
+mod camera;
+
 use crate::screens::Screen;
 
 // pausing and playing...we could get rid of the pause state possibly
@@ -22,6 +24,8 @@ pub fn plugin(app: &mut App) {
 
     app.add_sub_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
+
+    app.add_plugins((camera::plugin));
 
     // systems to grab the cursor in the play state
     app.add_systems(OnEnter(GameState::Playing), (grab_cursor));
