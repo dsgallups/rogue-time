@@ -7,26 +7,35 @@ use super::{GameState, player::Player, timebank::TimeBank};
 
 pub fn plugin(app: &mut App) {
     //make_timebank,
-    app.add_systems(OnEnter(Screen::Gameplay), (spawn_test_cube))
+    app.add_systems(OnEnter(Screen::Gameplay), (spawn_test_cube, spawn_timebank))
         // .add_observer(fk)
         .add_systems(
             Update,
             (
                 bevy,
-                print_player_transform.run_if(in_state(GameState::Playing)),
+                //print_player_transform.run_if(in_state(GameState::Playing)),
             ),
         );
 }
 
-fn make_timebank(mut commands: Commands, asset_server: Res<AssetServer>) {
+#[derive(Component)]
+pub struct TestTimeBank;
+
+fn spawn_timebank(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
-        //TimeBank { milliseconds: 5000 },
-        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/TimePickUp.glb"))),
+        TestTimeBank,
+        Collider::cylinder(1., 2.),
         Transform::from_xyz(0., 1., -5.),
+        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/TimePickUp.glb"))),
         //Sensor,
         RigidBody::Static,
+        Sensor,
         CollisionEventsEnabled,
         //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
+        // children![(
+
+        //     Transform::from_xyz(0., -1., 0.)
+        // )],
     ));
 }
 
@@ -39,7 +48,6 @@ fn spawn_test_cube(
 ) {
     let cube_mesh = meshes.add(Cuboid::default());
     commands.spawn((
-        //TimeBank { milliseconds: 5000 },
         TestCube,
         Mesh3d(cube_mesh.clone()),
         MeshMaterial3d(materials.add(Color::srgb(0.7, 0.7, 0.8))),
@@ -56,21 +64,26 @@ fn spawn_test_cube(
 // fn fk(trigger: Trigger<OnCollisionStart>) {
 //     error!("WEIOFUJQWOEIFJAIOEJF");
 // }
-fn bevy(mut events: EventReader<CollisionStarted>, test_cube: Query<&TestCube>) {
+fn bevy(
+    mut events: EventReader<CollisionStarted>,
+    test_cube: Query<&TestCube>,
+    timebank: Query<&TestTimeBank>,
+) {
     for event in events.read() {
         let with_tc = test_cube.get(event.0).is_ok() || test_cube.get(event.1).is_ok();
-        error!("Collided, with test cube: {with_tc}");
+        let with_timebank = timebank.get(event.0).is_ok() || timebank.get(event.1).is_ok();
+        error!("Collided, with test cube: {with_tc}, with timebank: {with_timebank}");
     }
 }
 
-fn print_player_transform(
-    player: Query<&Transform, With<Player>>,
-    cube: Query<&Transform, With<TestCube>>,
-) {
-    let player = player.single().unwrap();
-    let cube = cube.single().unwrap();
+// fn print_player_transform(
+//     player: Query<&Transform, With<Player>>,
+//     cube: Query<&Transform, With<TestCube>>,
+// ) {
+//     let player = player.single().unwrap();
+//     let cube = cube.single().unwrap();
 
-    let diff = (player.translation - cube.translation);
-    //warn!("distance: {}\ndiff: {:?} ", diff.length(), diff);
-    //error!("player trns: {:?}", player.single().unwrap().translation);
-}
+//     let diff = (player.translation - cube.translation);
+//     //warn!("distance: {}\ndiff: {:?} ", diff.length(), diff);
+//     //error!("player trns: {:?}", player.single().unwrap().translation);
+// }
