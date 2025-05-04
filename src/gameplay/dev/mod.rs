@@ -6,7 +6,7 @@ use crate::{screens::Screen, third_party::avian3d::CollisionLayer};
 use super::timebank::TimeBank;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Screen::Gameplay), (make_timebank,))
+    app.add_systems(OnEnter(Screen::Gameplay), (make_timebank, spawn_test_cube))
         .add_observer(fk)
         .add_systems(Update, bevy);
 }
@@ -23,25 +23,25 @@ fn make_timebank(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-// #[derive(Component)]
-// pub struct Floor;
-// fn make_floor(
-//     mut commands: Commands,
-//     mut materials: ResMut<Assets<StandardMaterial>>,
-//     mut meshes: ResMut<Assets<Mesh>>,
-// ) {
-//     let cube_mesh = meshes.add(Cuboid::default());
-//     commands.spawn((
-//         //TimeBank { milliseconds: 5000 },
-//         Mesh3d(cube_mesh.clone()),
-//         MeshMaterial3d(materials.add(Color::srgb(0.7, 0.7, 0.8))),
-//         Transform::from_xyz(3., 1., -5.),
-//         Sensor,
-//         RigidBody::Static,
-//         CollisionEventsEnabled,
-//         CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
-//     ));
-// }
+#[derive(Component)]
+pub struct TestCube;
+fn spawn_test_cube(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    let cube_mesh = meshes.add(Cuboid::default());
+    commands.spawn((
+        //TimeBank { milliseconds: 5000 },
+        Mesh3d(cube_mesh.clone()),
+        MeshMaterial3d(materials.add(Color::srgb(0.7, 0.7, 0.8))),
+        Transform::from_xyz(3., 1., -5.),
+        Sensor,
+        RigidBody::Static,
+        CollisionEventsEnabled,
+        CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
+    ));
+}
 
 fn fk(trigger: Trigger<OnCollisionStart>) {
     error!("WEIOFUJQWOEIFJAIOEJF");
