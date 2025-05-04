@@ -5,6 +5,9 @@ use bevy::{
     window::WindowMode,
 };
 
+mod asset_tracking;
+mod screens;
+mod theme;
 mod third_party;
 
 const UI_RENDER_LAYER: usize = 2;
@@ -51,7 +54,12 @@ fn main() {
     );
 
     //other plugins
-    app.add_plugins((third_party::plugin));
+    app.add_plugins((
+        third_party::plugin,
+        screens::plugin,
+        asset_tracking::plugin,
+        theme::plugin,
+    ));
 
     //spawn ui camera. should always exist
     app.add_systems(Startup, spawn_ui_camera);
