@@ -6,6 +6,7 @@ use bevy::{
 };
 
 mod asset_tracking;
+mod gameplay;
 mod screens;
 mod theme;
 mod third_party;
@@ -59,6 +60,7 @@ fn main() {
         screens::plugin,
         asset_tracking::plugin,
         theme::plugin,
+        gameplay::plugin,
     ));
 
     //spawn ui camera. should always exist
