@@ -5,6 +5,8 @@ use bevy::{
     window::WindowMode,
 };
 
+mod third_party;
+
 const UI_RENDER_LAYER: usize = 2;
 
 /// High level groups of systems in the "Update" schedule.
@@ -48,11 +50,16 @@ fn main() {
             }),
     );
 
+    //other plugins
+    app.add_plugins((third_party::plugin));
+
     //spawn ui camera. should always exist
     app.add_systems(Startup, spawn_ui_camera);
 
     // Bevy should rotate gltf coordinates to properly work in the system
     app.add_observer(fix_gltf_coordinates);
+
+    app.run();
 }
 
 fn spawn_ui_camera(mut commands: Commands) {
