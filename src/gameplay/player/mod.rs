@@ -53,14 +53,14 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands.entity(trigger.target()).insert((
         RigidBody::Dynamic,
         Actions::<DefaultInputContext>::default(),
-        Transform::from_xyz(2.0, 2., 2.0),
+        Transform::from_xyz(2.0, 15., 2.0),
         // The player character needs to be configured as a dynamic rigid body of the physics
         // engine.
         Collider::capsule(PLAYER_RADIUS, PLAYER_CAPSULE_LENGTH),
         // This is Tnua's interface component.
-        TnuaController::default(),
+        //TnuaController::default(),
         // A sensor shape is not strictly necessary, but without it we'll get weird results.
-        TnuaAvian3dSensorShape(Collider::cylinder(PLAYER_RADIUS - 0.01, 0.0)),
+        //TnuaAvian3dSensorShape(Collider::cylinder(PLAYER_RADIUS - 0.01, 0.0)),
         // Tnua can fix the rotation, but the character will still get rotated before it can do so.
         // By locking the rotation we can prevent this.
         LockedAxes::ROTATION_LOCKED,
