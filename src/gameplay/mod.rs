@@ -6,6 +6,7 @@ use bevy::{
 
 mod camera;
 mod scene;
+mod stopwatch;
 mod ui;
 
 use crate::{AppSet, screens::Screen};
@@ -28,7 +29,7 @@ pub fn plugin(app: &mut App) {
     app.add_sub_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
 
-    app.add_plugins((camera::plugin, ui::plugin, scene::plugin));
+    app.add_plugins((camera::plugin, ui::plugin, scene::plugin, stopwatch::plugin));
 
     // systems to grab the cursor in the play state
     app.add_systems(OnEnter(GameState::Playing), (grab_cursor));
