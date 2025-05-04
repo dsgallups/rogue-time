@@ -22,9 +22,9 @@ impl FromWorld for StopwatchAnimationAssets {
         //TODO: probably not the right path
         Self {
             click_animation: assets
-                .load(GltfAssetLabel::Animation(0).from_asset("scenes/stopwatch.glb")),
+                .load(GltfAssetLabel::Animation(0).from_asset("scenes/Stopwatch.glb")),
             ticking_animation: assets
-                .load(GltfAssetLabel::Animation(1).from_asset("scenes/stopwatch.glb")),
+                .load(GltfAssetLabel::Animation(1).from_asset("scenes/Stopwatch.glb")),
         }
     }
 }
