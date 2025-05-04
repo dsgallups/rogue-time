@@ -52,7 +52,7 @@ pub(crate) struct PlayerCamera;
 
 fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands.insert_resource(AmbientLight {
-        color: Color::srgb(1.0, 0.7, 0.4),
+        color: Color::srgb(1.0, 1., 1.),
         brightness: 120.0,
         ..default()
     });

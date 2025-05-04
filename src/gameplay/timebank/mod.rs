@@ -13,23 +13,30 @@ pub fn plugin(app: &mut App) {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct TimeBank {
-    milliseconds: u32,
+    pub milliseconds: u32,
 }
 
 fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     error!("Inserting timebank");
-    let collider =
-        ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
+    //let collider =
+    //ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
+
+    //let collider = Collider::cylinder(0.5, 50.);
     commands
         .entity(trigger.target())
         .insert((
             RigidBody::Static,
-            collider,
+            //collider,
             Sensor,
             CollisionEventsEnabled,
             CollidingEntities::default(),
         ))
         .observe(collect_timebank);
+
+    // commands
+    //     .entity(trigger.target())
+    //     .insert((CollisionEventsEnabled, CollidingEntities::default()))
+    //     .observe(collect_timebank);
 }
 
 fn collect_timebank(trigger: Trigger<OnCollisionStart>, mut commands: Commands) {

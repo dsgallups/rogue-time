@@ -11,6 +11,9 @@ mod stopwatch;
 mod timebank;
 mod ui;
 
+#[cfg(feature = "dev")]
+mod dev;
+
 use crate::{AppSet, screens::Screen};
 
 // pausing and playing...we could get rid of the pause state possibly
@@ -39,6 +42,8 @@ pub fn plugin(app: &mut App) {
         animation::plugin,
         timebank::plugin,
     ));
+    #[cfg(feature = "dev")]
+    app.add_plugins(dev::plugin);
 
     // systems to grab the cursor in the play state
     app.add_systems(OnEnter(GameState::Playing), (grab_cursor));
