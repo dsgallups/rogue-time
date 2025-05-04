@@ -5,7 +5,6 @@ use bevy::{
 };
 
 mod animation;
-mod camera;
 mod player;
 mod scene;
 mod stopwatch;

@@ -10,8 +10,6 @@ use std::{
 
 use avian_pickup::prelude::*;
 use avian3d::prelude::*;
-#[cfg(feature = "native")]
-use bevy::core_pipeline::{bloom::Bloom, experimental::taa::TemporalAntiAliasing};
 use bevy::{
     core_pipeline::tonemapping::Tonemapping,
     pbr::NotShadowCaster,
@@ -31,7 +29,7 @@ use crate::{
     third_party::avian3d::CollisionLayer,
 };
 
-use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate};
+use super::{PLAYER_FLOAT_HEIGHT, Player, input::Rotate};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_observer(spawn_view_model);
@@ -84,8 +82,10 @@ fn spawn_view_model(
                 },
                 ..default()
             },
+            // not done yet
             AnimationPlayerAncestor,
-            SpatialListener::new(0.4),
+            // not used, we use bevy kira audio
+            //SpatialListener::new(0.4),
         ))
         .with_children(|parent| {
             parent.spawn((
@@ -93,8 +93,6 @@ fn spawn_view_model(
                 Camera3d::default(),
                 Camera {
                     order: CameraOrder::World.into(),
-                    // HDR is not supported on WebGL2
-                    hdr: cfg!(feature = "native"),
                     ..default()
                 },
                 Projection::from(PerspectiveProjection {
@@ -106,8 +104,6 @@ fn spawn_view_model(
                 ),
                 Exposure::INDOOR,
                 Tonemapping::AcesFitted,
-                #[cfg(feature = "native")]
-                (Bloom::NATURAL, TemporalAntiAliasing::default(), Msaa::Off),
             ));
 
             // Spawn view model camera.
@@ -117,8 +113,6 @@ fn spawn_view_model(
                 Camera {
                     // Bump the order to render on top of the world model.
                     order: CameraOrder::ViewModel.into(),
-                    // HDR is not supported on WebGL2
-                    hdr: cfg!(feature = "native"),
                     ..default()
                 },
                 Projection::from(PerspectiveProjection {
@@ -132,9 +126,6 @@ fn spawn_view_model(
                 RenderLayers::from(RenderLayer::VIEW_MODEL),
                 Exposure::INDOOR,
                 Tonemapping::AcesFitted,
-                #[cfg(feature = "native")]
-                // We don't use bloom on the view model, as it may lead to artifacts.
-                (TemporalAntiAliasing::default(), Msaa::Off),
             ));
 
             // Spawn the player's view model
@@ -142,7 +133,8 @@ fn spawn_view_model(
                 .spawn((
                     Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0)),
                     Name::new("View Model"),
-                    SceneRoot(assets.load(Player::scene_path())),
+                    // we do this eventually
+                    SceneRoot(assets.load("assets/Stopwatch.glb")),
                 ))
                 .observe(configure_player_view_model);
         })
