@@ -5,7 +5,7 @@ use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
 use default_input::DefaultInputContext;
 
-use crate::third_party::avian3d::CollisionLayer;
+//use crate::third_party::avian3d::CollisionLayer;
 
 use super::GameState;
 
@@ -71,9 +71,10 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             combine_rule: CoefficientCombine::Multiply,
         },
         ColliderDensity(100.0),
-        CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
-        //TnuaAnimatingState::<PlayerAnimationState>::default(),
-        //PlayerLandmassCharacter(player_character),
+        CollisionEventsEnabled,
+        CollidingEntities::default(), //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
+                                      //TnuaAnimatingState::<PlayerAnimationState>::default(),
+                                      //PlayerLandmassCharacter(player_character),
     ));
     //.observe(setup_player_animations);
 }

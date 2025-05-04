@@ -26,7 +26,6 @@ use crate::{
     AppSet, CameraOrder, RenderLayer,
     gameplay::animation::{AnimationPlayerAncestor, AnimationPlayerOf, AnimationPlayers},
     screens::Screen,
-    third_party::avian3d::CollisionLayer,
 };
 
 use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate};
@@ -61,23 +60,23 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             Name::new("Player Camera Parent"),
             PlayerCamera,
             StateScoped(Screen::Gameplay),
-            AvianPickupActor {
-                prop_filter: SpatialQueryFilter::from_mask(CollisionLayer::Prop),
-                obstacle_filter: SpatialQueryFilter::from_mask(CollisionLayer::Default),
-                actor_filter: SpatialQueryFilter::from_mask(CollisionLayer::Character),
-                interaction_distance: 2.0,
-                pull: AvianPickupActorPullConfig {
-                    impulse: 20.0,
-                    // We are not limiting ourselves to the mass of props.
-                    max_prop_mass: 10_000.0,
-                },
-                hold: AvianPickupActorHoldConfig {
-                    distance_to_allow_holding: 2.0,
-                    linear_velocity_easing: 0.7,
-                    ..default()
-                },
-                ..default()
-            },
+            // AvianPickupActor {
+            //     prop_filter: SpatialQueryFilter::from_mask(CollisionLayer::Prop),
+            //     obstacle_filter: SpatialQueryFilter::from_mask(CollisionLayer::Default),
+            //     actor_filter: SpatialQueryFilter::from_mask(CollisionLayer::Character),
+            //     interaction_distance: 2.0,
+            //     pull: AvianPickupActorPullConfig {
+            //         impulse: 20.0,
+            //         // We are not limiting ourselves to the mass of props.
+            //         max_prop_mass: 10_000.0,
+            //     },
+            //     hold: AvianPickupActorHoldConfig {
+            //         distance_to_allow_holding: 2.0,
+            //         linear_velocity_easing: 0.7,
+            //         ..default()
+            //     },
+            //     ..default()
+            // },
             // not done yet
             AnimationPlayerAncestor,
             // not used, we use bevy kira audio
