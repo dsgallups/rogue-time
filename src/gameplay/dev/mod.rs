@@ -6,8 +6,9 @@ use crate::screens::Screen;
 use super::{GameState, player::Player, timebank::TimeBank};
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Screen::Gameplay), (make_timebank, spawn_test_cube))
-        .add_observer(fk)
+    //make_timebank,
+    app.add_systems(OnEnter(Screen::Gameplay), (spawn_test_cube))
+        // .add_observer(fk)
         .add_systems(
             Update,
             (
@@ -39,25 +40,37 @@ fn spawn_test_cube(
     let cube_mesh = meshes.add(Cuboid::default());
     commands.spawn((
         //TimeBank { milliseconds: 5000 },
+        TestCube,
         Mesh3d(cube_mesh.clone()),
         MeshMaterial3d(materials.add(Color::srgb(0.7, 0.7, 0.8))),
-        Transform::from_xyz(3., 1., -5.),
-        RigidBody::Dynamic,
+        Transform::from_xyz(-10., 1., 0.),
+        Collider::cuboid(1., 1., 1.),
+        RigidBody::Static,
+        Sensor,
         CollisionEventsEnabled,
         CollidingEntities::default(),
         //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
     ));
 }
 
-fn fk(trigger: Trigger<OnCollisionStart>) {
-    error!("WEIOFUJQWOEIFJAIOEJF");
-}
-fn bevy(mut events: EventReader<CollisionStarted>) {
+// fn fk(trigger: Trigger<OnCollisionStart>) {
+//     error!("WEIOFUJQWOEIFJAIOEJF");
+// }
+fn bevy(mut events: EventReader<CollisionStarted>, test_cube: Query<&TestCube>) {
     for event in events.read() {
-        error!("EV EDWHEOFJIA");
+        let with_tc = test_cube.get(event.0).is_ok() || test_cube.get(event.1).is_ok();
+        error!("Collided, with test cube: {with_tc}");
     }
 }
 
-fn print_player_transform(player: Query<&Transform, With<Player>>) {
+fn print_player_transform(
+    player: Query<&Transform, With<Player>>,
+    cube: Query<&Transform, With<TestCube>>,
+) {
+    let player = player.single().unwrap();
+    let cube = cube.single().unwrap();
+
+    let diff = (player.translation - cube.translation);
+    //warn!("distance: {}\ndiff: {:?} ", diff.length(), diff);
     //error!("player trns: {:?}", player.single().unwrap().translation);
 }

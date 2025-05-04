@@ -1,5 +1,6 @@
 use std::f32::consts::TAU;
 
+use avian3d::prelude::LinearVelocity;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
@@ -44,6 +45,8 @@ fn apply_movement(
     // just fall.
     let yaw = transform.rotation.to_euler(EulerRot::YXZ).0;
     let yaw_quat = Quat::from_axis_angle(Vec3::Y, yaw);
+
+    //controller.0 = yaw_quat * trigger.value;
     controller.basis(TnuaBuiltinWalk {
         // The `desired_velocity` determines how the character will move.
         desired_velocity: yaw_quat * trigger.value,
