@@ -7,21 +7,24 @@ use super::{GameState, player::Player, timebank::TimeBank};
 
 pub fn plugin(app: &mut App) {
     //make_timebank,
-    app.add_systems(OnEnter(Screen::Gameplay), (spawn_test_cube, spawn_timebank))
-        // .add_observer(fk)
-        .add_systems(
-            Update,
-            (
-                bevy,
-                //print_player_transform.run_if(in_state(GameState::Playing)),
-            ),
-        );
+    app.add_systems(
+        OnEnter(Screen::Gameplay),
+        (spawn_test_cube, spawn_test_timebank),
+    )
+    // .add_observer(fk)
+    .add_systems(
+        Update,
+        (
+            bevy,
+            print_player_transform.run_if(in_state(GameState::Playing)),
+        ),
+    );
 }
 
 #[derive(Component)]
 pub struct TestTimeBank;
 
-fn spawn_timebank(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn spawn_test_timebank(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         TestTimeBank,
         Collider::cylinder(1., 2.),
@@ -76,14 +79,17 @@ fn bevy(
     }
 }
 
-// fn print_player_transform(
-//     player: Query<&Transform, With<Player>>,
-//     cube: Query<&Transform, With<TestCube>>,
-// ) {
-//     let player = player.single().unwrap();
-//     let cube = cube.single().unwrap();
+fn print_player_transform(
+    player: Query<&Transform, With<Player>>,
+    timebank: Query<&Transform, With<TimeBank>>,
+) {
+    let player = player.single().unwrap();
+    let Ok(timebank) = timebank.single() else {
+        error!("No timebank!");
+        return;
+    };
 
-//     let diff = (player.translation - cube.translation);
-//     //warn!("distance: {}\ndiff: {:?} ", diff.length(), diff);
-//     //error!("player trns: {:?}", player.single().unwrap().translation);
-// }
+    let diff = (player.translation - timebank.translation);
+    warn!("distance: {}\ndiff: {:?} ", diff.length(), diff);
+    //error!("player trns: {:?}", player.single().unwrap().translation);
+}

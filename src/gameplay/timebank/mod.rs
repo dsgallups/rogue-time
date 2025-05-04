@@ -26,8 +26,9 @@ fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
         .entity(trigger.target())
         .insert((
             RigidBody::Static,
+            Collider::cylinder(1., 2.),
             //collider,
-            Sensor,
+            //Sensor,
             CollisionEventsEnabled,
             CollidingEntities::default(),
         ))
@@ -39,7 +40,13 @@ fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     //     .observe(collect_timebank);
 }
 
-fn collect_timebank(trigger: Trigger<OnCollisionStart>, mut commands: Commands) {
-    error!("Collision on timebank detected!");
-    commands.entity(trigger.observer()).despawn();
+fn collect_timebank(
+    trigger: Trigger<OnCollisionStart>,
+    mut commands: Commands,
+    transform: Query<&Transform>,
+) {
+    let loc = transform.get(trigger.target()).unwrap();
+    error!("Collision on timebank detected!, transform: {loc:?}");
+
+    //commands.entity(trigger.observer()).despawn();
 }

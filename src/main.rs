@@ -69,7 +69,7 @@ fn main() {
     app.add_systems(Startup, spawn_ui_camera);
 
     // Bevy should rotate gltf coordinates to properly work in the system
-    app.add_observer(fix_gltf_coordinates);
+    //app.add_observer(fix_gltf_coordinates);
 
     app.run();
 }
