@@ -29,7 +29,7 @@ use crate::{
     third_party::avian3d::CollisionLayer,
 };
 
-use super::{PLAYER_FLOAT_HEIGHT, Player, input::Rotate};
+use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_observer(spawn_view_model);

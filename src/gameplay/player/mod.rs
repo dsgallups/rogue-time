@@ -3,19 +3,20 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
-use input::DefaultInputContext;
+use default_input::DefaultInputContext;
 
 use crate::third_party::avian3d::CollisionLayer;
 
 use super::GameState;
 
 mod camera;
-mod input;
+mod default_input;
+mod movement;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((camera::plugin, input::plugin));
+    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
     //temporary
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_observer(setup_player);

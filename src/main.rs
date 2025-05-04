@@ -85,8 +85,6 @@ fn spawn_ui_camera(mut commands: Commands) {
         Camera2d,
         // Render all UI to this camera.
         IsDefaultUiCamera,
-        // render UI to this layer to be captured by the UI camera
-        RenderLayers::layer(UI_RENDER_LAYER),
         Camera {
             // Bump the order to render on top of the view model.
             order: CameraOrder::Ui.into(),
