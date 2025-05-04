@@ -9,6 +9,7 @@ use crate::screens::Screen;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<AnimationBusy>()
+        .register_type::<AnimationPlayerAncestor>()
         .register_type::<AnimationPlayers>()
         .register_type::<AnimationPlayerOf>();
 
@@ -16,8 +17,6 @@ pub fn plugin(app: &mut App) {
         PreUpdate,
         tick_animation_busy.run_if(in_state(Screen::Gameplay)),
     );
-    app.register_type::<AnimationPlayerOf>();
-    app.register_type::<AnimationPlayers>();
     app.add_observer(link_animation_player);
 }
 
