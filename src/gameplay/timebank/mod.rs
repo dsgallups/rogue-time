@@ -17,9 +17,18 @@ pub struct TimeBank {
 }
 
 fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
+    error!("Inserting timebank");
+    let collider =
+        ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
     commands
         .entity(trigger.target())
-        .insert((RigidBody::Static, Collider::sphere(1.), Sensor))
+        .insert((
+            RigidBody::Static,
+            collider,
+            Sensor,
+            CollisionEventsEnabled,
+            CollidingEntities::default(),
+        ))
         .observe(collect_timebank);
 }
 
