@@ -98,13 +98,17 @@ impl CameraTarget {
 }
 
 fn spawn_cam(mut commands: Commands) {
-    let topdown = ThirdPersonCamera::default();
+    let third_person_cam = ThirdPersonCamera::default();
     commands.spawn((
         Camera3d::default(),
         StateScoped(Screen::Gameplay),
-        topdown,
-        Transform::from_xyz(topdown.offset_x, topdown.offset_y, topdown.offset_z)
-            .looking_at(Vec3::ZERO, Vec3::Y),
+        third_person_cam,
+        Transform::from_xyz(
+            third_person_cam.offset_x,
+            third_person_cam.offset_y,
+            third_person_cam.offset_z,
+        )
+        .looking_at(Vec3::ZERO, Vec3::Y),
         Projection::Perspective(PerspectiveProjection {
             fov: 90.0_f32.to_radians(),
             ..default()
