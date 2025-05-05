@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::{
     screens::Screen,
-    theme::{Containers, Widgets, interaction::OnPress},
+    theme::{interaction::OnPress, widgets},
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -12,16 +12,16 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn spawn_title_screen(mut commands: Commands) {
-    commands
-        .ui_root()
-        .insert(StateScoped(Screen::Title))
-        .with_children(|children| {
-            children.button("Play").observe(enter_gameplay_screen);
-            children.button("Credits").observe(enter_credits_screen);
-
+    commands.spawn((
+        widgets::ui_root("Title Scree"),
+        StateScoped(Screen::Title),
+        children![
+            widgets::button("Play", enter_gameplay_screen),
+            widgets::button("Credits", enter_credits_screen),
             #[cfg(not(target_family = "wasm"))]
-            children.button("Exit").observe(exit_app);
-        });
+            widgets::button("Exit", exit_app),
+        ],
+    ));
 }
 
 fn enter_gameplay_screen(_trigger: Trigger<OnPress>, mut next_screen: ResMut<NextState<Screen>>) {

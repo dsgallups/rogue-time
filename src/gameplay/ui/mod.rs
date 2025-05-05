@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{screens::Screen, theme::Containers};
+use crate::{screens::Screen, theme::widgets};
 
 use super::{GameSet, stopwatch::StopwatchTimer};
 
@@ -28,42 +28,41 @@ struct StopwatchTimeUi;
 pub struct GameUi;
 
 fn spawn_game_ui(mut commands: Commands) {
-    // this does nothing essentially
-    commands
-        .ui_root()
-        .insert((GameUi, Name::new("Game UI"), StateScoped(Screen::Gameplay)))
-        .with_children(|parent| {
-            let font = TextFont {
-                font_size: 20.,
+    let font = TextFont {
+        font_size: 20.,
+        ..default()
+    };
+    commands.spawn((
+        widgets::ui_root("Game UI"),
+        GameUi,
+        StateScoped(Screen::Gameplay),
+        children![(
+            Node {
+                flex_grow: 1.,
+                align_items: AlignItems::End,
                 ..default()
-            };
-            parent.spawn((
+            },
+            children![(
                 Node {
-                    flex_grow: 1.,
-                    align_items: AlignItems::End,
+                    width: Val::Px(80.),
+                    height: Val::Px(50.),
+                    border: UiRect::all(Val::Px(10.)),
+                    margin: UiRect::all(Val::Px(20.)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
+                BorderColor(BLACK.into()),
+                BackgroundColor(WHITE.into()),
                 children![(
-                    Node {
-                        width: Val::Px(80.),
-                        height: Val::Px(50.),
-                        border: UiRect::all(Val::Px(10.)),
-                        margin: UiRect::all(Val::Px(20.)),
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        ..default()
-                    },
-                    BorderColor(BLACK.into()),
-                    BackgroundColor(WHITE.into()),
-                    children![(
-                        StopwatchTimeUi,
-                        Text::new("N/A"),
-                        font,
-                        TextColor(BLACK.into())
-                    )]
-                )],
-            ));
-        });
+                    StopwatchTimeUi,
+                    Text::new("N/A"),
+                    font,
+                    TextColor(BLACK.into())
+                )]
+            )],
+        )],
+    ));
 }
 
 fn update_time_ui(

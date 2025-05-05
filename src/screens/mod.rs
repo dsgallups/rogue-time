@@ -3,6 +3,7 @@ All the main screen states and transitions
 "#]
 use bevy::prelude::*;
 
+mod credits;
 mod gameplay;
 mod loading;
 mod splash;
@@ -16,6 +17,7 @@ pub enum Screen {
     Title,
     Credits,
     Gameplay,
+    //GameOver,
 }
 
 pub fn plugin(app: &mut App) {
@@ -31,5 +33,6 @@ pub fn plugin(app: &mut App) {
         loading::plugin,
         title::plugin,
         gameplay::plugin,
+        credits::plugin,
     ));
 }

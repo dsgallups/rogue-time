@@ -1,135 +1,142 @@
+#![allow(dead_code)]
+//! Helper functions for creating common widgets.
+
+use std::borrow::Cow;
+
 use bevy::{
-    color::palettes::css::BLACK, ecs::relationship::RelatedSpawnerCommands, prelude::*,
-    render::view::RenderLayers,
+    ecs::{spawn::SpawnWith, system::IntoObserverSystem},
+    prelude::*,
+    ui::Val::*,
 };
 
-use crate::UI_RENDER_LAYER;
+use crate::theme::{interaction::InteractionPalette, palette::*};
 
-/// An extension trait for spawning UI widgets.
-pub(crate) trait Widgets {
-    /// Spawn a simple button with text.
-    fn button(&mut self, text: impl Into<String>) -> EntityCommands;
-
-    // /// Spawn a simple header label. Bigger than [`Widgets::label`].
-    // fn header(&mut self, text: impl Into<String>) -> EntityCommands;
-
-    // /// Spawn a simple text label.
-    // fn label(&mut self, text: impl Into<String>) -> EntityCommands;
+/// A root UI node that fills the window and centers its content.
+pub(crate) fn ui_root(name: impl Into<Cow<'static, str>>) -> impl Bundle {
+    (
+        Name::new(name),
+        Node {
+            position_type: PositionType::Absolute,
+            width: Percent(100.0),
+            height: Percent(100.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Column,
+            row_gap: Px(20.0),
+            ..default()
+        },
+        BackgroundColor(SCREEN_BACKGROUND),
+    )
 }
 
-impl<T: Spawn> Widgets for T {
-    fn button(&mut self, text: impl Into<String>) -> EntityCommands {
-        let mut entity = self.spawn((
-            Name::new("Button"),
-            Button,
+/// A simple header label. Bigger than [`label`].
+pub(crate) fn header(text: impl Into<String>) -> impl Bundle {
+    (
+        Name::new("Header"),
+        Text(text.into()),
+        TextFont::from_font_size(40.0),
+        TextColor(HEADER_TEXT),
+    )
+}
+
+/// A simple text label.
+pub(crate) fn label(text: impl Into<String>) -> impl Bundle {
+    label_base(text, 24.0)
+}
+
+pub(crate) fn label_small(text: impl Into<String>) -> impl Bundle {
+    label_base(text, 12.0)
+}
+
+/// A simple text label.
+fn label_base(text: impl Into<String>, font_size: f32) -> impl Bundle {
+    (
+        Name::new("Label"),
+        Text(text.into()),
+        TextFont::from_font_size(font_size),
+        TextColor(LABEL_TEXT),
+    )
+}
+
+/// A large rounded button with text and an action defined as an [`Observer`].
+pub(crate) fn button<E, B, M, I>(text: impl Into<String>, action: I) -> impl Bundle
+where
+    E: Event,
+    B: Bundle,
+    I: IntoObserverSystem<E, B, M>,
+{
+    button_base(
+        text,
+        action,
+        (
             Node {
-                width: Val::Px(200.0),
-                height: Val::Px(65.0),
-                justify_content: JustifyContent::Center,
+                width: Px(300.0),
+                height: Px(80.0),
                 align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
-            RenderLayers::layer(UI_RENDER_LAYER),
-        ));
-        entity.with_children(|children| {
-            children.spawn((
-                Name::new("Button Text"),
-                Text(text.into()),
-                TextFont::from_font_size(40.0),
-                TextColor(BLACK.into()),
-                RenderLayers::layer(UI_RENDER_LAYER),
-            ));
-        });
-
-        entity
-    }
-
-    // fn header(&mut self, text: impl Into<String>) -> EntityCommands {
-    //     let mut entity = self.spawn((
-    //         Name::new("Header"),
-    //         Node {
-    //             width: Px(500.0),
-    //             height: Px(65.0),
-    //             justify_content: JustifyContent::Center,
-    //             align_items: AlignItems::Center,
-    //             ..default()
-    //         },
-    //         BackgroundColor(NODE_BACKGROUND),
-    //         RenderLayers::layer(UI_RENDER_LAYER),
-    //     ));
-    //     entity.with_children(|children| {
-    //         ChildBuild::spawn(
-    //             children,
-    //             (
-    //                 Name::new("Header Text"),
-    //                 Text(text.into()),
-    //                 TextFont::from_font_size(40.0),
-    //                 TextColor(HEADER_TEXT),
-    //                 RenderLayers::layer(UI_RENDER_LAYER),
-    //             ),
-    //         );
-    //     });
-    //     entity
-    // }
-
-    // fn label(&mut self, text: impl Into<String>) -> EntityCommands {
-    //     let entity = self.spawn((
-    //         Name::new("Label"),
-    //         Text(text.into()),
-    //         TextFont::from_font_size(24.0),
-    //         TextColor(LABEL_TEXT),
-    //         Node {
-    //             width: Px(500.0),
-    //             ..default()
-    //         },
-    //         RenderLayers::layer(UI_RENDER_LAYER),
-    //     ));
-    //     entity
-    // }
+            BorderRadius::MAX,
+        ),
+    )
 }
 
-/// An internal trait for types that can spawn entities.
-/// This is here so that [`Widgets`] can be implemented on all types that
-/// are able to spawn entities.
-/// Ideally, this trait should be [part of Bevy itself](https://github.com/bevyengine/bevy/issues/14231).
-trait Spawn {
-    fn spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands;
+/// A small square button with text and an action defined as an [`Observer`].
+pub(crate) fn button_small<E, B, M, I>(text: impl Into<String>, action: I) -> impl Bundle
+where
+    E: Event,
+    B: Bundle,
+    I: IntoObserverSystem<E, B, M>,
+{
+    button_base(
+        text,
+        action,
+        Node {
+            width: Px(30.0),
+            height: Px(30.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+    )
 }
 
-impl Spawn for Commands<'_, '_> {
-    fn spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands {
-        self.spawn(bundle)
-    }
-}
-
-impl Spawn for RelatedSpawnerCommands<'_, ChildOf> {
-    fn spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands {
-        RelatedSpawnerCommands::spawn(self, bundle)
-    }
-}
-
-/// An extension trait for spawning UI containers.
-pub trait Containers {
-    /// Spawns a root node that covers the full screen
-    /// and centers its content horizontally and vertically.
-    fn ui_root(&mut self) -> EntityCommands;
-}
-
-impl Containers for Commands<'_, '_> {
-    fn ui_root(&mut self) -> EntityCommands {
-        self.spawn((
-            Name::new("UI Root"),
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                flex_direction: FlexDirection::Column,
-                row_gap: Val::Px(10.0),
-                position_type: PositionType::Absolute,
-                ..default()
-            },
-            RenderLayers::layer(UI_RENDER_LAYER),
-        ))
-    }
+/// A simple button with text and an action defined as an [`Observer`]. The button's layout is provided by `button_bundle`.
+fn button_base<E, B, M, I>(
+    text: impl Into<String>,
+    action: I,
+    button_bundle: impl Bundle,
+) -> impl Bundle
+where
+    E: Event,
+    B: Bundle,
+    I: IntoObserverSystem<E, B, M>,
+{
+    let text = text.into();
+    let action = IntoObserverSystem::into_system(action);
+    (
+        Name::new("Button"),
+        Node::default(),
+        Children::spawn(SpawnWith(|parent: &mut ChildSpawner| {
+            parent
+                .spawn((
+                    Name::new("Button Inner"),
+                    Button,
+                    BackgroundColor(BUTTON_BACKGROUND),
+                    InteractionPalette {
+                        none: BUTTON_BACKGROUND,
+                        hovered: BUTTON_HOVERED_BACKGROUND,
+                        pressed: BUTTON_PRESSED_BACKGROUND,
+                    },
+                    children![(
+                        Name::new("Button Text"),
+                        Text(text),
+                        TextFont::from_font_size(40.0),
+                        TextColor(BUTTON_TEXT),
+                    )],
+                ))
+                .insert(button_bundle)
+                .observe(action);
+        })),
+    )
 }

@@ -5,7 +5,7 @@ use bevy::{
     render::view::RenderLayers,
 };
 
-use crate::{AppSet, UI_RENDER_LAYER, screens::Screen, theme::Containers};
+use crate::{AppSet, UI_RENDER_LAYER, screens::Screen, theme::widgets};
 
 const SPLASH_BACKGROUND_COLOR: Color = Color::srgb(0.157, 0.157, 0.157);
 const SPLASH_DURATION_SECS: f32 = 1.8;
@@ -50,8 +50,8 @@ pub fn plugin(app: &mut App) {
 
 fn spawn_splash_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
     //todo
-    commands.ui_root().insert((
-        Name::new("Splash screen"),
+    commands.spawn((
+        widgets::ui_root("Splash Screen"),
         BackgroundColor(SPLASH_BACKGROUND_COLOR),
         StateScoped(Screen::Splash),
         children![(
