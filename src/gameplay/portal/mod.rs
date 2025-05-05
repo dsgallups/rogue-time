@@ -38,8 +38,7 @@ fn portal_me_elsewhere(
 
     let event = trigger.event();
 
-    let Ok(mut player) = player.get_mut(event.body.unwrap()) else {
-        warn!("PME: not player");
+    let Ok(mut player) = player.get_mut(event.collider) else {
         return;
     };
 
