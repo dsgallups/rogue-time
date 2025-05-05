@@ -24,7 +24,15 @@ fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     //can't insert sensor in blender.
     commands
         .entity(trigger.target())
-        .insert((Sensor, CollisionEventsEnabled))
+        .insert((
+            Sensor,
+            RigidBody::Static,
+            CollisionEventsEnabled,
+            ColliderConstructor::Cylinder {
+                radius: 1.,
+                height: 2.,
+            },
+        ))
         .observe(collect_timebank);
 }
 

@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use bevy::prelude::*;
 
 mod portal;
@@ -6,5 +7,5 @@ mod timebank;
 
 pub fn plugin(app: &mut App) {
     //make_timebank,
-    app.add_plugins((test_objects::plugin, timebank::plugin, portal::plugin));
+    app.add_plugins((timebank::plugin, portal::plugin));
 }
