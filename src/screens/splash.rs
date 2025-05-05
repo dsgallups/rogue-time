@@ -52,7 +52,6 @@ fn spawn_splash_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
     //todo
     commands.spawn((
         widgets::ui_root("Splash Screen"),
-        BackgroundColor(SPLASH_BACKGROUND_COLOR),
         StateScoped(Screen::Splash),
         children![(
             Name::new("Splash image"),

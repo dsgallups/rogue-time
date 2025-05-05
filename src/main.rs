@@ -43,7 +43,8 @@ fn main() {
                     title: "Rogue Time".to_string(),
                     fit_canvas_to_parent: true,
                     // might need to adjust this for WASM
-                    mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
+                    mode: WindowMode::Windowed,
+                    //mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
                     ..default()
                 }
                 .into(),

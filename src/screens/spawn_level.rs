@@ -14,10 +14,10 @@ pub fn plugin(app: &mut App) {
         OnEnter(Screen::SpawnLevel),
         (spawn_level, spawn_spawn_level_screen),
     );
-    app.add_systems(
-        Update,
-        advance_to_gameplay_screen.run_if(in_state(Screen::SpawnLevel)),
-    );
+    // app.add_systems(
+    //     Update,
+    //     advance_to_gameplay_screen.run_if(in_state(Screen::SpawnLevel)),
+    // );
 }
 
 fn spawn_level(mut commands: Commands, scene_assets: Res<LevelAssets>) {
@@ -36,8 +36,13 @@ fn spawn_level(mut commands: Commands, scene_assets: Res<LevelAssets>) {
 // spawn the player when the level has loaded.
 //
 // This in turn will kick off a set of observers that will eventually create the player camera.
-fn spawn_player(_trigger: Trigger<SceneInstanceReady>, mut commands: Commands) {
+fn spawn_player(
+    _trigger: Trigger<SceneInstanceReady>,
+    mut commands: Commands,
+    mut next_screen: ResMut<NextState<Screen>>,
+) {
     commands.spawn(Player);
+    next_screen.set(Screen::Gameplay);
 }
 
 fn spawn_spawn_level_screen(mut commands: Commands) {
@@ -48,14 +53,14 @@ fn spawn_spawn_level_screen(mut commands: Commands) {
     ));
 }
 
-fn advance_to_gameplay_screen(
-    player_camera: Query<&PlayerCamera>,
-    mut next_screen: ResMut<NextState<Screen>>,
-) {
-    if !player_camera.is_empty() {
-        next_screen.set(Screen::Gameplay);
-    }
-}
+// fn advance_to_gameplay_screen(
+//     player_camera: Query<&PlayerCamera>,
+//     mut next_screen: ResMut<NextState<Screen>>,
+// ) {
+//     if !player_camera.is_empty() {
+//         next_screen.set(Screen::Gameplay);
+//     }
+// }
 
 /// A [`Resource`] that contains all the assets needed to spawn the level.
 /// We use this to preload assets before the level is spawned.

@@ -32,37 +32,39 @@ fn spawn_game_ui(mut commands: Commands) {
         font_size: 20.,
         ..default()
     };
-    commands.spawn((
-        widgets::ui_root("Game UI"),
-        GameUi,
-        StateScoped(Screen::Gameplay),
-        children![(
-            Node {
-                flex_grow: 1.,
-                align_items: AlignItems::End,
-                ..default()
-            },
+    commands
+        .spawn((
+            widgets::ui_root("Game UI"),
+            GameUi,
+            StateScoped(Screen::Gameplay),
             children![(
                 Node {
-                    width: Val::Px(80.),
-                    height: Val::Px(50.),
-                    border: UiRect::all(Val::Px(10.)),
-                    margin: UiRect::all(Val::Px(20.)),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
+                    flex_grow: 1.,
+                    align_items: AlignItems::End,
                     ..default()
                 },
-                BorderColor(BLACK.into()),
-                BackgroundColor(WHITE.into()),
                 children![(
-                    StopwatchTimeUi,
-                    Text::new("N/A"),
-                    font,
-                    TextColor(BLACK.into())
-                )]
+                    Node {
+                        width: Val::Px(80.),
+                        height: Val::Px(50.),
+                        border: UiRect::all(Val::Px(10.)),
+                        margin: UiRect::all(Val::Px(20.)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..default()
+                    },
+                    BorderColor(BLACK.into()),
+                    BackgroundColor(WHITE.into()),
+                    children![(
+                        StopwatchTimeUi,
+                        Text::new("N/A"),
+                        font,
+                        TextColor(BLACK.into())
+                    )]
+                )],
             )],
-        )],
-    ));
+        ))
+        .insert(BackgroundColor(Color::NONE));
 }
 
 fn update_time_ui(
@@ -70,7 +72,7 @@ fn update_time_ui(
     mut text: Query<&mut Text, With<StopwatchTimeUi>>,
 ) {
     let Ok(stopwatch) = stopwatch.single() else {
-        warn!("Stopwatch not detected!");
+        //warn!("Stopwatch not detected!");
         return;
     };
     let Ok(mut text) = text.single_mut() else {
