@@ -1,6 +1,7 @@
 use bevy::{prelude::*, scene::SceneInstanceReady};
 
 use crate::{
+    asset_tracking::LoadResource,
     gameplay::player::{Player, camera::PlayerCamera},
     theme::widgets,
 };
@@ -8,6 +9,7 @@ use crate::{
 use super::Screen;
 
 pub fn plugin(app: &mut App) {
+    app.load_resource::<LevelAssets>();
     app.add_systems(
         OnEnter(Screen::SpawnLevel),
         (spawn_level, spawn_spawn_level_screen),

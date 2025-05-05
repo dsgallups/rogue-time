@@ -36,6 +36,8 @@ struct StopwatchAnimations {
 }
 // we will have a trigger will then trigger this on the StopWatch component being inserted...
 // or maybe this happens automagically with the animation plugin via link_animation_player
+//
+// note the observer is not app wide
 pub(super) fn setup_stopwatch_animation(
     trigger: Trigger<OnAdd, AnimationPlayers>,
     q_anim_players: Query<&AnimationPlayers>,
