@@ -17,15 +17,9 @@ pub struct Portal {
 
 ///Portals are sensors
 fn insert_portal(trigger: Trigger<OnAdd, Portal>, mut commands: Commands) {
-    let collider =
-        ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
-    let collider = ColliderConstructor::Cylinder {
-        radius: 4.,
-        height: 2.,
-    };
     commands
         .entity(trigger.target())
-        .insert((CollisionEventsEnabled, RigidBody::Static, collider))
+        .insert((CollisionEventsEnabled, RigidBody::Static))
         .observe(portal_me_elsewhere);
 }
 

@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::gameplay::{GameSet, player::Player, portal::Portal};
+use crate::gameplay::{player::Player, portal::Portal};
 
 pub fn plugin(app: &mut App) {
     app.add_observer(debug_portal_insert);
@@ -23,15 +23,26 @@ fn debug_portal_insert(
     commands.add_observer(debug_portaling);
 }
 
-fn debug_portaling(trigger: Trigger<OnCollisionStart>, player: Query<&Player>) {
+fn debug_portaling(
+    trigger: Trigger<OnCollisionStart>,
+    colliders: Query<&ColliderOf>,
+    player: Query<&Player>,
+) {
     let event = trigger.event();
 
-    let is_player = player.get(event.collider).is_ok();
+    let root_collider_is_player = player.get(event.collider).is_ok();
 
-    if is_player {
+    if root_collider_is_player {
         info!("Player collided with portal!");
     } else {
         info!("Player didn't collid with portal!");
+    }
+    let parent = colliders.get(event.collider).unwrap();
+    let collider_of_player = player.get(parent.body).is_ok();
+    if collider_of_player {
+        info!("is collider of player!");
+    } else {
+        info!("isn't collider of player!");
     }
 }
 
