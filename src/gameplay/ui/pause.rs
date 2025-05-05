@@ -26,10 +26,10 @@ fn spawn_pause_ui(mut commands: Commands) {
         },
         BackgroundColor(Color::srgba(0., 0., 0., 0.24)),
         ZIndex(2),
-        children![(
+        children![
             widgets::button("Resume", resume),
             widgets::button("Exit", exit_to_title)
-        )],
+        ],
     ));
 }
 fn resume(_trigger: Trigger<OnPress>, mut next_screen: ResMut<NextState<GameState>>) {
