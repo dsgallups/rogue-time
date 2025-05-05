@@ -4,7 +4,8 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 
-use crate::gameplay::GameState;
+use crate::gameplay::level::{LevelCountdown, NewLevel};
+use crate::gameplay::{GameSet, GameState, level};
 
 use super::default_input::{Jump, Move};
 
@@ -15,6 +16,31 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(PreUpdate, reset_movement);
     app.add_observer(apply_movement);
     app.add_observer(jump);
+    app.add_observer(disable_movement_on_new_level);
+    app.add_systems(
+        Update,
+        reenable_movement
+            .in_set(GameSet::BeforeUiUpdate)
+            .run_if(resource_exists::<LevelCountdown>.and(level::countdown_complete)),
+    );
+}
+
+#[derive(Component)]
+pub struct MovementDisabled;
+
+fn disable_movement_on_new_level(
+    _trigger: Trigger<NewLevel>,
+    mut commands: Commands,
+    player: Query<Entity, With<Player>>,
+) {
+    let player = player.single().unwrap();
+    commands.entity(player).insert(MovementDisabled);
+}
+
+fn reenable_movement(mut commands: Commands, player: Query<Entity, With<Player>>) {
+    commands
+        .entity(player.single().unwrap())
+        .remove::<MovementDisabled>();
 }
 
 fn reset_movement(mut controllers: Query<&mut TnuaController, With<Player>>) {

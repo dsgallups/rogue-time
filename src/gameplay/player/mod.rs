@@ -13,7 +13,7 @@ use super::{GameState, stopwatch::StopwatchTimer};
 
 mod camera;
 mod default_input;
-mod movement;
+pub mod movement;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
@@ -52,8 +52,8 @@ fn spawn_player(mut commands: Commands) {
 }
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
-    let mut stopwatch = StopwatchTimer::new(Duration::from_secs(5));
-    stopwatch.pause();
+    let mut stopwatch_timer = StopwatchTimer::default();
+    stopwatch_timer.pause();
     commands.entity(trigger.target()).insert((
         RigidBody::Dynamic,
         Actions::<DefaultInputContext>::default(),
@@ -74,7 +74,7 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             static_coefficient: 0.0,
             combine_rule: CoefficientCombine::Multiply,
         },
-        stopwatch,
+        stopwatch_timer,
         ColliderDensity(100.0),
         CollisionEventsEnabled,
         CollidingEntities::default(), //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
