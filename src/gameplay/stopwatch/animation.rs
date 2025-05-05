@@ -42,4 +42,5 @@ pub(super) fn setup_stopwatch_animation(
     q_anim_players: Query<&AnimationPlayers>,
     mut commands: Commands,
 ) {
+    println!("animation player")
 }

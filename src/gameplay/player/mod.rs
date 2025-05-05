@@ -3,19 +3,20 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
-use input::DefaultInputContext;
+use default_input::DefaultInputContext;
 
-use crate::third_party::avian3d::CollisionLayer;
+//use crate::third_party::avian3d::CollisionLayer;
 
 use super::GameState;
 
 mod camera;
-mod input;
+mod default_input;
+mod movement;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((camera::plugin, input::plugin));
+    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
     //temporary
     app.add_systems(OnEnter(GameState::Playing), spawn_player);
     app.add_observer(setup_player);
@@ -50,9 +51,9 @@ fn spawn_player(mut commands: Commands) {
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands.entity(trigger.target()).insert((
-        //RigidBody::Dynamic, <- the player will have gravity, so I've disabled this for now
+        RigidBody::Dynamic,
         Actions::<DefaultInputContext>::default(),
-        Transform::from_xyz(2.0, 2., 2.0),
+        Transform::from_xyz(2.0, 15., 2.0),
         // The player character needs to be configured as a dynamic rigid body of the physics
         // engine.
         Collider::capsule(PLAYER_RADIUS, PLAYER_CAPSULE_LENGTH),
@@ -70,9 +71,10 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             combine_rule: CoefficientCombine::Multiply,
         },
         ColliderDensity(100.0),
-        CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
-        //TnuaAnimatingState::<PlayerAnimationState>::default(),
-        //PlayerLandmassCharacter(player_character),
+        CollisionEventsEnabled,
+        CollidingEntities::default(), //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
+                                      //TnuaAnimatingState::<PlayerAnimationState>::default(),
+                                      //PlayerLandmassCharacter(player_character),
     ));
     //.observe(setup_player_animations);
 }
