@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 
+mod portal;
 mod test_objects;
 mod timebank;
 
 pub fn plugin(app: &mut App) {
     //make_timebank,
-    app.add_plugins((test_objects::plugin, timebank::plugin));
+    app.add_plugins((test_objects::plugin, timebank::plugin, portal::plugin));
 }
