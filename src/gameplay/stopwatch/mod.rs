@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 use super::animation::AnimationPlayerAncestor;
@@ -10,6 +12,24 @@ pub fn plugin(app: &mut App) {
     app.add_plugins(animation::plugin);
 
     app.add_observer(on_stopwatch_spawn);
+
+    app.add_systems(Update, tick_stopwatch);
+}
+
+#[derive(Component)]
+pub struct StopwatchTimer(pub Timer);
+
+impl StopwatchTimer {
+    pub fn new(initial_time: Duration) -> Self {
+        let timer = Timer::new(initial_time, TimerMode::Once);
+        Self(timer)
+    }
+    pub fn pause(&mut self) {
+        self.0.pause();
+    }
+    pub fn unpause(&mut self) {
+        self.0.unpause();
+    }
 }
 
 #[derive(Component, Reflect)]
@@ -28,4 +48,10 @@ fn on_stopwatch_spawn(trigger: Trigger<OnAdd, Stopwatch>, mut commands: Commands
         .entity(trigger.target())
         .observe(animation::setup_stopwatch_animation)
         .insert(AnimationPlayerAncestor);
+}
+
+fn tick_stopwatch(mut stopwatches: Query<&mut StopwatchTimer>, time: Res<Time>) {
+    for mut stopwatch in &mut stopwatches {
+        stopwatch.0.tick(time.delta());
+    }
 }
