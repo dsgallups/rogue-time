@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::player::Player;
+use super::{level::NewLevel, player::Player};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Portal>();
@@ -25,6 +25,7 @@ fn insert_portal(trigger: Trigger<OnAdd, Portal>, mut commands: Commands) {
 
 fn portal_me_elsewhere(
     trigger: Trigger<OnCollisionStart>,
+    mut commands: Commands,
     portals: Query<&Portal>,
     mut player: Query<&mut Transform, With<Player>>,
 ) {
@@ -37,4 +38,7 @@ fn portal_me_elsewhere(
     };
 
     player.translation = portal.to;
+    commands.trigger(NewLevel {
+        respawn_point: portal.to,
+    });
 }

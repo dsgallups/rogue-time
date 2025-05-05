@@ -16,7 +16,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(
             Update,
             update_time_ui
-                .in_set(GameSet::Update)
+                .in_set(GameSet::UiUpdate)
                 .run_if(in_state(Screen::Gameplay)),
         );
 }

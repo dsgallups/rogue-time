@@ -5,6 +5,7 @@ use bevy::{
 };
 
 mod animation;
+mod level;
 mod player;
 mod portal;
 mod scene;
@@ -38,8 +39,10 @@ enum GameSet {
     TickTimers,
     /// Record player input
     RecordInput,
+    /// things like removing timers and statuses and stuff
+    BeforeUiUpdate,
     /// do everything else
-    Update,
+    UiUpdate,
 }
 
 pub fn plugin(app: &mut App) {
@@ -50,7 +53,12 @@ pub fn plugin(app: &mut App) {
 
     app.configure_sets(
         Update,
-        (GameSet::TickTimers, GameSet::RecordInput, GameSet::Update)
+        (
+            GameSet::TickTimers,
+            GameSet::RecordInput,
+            GameSet::BeforeUiUpdate,
+            GameSet::UiUpdate,
+        )
             .chain()
             .run_if(in_state(Screen::Gameplay)),
     );
@@ -60,6 +68,7 @@ pub fn plugin(app: &mut App) {
         scene::plugin,
         stopwatch::plugin,
         player::plugin,
+        level::plugin,
         animation::plugin,
         timebank::plugin,
         portal::plugin,

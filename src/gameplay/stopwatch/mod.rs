@@ -2,7 +2,11 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use super::{GameSet, animation::AnimationPlayerAncestor};
+use super::{
+    GameSet,
+    animation::AnimationPlayerAncestor,
+    level::{LevelStarted, NewLevel},
+};
 
 mod animation;
 
@@ -11,20 +15,26 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins(animation::plugin);
 
-    app.add_observer(on_stopwatch_spawn);
-
-    app.add_systems(Update, tick_stopwatch.in_set(GameSet::TickTimers));
+    app.add_observer(on_stopwatch_spawn)
+        .add_observer(reset_on_new_level)
+        .add_systems(Update, tick_stopwatch.in_set(GameSet::TickTimers))
+        .add_observer(start_timer_on_level);
 }
+
+const DEFAULT_DURATION: Duration = Duration::from_secs(5);
 
 #[derive(Component)]
 pub struct StopwatchTimer(pub Timer);
 
-#[allow(dead_code)]
-impl StopwatchTimer {
-    pub fn new(initial_time: Duration) -> Self {
-        let timer = Timer::new(initial_time, TimerMode::Once);
+impl Default for StopwatchTimer {
+    fn default() -> Self {
+        let timer = Timer::new(DEFAULT_DURATION, TimerMode::Once);
         Self(timer)
     }
+}
+
+#[allow(dead_code)]
+impl StopwatchTimer {
     pub fn pause(&mut self) {
         self.0.pause();
     }
@@ -36,6 +46,9 @@ impl StopwatchTimer {
 
         let new_duration = current_duration + time;
         self.0.set_duration(new_duration);
+    }
+    pub fn reset_duration(&mut self) {
+        self.0.set_duration(DEFAULT_DURATION);
     }
 }
 
@@ -60,5 +73,21 @@ fn on_stopwatch_spawn(trigger: Trigger<OnAdd, Stopwatch>, mut commands: Commands
 fn tick_stopwatch(mut stopwatches: Query<&mut StopwatchTimer>, time: Res<Time>) {
     for mut stopwatch in &mut stopwatches {
         stopwatch.0.tick(time.delta());
+    }
+}
+fn reset_on_new_level(_trigger: Trigger<NewLevel>, mut timers: Query<&mut StopwatchTimer>) {
+    for mut timer in &mut timers {
+        timer.pause();
+        timer.reset_duration();
+    }
+}
+
+fn start_timer_on_level(
+    _trigger: Trigger<LevelStarted>,
+    mut stopwatches: Query<&mut StopwatchTimer>,
+) {
+    for mut stopwatch in &mut stopwatches {
+        info!("Starting stopwatch");
+        stopwatch.unpause();
     }
 }

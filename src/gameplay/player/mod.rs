@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use avian3d::prelude::*;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
@@ -9,19 +7,27 @@ use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
 
-use super::{GameState, stopwatch::StopwatchTimer};
+use crate::screens::Screen;
+
+use super::stopwatch::StopwatchTimer;
 
 mod camera;
 mod default_input;
-mod movement;
+pub mod movement;
+mod respawn;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
+    app.add_plugins((
+        camera::plugin,
+        default_input::plugin,
+        movement::plugin,
+        respawn::plugin,
+    ));
     //temporary
-    app.add_systems(OnEnter(GameState::Playing), spawn_player);
-    app.add_observer(setup_player);
+    app.add_systems(OnEnter(Screen::Gameplay), spawn_player)
+        .add_observer(setup_player);
 }
 
 #[derive(Component, Reflect)]
@@ -52,8 +58,8 @@ fn spawn_player(mut commands: Commands) {
 }
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
-    let mut stopwatch = StopwatchTimer::new(Duration::from_secs(5));
-    stopwatch.pause();
+    let mut stopwatch_timer = StopwatchTimer::default();
+    stopwatch_timer.pause();
     commands.entity(trigger.target()).insert((
         RigidBody::Dynamic,
         Actions::<DefaultInputContext>::default(),
@@ -74,7 +80,7 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             static_coefficient: 0.0,
             combine_rule: CoefficientCombine::Multiply,
         },
-        stopwatch,
+        stopwatch_timer,
         ColliderDensity(100.0),
         CollisionEventsEnabled,
         CollidingEntities::default(), //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),
