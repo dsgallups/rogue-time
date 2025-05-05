@@ -24,39 +24,12 @@ pub struct TimeBankInstance {
     pub milliseconds: u32,
 }
 
-fn insert_timebank(
-    trigger: Trigger<OnAdd, TimeBank>,
-    mut commands: Commands,
-    transform: Query<&Transform>,
-) {
-    let transform = transform.get(trigger.target()).unwrap();
-    error!("Inserting timebank, {:?}", transform.translation);
+fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     //can't insert sensor in blender.
     commands
         .entity(trigger.target())
         .insert((Sensor, CollisionEventsEnabled))
         .observe(collect_timebank);
-    //let collider =
-    //ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
-
-    //let collider = Collider::cylinder(0.5, 50.);
-    // commands
-    //     .entity(trigger.target())
-    //     .insert(children![(
-    //         //TimeBank { milliseconds: 5000 },
-    //         RigidBody::Static,
-    //         //Collider::cylinder(1., 2.),
-    //         //collider,
-    //         //Sensor,
-    //         CollisionEventsEnabled,
-    //         CollidingEntities::default(),
-    //     )])
-    //     .observe(collect_timebank);
-
-    // commands
-    //     .entity(trigger.target())
-    //     .insert((CollisionEventsEnabled, CollidingEntities::default()))
-    //     .observe(collect_timebank);
 }
 
 fn collect_timebank(
