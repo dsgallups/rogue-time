@@ -38,5 +38,7 @@ fn portal_me_elsewhere(
     };
 
     player.translation = portal.to;
-    commands.trigger(NewLevel);
+    commands.trigger(NewLevel {
+        respawn_point: portal.to,
+    });
 }

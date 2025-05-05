@@ -16,7 +16,9 @@ pub fn plugin(app: &mut App) {
 }
 
 #[derive(Event)]
-pub struct NewLevel;
+pub struct NewLevel {
+    pub respawn_point: Vec3,
+}
 
 #[derive(Resource)]
 pub struct LevelCountdown {
@@ -41,6 +43,7 @@ impl Default for LevelCountdown {
 
 fn on_new_level(_trigger: Trigger<NewLevel>, mut commands: Commands) {
     commands.init_resource::<LevelCountdown>();
+    info!("Level Countdown: 3");
 }
 
 //fk it it'll also do other things
@@ -48,6 +51,7 @@ fn update_level_countdown(mut countdown: ResMut<LevelCountdown>, time: Res<Time>
     countdown.timer.tick(time.delta());
     if countdown.timer.just_finished() {
         countdown.secs_left = countdown.secs_left.saturating_sub(1);
+        info!("Level Countdown: {}", countdown.secs_left);
     }
 }
 
@@ -55,7 +59,6 @@ fn update_level_countdown(mut countdown: ResMut<LevelCountdown>, time: Res<Time>
 pub struct LevelStarted;
 
 fn remove_level_countdown(mut commands: Commands, countdown: Res<LevelCountdown>) {
-    info!("conutdowdnfiawedof");
     if countdown.complete() {
         info!("countdown complete");
         commands.remove_resource::<LevelCountdown>();

@@ -7,19 +7,27 @@ use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
 
-use super::{GameState, stopwatch::StopwatchTimer};
+use crate::screens::Screen;
+
+use super::stopwatch::StopwatchTimer;
 
 mod camera;
 mod default_input;
 pub mod movement;
+mod respawn;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
+    app.add_plugins((
+        camera::plugin,
+        default_input::plugin,
+        movement::plugin,
+        respawn::plugin,
+    ));
     //temporary
-    app.add_systems(OnEnter(GameState::Playing), spawn_player);
-    app.add_observer(setup_player);
+    app.add_systems(OnEnter(Screen::Gameplay), spawn_player)
+        .add_observer(setup_player);
 }
 
 #[derive(Component, Reflect)]
