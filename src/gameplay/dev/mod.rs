@@ -16,7 +16,7 @@ pub fn plugin(app: &mut App) {
         Update,
         (
             bevy,
-            print_player_transform.run_if(in_state(GameState::Playing)),
+            //print_player_transform.run_if(in_state(GameState::Playing)),
         ),
     );
 }
