@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use super::{
     GameSet,
     animation::AnimationPlayerAncestor,
-    level::{self, LevelCountdown, NewLevel},
+    level::{LevelStarted, NewLevel},
 };
 
 mod animation;
@@ -18,12 +18,7 @@ pub fn plugin(app: &mut App) {
     app.add_observer(on_stopwatch_spawn)
         .add_observer(reset_on_new_level)
         .add_systems(Update, tick_stopwatch.in_set(GameSet::TickTimers))
-        .add_systems(
-            Update,
-            start_timer_on_level
-                .in_set(GameSet::BeforeUiUpdate)
-                .run_if(resource_exists::<LevelCountdown>.and(level::countdown_complete)),
-        );
+        .add_observer(start_timer_on_level);
 }
 
 const DEFAULT_DURATION: Duration = Duration::from_secs(5);
@@ -87,8 +82,12 @@ fn reset_on_new_level(_trigger: Trigger<NewLevel>, mut timers: Query<&mut Stopwa
     }
 }
 
-fn start_timer_on_level(mut stopwatches: Query<&mut StopwatchTimer>) {
+fn start_timer_on_level(
+    _trigger: Trigger<LevelStarted>,
+    mut stopwatches: Query<&mut StopwatchTimer>,
+) {
     for mut stopwatch in &mut stopwatches {
+        info!("Starting stopwatch");
         stopwatch.unpause();
     }
 }

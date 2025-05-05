@@ -8,12 +8,9 @@ pub fn plugin(app: &mut App) {
     app.add_observer(on_new_level);
     app.add_systems(
         Update,
-        (
-            update_level_countdown.in_set(GameSet::TickTimers),
-            remove_level_countdown
-                .in_set(GameSet::BeforeUiUpdate)
-                .run_if(countdown_complete),
-        )
+        (update_level_countdown, remove_level_countdown)
+            .chain()
+            .in_set(GameSet::TickTimers)
             .run_if(resource_exists::<LevelCountdown>),
     );
 }
@@ -54,10 +51,14 @@ fn update_level_countdown(mut countdown: ResMut<LevelCountdown>, time: Res<Time>
     }
 }
 
-pub fn countdown_complete(countdown: Res<LevelCountdown>) -> bool {
-    countdown.complete()
-}
+#[derive(Event)]
+pub struct LevelStarted;
 
-fn remove_level_countdown(mut commands: Commands) {
-    commands.remove_resource::<LevelCountdown>();
+fn remove_level_countdown(mut commands: Commands, countdown: Res<LevelCountdown>) {
+    info!("conutdowdnfiawedof");
+    if countdown.complete() {
+        info!("countdown complete");
+        commands.remove_resource::<LevelCountdown>();
+        commands.trigger(LevelStarted);
+    }
 }
