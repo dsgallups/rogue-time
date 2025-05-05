@@ -1,9 +1,4 @@
-use std::{f32::consts::PI, ffi::OsStr};
-
-use bevy::{
-    asset::AssetMetaCheck, prelude::*, render::view::RenderLayers, scene::SceneInstanceReady,
-    window::WindowMode,
-};
+use bevy::{asset::AssetMetaCheck, prelude::*, render::view::RenderLayers, window::WindowMode};
 use bitflags::bitflags;
 
 mod asset_tracking;
@@ -125,33 +120,3 @@ impl From<RenderLayer> for RenderLayers {
         RenderLayers::from_iter(layer.iter().map(|l| l.bits() as usize - 1))
     }
 }
-
-// bevy uses -Z as forward, but doesn't respect that GLTF uses +Z forward.
-// fn fix_gltf_coordinates(
-//     trigger: Trigger<SceneInstanceReady>,
-//     q_scene_root: Query<(&SceneRoot, &Children)>,
-//     mut q_transform: Query<&mut Transform>,
-// ) {
-//     let scene_entity = trigger.target();
-//     let Ok((scene_root, children)) = q_scene_root.get(scene_entity) else {
-//         return;
-//     };
-
-//     let Some(asset_path) = scene_root.0.path() else {
-//         return;
-//     };
-
-//     let Some(extension) = asset_path.path().extension().and_then(OsStr::to_str) else {
-//         return;
-//     };
-
-//     const GLTF_EXTENSIONS: [&str; 2] = ["glb", "gltf"];
-//     if !GLTF_EXTENSIONS.contains(&extension) {
-//         return;
-//     }
-
-//     let mut iter = q_transform.iter_many_mut(children);
-//     while let Some(mut transform) = iter.fetch_next() {
-//         transform.rotate_y(PI);
-//     }
-// }

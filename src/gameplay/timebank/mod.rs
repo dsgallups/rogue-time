@@ -1,11 +1,12 @@
+use std::time::Duration;
+
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::player::Player;
+use super::stopwatch::StopwatchTimer;
 
 pub fn plugin(app: &mut App) {
-    app.register_type::<TimeBank>()
-        .register_type::<TimeBankInstance>();
+    app.register_type::<TimeBank>();
 
     app.add_observer(insert_timebank);
 }
@@ -16,64 +17,44 @@ pub fn plugin(app: &mut App) {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct TimeBank {
-    pub milliseconds: u32,
-}
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct TimeBankInstance {
-    pub milliseconds: u32,
+    pub milliseconds: u64,
 }
 
-fn insert_timebank(
-    trigger: Trigger<OnAdd, TimeBank>,
-    mut commands: Commands,
-    transform: Query<&Transform>,
-) {
-    let transform = transform.get(trigger.target()).unwrap();
-    error!("Inserting timebank, {:?}", transform.translation);
+fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     //can't insert sensor in blender.
     commands
         .entity(trigger.target())
-        .insert((Sensor, CollisionEventsEnabled))
+        .insert((
+            Sensor,
+            RigidBody::Static,
+            CollisionEventsEnabled,
+            ColliderConstructor::Cylinder {
+                radius: 1.,
+                height: 2.,
+            },
+        ))
         .observe(collect_timebank);
-    //let collider =
-    //ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
-
-    //let collider = Collider::cylinder(0.5, 50.);
-    // commands
-    //     .entity(trigger.target())
-    //     .insert(children![(
-    //         //TimeBank { milliseconds: 5000 },
-    //         RigidBody::Static,
-    //         //Collider::cylinder(1., 2.),
-    //         //collider,
-    //         //Sensor,
-    //         CollisionEventsEnabled,
-    //         CollidingEntities::default(),
-    //     )])
-    //     .observe(collect_timebank);
-
-    // commands
-    //     .entity(trigger.target())
-    //     .insert((CollisionEventsEnabled, CollidingEntities::default()))
-    //     .observe(collect_timebank);
 }
 
 fn collect_timebank(
     trigger: Trigger<OnCollisionStart>,
+    timebanks: Query<&TimeBank>,
     mut commands: Commands,
-    transform: Query<&Transform>,
-    player: Query<&Player>,
+    mut stopwatch: Query<&mut StopwatchTimer>,
 ) {
-    let loc = transform.get(trigger.target()).unwrap();
+    let timebank = timebanks.get(trigger.target()).unwrap();
     //only if the trigger was the human
-    error!("Collision on timebank detected!, transform: {loc:?}");
     let event = trigger.event();
     //dont use event.body,
-    if player.get(event.collider).is_err() {
-        error!("Not player collider");
+    let Ok(mut stopwatch) = stopwatch.get_mut(event.collider) else {
         return;
-    }
+    };
+
+    info!(
+        "adding {} milliseconds to stopwatch!",
+        timebank.milliseconds
+    );
+    stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
 
     commands.entity(trigger.target()).despawn();
 }
