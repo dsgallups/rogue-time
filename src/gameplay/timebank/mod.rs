@@ -1,11 +1,12 @@
+use std::time::Duration;
+
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::player::Player;
+use super::stopwatch::StopwatchTimer;
 
 pub fn plugin(app: &mut App) {
-    app.register_type::<TimeBank>()
-        .register_type::<TimeBankInstance>();
+    app.register_type::<TimeBank>();
 
     app.add_observer(insert_timebank);
 }
@@ -16,12 +17,7 @@ pub fn plugin(app: &mut App) {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct TimeBank {
-    pub milliseconds: u32,
-}
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct TimeBankInstance {
-    pub milliseconds: u32,
+    pub milliseconds: u64,
 }
 
 fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
@@ -34,19 +30,22 @@ fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
 
 fn collect_timebank(
     trigger: Trigger<OnCollisionStart>,
+    timebanks: Query<&TimeBank>,
     mut commands: Commands,
     transform: Query<&Transform>,
-    player: Query<&Player>,
+    mut stopwatch: Query<&mut StopwatchTimer>,
 ) {
+    let timebank = timebanks.get(trigger.target()).unwrap();
     let loc = transform.get(trigger.target()).unwrap();
     //only if the trigger was the human
     error!("Collision on timebank detected!, transform: {loc:?}");
     let event = trigger.event();
     //dont use event.body,
-    if player.get(event.collider).is_err() {
-        error!("Not player collider");
+    let Ok(mut stopwatch) = stopwatch.get_mut(event.collider) else {
         return;
-    }
+    };
+
+    stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
 
     commands.entity(trigger.target()).despawn();
 }

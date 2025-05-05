@@ -30,6 +30,12 @@ impl StopwatchTimer {
     pub fn unpause(&mut self) {
         self.0.unpause();
     }
+    pub fn add_time(&mut self, time: Duration) {
+        let current_duration = self.0.duration();
+
+        let new_duration = current_duration + time;
+        self.0.set_duration(new_duration);
+    }
 }
 
 #[derive(Component, Reflect)]
