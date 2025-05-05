@@ -33,6 +33,7 @@ fn portal_me_elsewhere(
     let event = trigger.event();
 
     let Ok(mut player) = player.get_mut(event.collider) else {
+        warn!("PME: not player");
         return;
     };
 

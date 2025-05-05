@@ -5,10 +5,10 @@ use crate::gameplay::{GameSet, player::Player, portal::Portal};
 
 pub fn plugin(app: &mut App) {
     app.add_observer(debug_portal_insert);
-    app.add_systems(
-        Update,
-        determine_distance_from_portal.in_set(GameSet::Update),
-    );
+    // app.add_systems(
+    //     Update,
+    //     determine_distance_from_portal.in_set(GameSet::Update),
+    // );
 }
 
 ///Portals are sensors
