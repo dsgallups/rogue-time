@@ -6,6 +6,7 @@ use bevy::{
 
 mod animation;
 mod player;
+mod portal;
 mod scene;
 mod stopwatch;
 mod timebank;
@@ -61,6 +62,7 @@ pub fn plugin(app: &mut App) {
         player::plugin,
         animation::plugin,
         timebank::plugin,
+        portal::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);
