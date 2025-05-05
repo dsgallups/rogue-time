@@ -1,9 +1,9 @@
 use bevy::{
-    color::palettes::css::{BLACK, RED, WHITE},
+    color::palettes::css::{BLACK, WHITE},
     prelude::*,
 };
 
-use crate::{AppSet, screens::Screen, theme::Containers};
+use crate::{screens::Screen, theme::Containers};
 
 use super::{GameSet, stopwatch::StopwatchTimer};
 

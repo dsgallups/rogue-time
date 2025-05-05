@@ -13,7 +13,7 @@ fn on_timebank_insert(
     transform: Query<&Transform>,
 ) {
     let transform = transform.get(trigger.target()).unwrap();
-    error!("Inserting timebank, {:?}", transform.translation);
+    debug!("Inserting timebank, {:?}", transform.translation);
     commands
         .entity(trigger.target())
         .observe(on_timebank_collision);
@@ -28,9 +28,9 @@ fn on_timebank_collision(
     let loc = transform.get(trigger.target()).unwrap().translation;
     let is_player = player.get(trigger.event().collider).is_ok();
     if is_player {
-        error!("Collided with player at {loc:?}");
+        debug!("Collided with player at {loc:?}");
     } else {
-        error!("Collided with not player at {loc:?}");
+        debug!("Collided with not player at {loc:?}");
     }
 }
 
@@ -46,6 +46,6 @@ fn print_player_transform(
     };
 
     let diff = (player.translation - timebank.translation);
-    warn!("distance: {}\ndiff: {:?} ", diff.length(), diff);
+    debug!("distance: {}\ndiff: {:?} ", diff.length(), diff);
     //error!("player trns: {:?}", player.single().unwrap().translation);
 }

@@ -19,7 +19,6 @@ struct StopwatchAnimationAssets {
 impl FromWorld for StopwatchAnimationAssets {
     fn from_world(world: &mut World) -> Self {
         let assets = world.resource::<AssetServer>();
-        //TODO: probably not the right path
         Self {
             click_animation: assets
                 .load(GltfAssetLabel::Animation(0).from_asset("scenes/Stopwatch.glb")),

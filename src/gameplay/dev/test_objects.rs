@@ -61,6 +61,6 @@ fn test_collision_events(
     for event in events.read() {
         let with_tc = test_cube.get(event.0).is_ok() || test_cube.get(event.1).is_ok();
         let with_timebank = timebank.get(event.0).is_ok() || timebank.get(event.1).is_ok();
-        error!("Collided, with test cube: {with_tc}, with timebank: {with_timebank}");
+        debug!("Collided, with test cube: {with_tc}, with timebank: {with_timebank}");
     }
 }

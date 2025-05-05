@@ -1,6 +1,5 @@
 use std::f32::consts::TAU;
 
-use avian3d::prelude::LinearVelocity;
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;

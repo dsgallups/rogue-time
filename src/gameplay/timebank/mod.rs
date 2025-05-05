@@ -32,11 +32,9 @@ fn collect_timebank(
     trigger: Trigger<OnCollisionStart>,
     timebanks: Query<&TimeBank>,
     mut commands: Commands,
-    transform: Query<&Transform>,
     mut stopwatch: Query<&mut StopwatchTimer>,
 ) {
     let timebank = timebanks.get(trigger.target()).unwrap();
-    let loc = transform.get(trigger.target()).unwrap();
     //only if the trigger was the human
     let event = trigger.event();
     //dont use event.body,

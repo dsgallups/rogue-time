@@ -19,6 +19,7 @@ pub fn plugin(app: &mut App) {
 #[derive(Component)]
 pub struct StopwatchTimer(pub Timer);
 
+#[allow(dead_code)]
 impl StopwatchTimer {
     pub fn new(initial_time: Duration) -> Self {
         let timer = Timer::new(initial_time, TimerMode::Once);
