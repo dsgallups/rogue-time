@@ -54,10 +54,9 @@ fn main() {
     //other plugins
     app.add_plugins((
         third_party::plugin,
+        theme::plugin,
         screens::plugin,
         asset_tracking::plugin,
-        theme::plugin,
-        gameplay::plugin,
     ));
 
     //spawn ui camera. should always exist

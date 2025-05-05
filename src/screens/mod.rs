@@ -4,10 +4,11 @@ All the main screen states and transitions
 use bevy::prelude::*;
 
 mod credits;
-mod gameplay;
 mod loading;
 mod splash;
 mod title;
+// the gameplay module handles the gameplay screen state
+use crate::gameplay;
 
 #[derive(States, Debug, Hash, PartialEq, Eq, Clone, Copy, Default, Reflect)]
 pub enum Screen {
