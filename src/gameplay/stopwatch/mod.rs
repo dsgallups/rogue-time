@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use super::{
     GameSet,
     animation::AnimationPlayerAncestor,
-    level::{LevelStarted, NewLevel},
+    room::{NewRoom, RoomStarted},
 };
 
 mod animation;
@@ -75,7 +75,7 @@ fn tick_stopwatch(mut stopwatches: Query<&mut StopwatchTimer>, time: Res<Time>) 
         stopwatch.0.tick(time.delta());
     }
 }
-fn reset_on_new_level(_trigger: Trigger<NewLevel>, mut timers: Query<&mut StopwatchTimer>) {
+fn reset_on_new_level(_trigger: Trigger<NewRoom>, mut timers: Query<&mut StopwatchTimer>) {
     for mut timer in &mut timers {
         timer.pause();
         timer.reset_duration();
@@ -83,7 +83,7 @@ fn reset_on_new_level(_trigger: Trigger<NewLevel>, mut timers: Query<&mut Stopwa
 }
 
 fn start_timer_on_level(
-    _trigger: Trigger<LevelStarted>,
+    _trigger: Trigger<RoomStarted>,
     mut stopwatches: Query<&mut StopwatchTimer>,
 ) {
     for mut stopwatch in &mut stopwatches {

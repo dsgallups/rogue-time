@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::gameplay::level::NewLevel;
+use crate::gameplay::room::NewRoom;
 
 use super::Player;
 
@@ -19,7 +19,7 @@ fn init_respawn_point(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
         .insert(RespawnPoint(Vec3::ZERO));
 }
 
-fn update_respawn_point(trigger: Trigger<NewLevel>, mut respawn_point: Query<&mut RespawnPoint>) {
+fn update_respawn_point(trigger: Trigger<NewRoom>, mut respawn_point: Query<&mut RespawnPoint>) {
     let mut respawn_point = respawn_point.single_mut().unwrap();
 
     respawn_point.0 = trigger.event().respawn_point;

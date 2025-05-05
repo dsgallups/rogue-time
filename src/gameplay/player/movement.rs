@@ -6,7 +6,7 @@ use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 
 use crate::gameplay::GameState;
-use crate::gameplay::level::{LevelStarted, NewLevel};
+use crate::gameplay::room::{NewRoom, RoomStarted};
 
 use super::default_input::{Jump, Move};
 
@@ -25,7 +25,7 @@ pub(super) fn plugin(app: &mut App) {
 pub struct MovementDisabled;
 
 fn disable_movement_on_new_level(
-    _trigger: Trigger<NewLevel>,
+    _trigger: Trigger<NewRoom>,
     mut commands: Commands,
     mut player: Query<(Entity, &mut LinearVelocity), With<Player>>,
 ) {
@@ -35,7 +35,7 @@ fn disable_movement_on_new_level(
 }
 
 fn reenable_movement(
-    _trigger: Trigger<LevelStarted>,
+    _trigger: Trigger<RoomStarted>,
     mut commands: Commands,
     player: Query<Entity, With<Player>>,
 ) {

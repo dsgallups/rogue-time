@@ -5,34 +5,34 @@ use bevy::prelude::*;
 use super::GameSet;
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(on_new_level);
+    app.add_observer(on_new_room);
     app.add_systems(
         Update,
-        (update_level_countdown, remove_level_countdown)
+        (update_room_countdown, remove_room_countdown)
             .chain()
             .in_set(GameSet::TickTimers)
-            .run_if(resource_exists::<LevelCountdown>),
+            .run_if(resource_exists::<RoomCountdown>),
     );
 }
 
 #[derive(Event)]
-pub struct NewLevel {
+pub struct NewRoom {
     pub respawn_point: Vec3,
 }
 
 #[derive(Resource)]
-pub struct LevelCountdown {
+pub struct RoomCountdown {
     secs_left: u8,
     timer: Timer,
 }
 
-impl LevelCountdown {
+impl RoomCountdown {
     pub fn complete(&self) -> bool {
         self.secs_left == 0
     }
 }
 
-impl Default for LevelCountdown {
+impl Default for RoomCountdown {
     fn default() -> Self {
         Self {
             secs_left: 3,
@@ -41,13 +41,13 @@ impl Default for LevelCountdown {
     }
 }
 
-fn on_new_level(_trigger: Trigger<NewLevel>, mut commands: Commands) {
-    commands.init_resource::<LevelCountdown>();
+fn on_new_room(_trigger: Trigger<NewRoom>, mut commands: Commands) {
+    commands.init_resource::<RoomCountdown>();
     info!("Level Countdown: 3");
 }
 
 //fk it it'll also do other things
-fn update_level_countdown(mut countdown: ResMut<LevelCountdown>, time: Res<Time>) {
+fn update_room_countdown(mut countdown: ResMut<RoomCountdown>, time: Res<Time>) {
     countdown.timer.tick(time.delta());
     if countdown.timer.just_finished() {
         countdown.secs_left = countdown.secs_left.saturating_sub(1);
@@ -56,12 +56,12 @@ fn update_level_countdown(mut countdown: ResMut<LevelCountdown>, time: Res<Time>
 }
 
 #[derive(Event)]
-pub struct LevelStarted;
+pub struct RoomStarted;
 
-fn remove_level_countdown(mut commands: Commands, countdown: Res<LevelCountdown>) {
+fn remove_room_countdown(mut commands: Commands, countdown: Res<RoomCountdown>) {
     if countdown.complete() {
         info!("countdown complete");
-        commands.remove_resource::<LevelCountdown>();
-        commands.trigger(LevelStarted);
+        commands.remove_resource::<RoomCountdown>();
+        commands.trigger(RoomStarted);
     }
 }
