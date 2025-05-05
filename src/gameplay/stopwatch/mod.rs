@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use super::animation::AnimationPlayerAncestor;
+use super::{GameSet, animation::AnimationPlayerAncestor};
 
 mod animation;
 
@@ -13,7 +13,7 @@ pub fn plugin(app: &mut App) {
 
     app.add_observer(on_stopwatch_spawn);
 
-    app.add_systems(Update, tick_stopwatch);
+    app.add_systems(Update, tick_stopwatch.in_set(GameSet::TickTimers));
 }
 
 #[derive(Component)]

@@ -28,11 +28,31 @@ pub enum GameState {
     Paused,
 }
 
+/// High level groups of systems in the "Update" schedule that ONLY run when Screen::Game is enabled.
+///
+/// Following the justifications of foxtrot, thought it would be nice to have now rather than later
+#[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Reflect)]
+enum GameSet {
+    /// Tick timers
+    TickTimers,
+    /// Record player input
+    RecordInput,
+    /// do everything else
+    Update,
+}
+
 pub fn plugin(app: &mut App) {
-    app.register_type::<GameState>();
+    app.register_type::<GameState>().register_type::<GameSet>();
 
     app.add_sub_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
+
+    app.configure_sets(
+        Update,
+        (GameSet::TickTimers, GameSet::RecordInput, GameSet::Update)
+            .chain()
+            .run_if(in_state(Screen::Gameplay)),
+    );
 
     app.add_plugins((
         ui::plugin,

@@ -3,18 +3,26 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{screens::Screen, theme::Containers};
+use crate::{AppSet, screens::Screen, theme::Containers};
+
+use super::{GameSet, stopwatch::StopwatchTimer};
 
 mod pause;
 
 pub fn plugin(app: &mut App) {
     //decided to always show game ui in playing gamestate
     app.add_plugins((pause::plugin));
-    app.add_systems(OnEnter(Screen::Gameplay), spawn_game_ui);
+    app.add_systems(OnEnter(Screen::Gameplay), spawn_game_ui)
+        .add_systems(
+            Update,
+            update_time_ui
+                .in_set(GameSet::Update)
+                .run_if(in_state(Screen::Gameplay)),
+        );
 }
 
 #[derive(Component)]
-struct StopwatchTime;
+struct StopwatchTimeUi;
 
 #[derive(Component)]
 pub struct GameUi;
@@ -37,8 +45,8 @@ fn spawn_game_ui(mut commands: Commands) {
                 },
                 children![(
                     Node {
-                        width: Val::Px(50.),
-                        height: Val::Px(80.),
+                        width: Val::Px(80.),
+                        height: Val::Px(50.),
                         border: UiRect::all(Val::Px(10.)),
                         margin: UiRect::all(Val::Px(20.)),
                         align_items: AlignItems::Center,
@@ -48,7 +56,7 @@ fn spawn_game_ui(mut commands: Commands) {
                     BorderColor(BLACK.into()),
                     BackgroundColor(WHITE.into()),
                     children![(
-                        StopwatchTime,
+                        StopwatchTimeUi,
                         Text::new("N/A"),
                         font,
                         TextColor(BLACK.into())
@@ -56,4 +64,21 @@ fn spawn_game_ui(mut commands: Commands) {
                 )],
             ));
         });
+}
+
+fn update_time_ui(
+    stopwatch: Query<&StopwatchTimer>,
+    mut text: Query<&mut Text, With<StopwatchTimeUi>>,
+) {
+    let Ok(stopwatch) = stopwatch.single() else {
+        warn!("Stopwatch not detected!");
+        return;
+    };
+    let Ok(mut text) = text.single_mut() else {
+        warn!("Missing stopwatch UI!");
+        return;
+    };
+
+    let time = stopwatch.0.remaining_secs();
+    text.0 = format!("{time:.02}");
 }

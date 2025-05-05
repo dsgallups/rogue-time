@@ -38,13 +38,16 @@ fn collect_timebank(
     let timebank = timebanks.get(trigger.target()).unwrap();
     let loc = transform.get(trigger.target()).unwrap();
     //only if the trigger was the human
-    error!("Collision on timebank detected!, transform: {loc:?}");
     let event = trigger.event();
     //dont use event.body,
     let Ok(mut stopwatch) = stopwatch.get_mut(event.collider) else {
         return;
     };
 
+    info!(
+        "adding {} milliseconds to stopwatch!",
+        timebank.milliseconds
+    );
     stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
 
     commands.entity(trigger.target()).despawn();
