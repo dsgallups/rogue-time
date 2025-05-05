@@ -127,31 +127,31 @@ impl From<RenderLayer> for RenderLayers {
 }
 
 // bevy uses -Z as forward, but doesn't respect that GLTF uses +Z forward.
-fn fix_gltf_coordinates(
-    trigger: Trigger<SceneInstanceReady>,
-    q_scene_root: Query<(&SceneRoot, &Children)>,
-    mut q_transform: Query<&mut Transform>,
-) {
-    let scene_entity = trigger.target();
-    let Ok((scene_root, children)) = q_scene_root.get(scene_entity) else {
-        return;
-    };
+// fn fix_gltf_coordinates(
+//     trigger: Trigger<SceneInstanceReady>,
+//     q_scene_root: Query<(&SceneRoot, &Children)>,
+//     mut q_transform: Query<&mut Transform>,
+// ) {
+//     let scene_entity = trigger.target();
+//     let Ok((scene_root, children)) = q_scene_root.get(scene_entity) else {
+//         return;
+//     };
 
-    let Some(asset_path) = scene_root.0.path() else {
-        return;
-    };
+//     let Some(asset_path) = scene_root.0.path() else {
+//         return;
+//     };
 
-    let Some(extension) = asset_path.path().extension().and_then(OsStr::to_str) else {
-        return;
-    };
+//     let Some(extension) = asset_path.path().extension().and_then(OsStr::to_str) else {
+//         return;
+//     };
 
-    const GLTF_EXTENSIONS: [&str; 2] = ["glb", "gltf"];
-    if !GLTF_EXTENSIONS.contains(&extension) {
-        return;
-    }
+//     const GLTF_EXTENSIONS: [&str; 2] = ["glb", "gltf"];
+//     if !GLTF_EXTENSIONS.contains(&extension) {
+//         return;
+//     }
 
-    let mut iter = q_transform.iter_many_mut(children);
-    while let Some(mut transform) = iter.fetch_next() {
-        transform.rotate_y(PI);
-    }
-}
+//     let mut iter = q_transform.iter_many_mut(children);
+//     while let Some(mut transform) = iter.fetch_next() {
+//         transform.rotate_y(PI);
+//     }
+// }

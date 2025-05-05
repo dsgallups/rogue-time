@@ -2,7 +2,8 @@ use avian3d::prelude::*;
 use bevy::prelude::*;
 
 pub fn plugin(app: &mut App) {
-    app.register_type::<TimeBank>();
+    app.register_type::<TimeBank>()
+        .register_type::<TimeBankInstance>();
 
     app.add_observer(insert_timebank);
 }
@@ -15,24 +16,30 @@ pub fn plugin(app: &mut App) {
 pub struct TimeBank {
     pub milliseconds: u32,
 }
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct TimeBankInstance {
+    pub milliseconds: u32,
+}
 
-fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
+fn insert_timebank(trigger: Trigger<OnAdd, TimeBankInstance>, mut commands: Commands) {
     error!("Inserting timebank");
     //let collider =
     //ColliderConstructorHierarchy::new(ColliderConstructor::ConvexDecompositionFromMesh);
 
     //let collider = Collider::cylinder(0.5, 50.);
-    commands
-        .entity(trigger.target())
-        .insert((
-            RigidBody::Static,
-            Collider::cylinder(1., 2.),
-            //collider,
-            //Sensor,
-            CollisionEventsEnabled,
-            CollidingEntities::default(),
-        ))
-        .observe(collect_timebank);
+    // commands
+    //     .entity(trigger.target())
+    //     .insert(children![(
+    //         //TimeBank { milliseconds: 5000 },
+    //         RigidBody::Static,
+    //         //Collider::cylinder(1., 2.),
+    //         //collider,
+    //         //Sensor,
+    //         CollisionEventsEnabled,
+    //         CollidingEntities::default(),
+    //     )])
+    //     .observe(collect_timebank);
 
     // commands
     //     .entity(trigger.target())
