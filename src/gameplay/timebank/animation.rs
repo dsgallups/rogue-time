@@ -15,6 +15,8 @@ pub fn plugin(app: &mut App) {
 #[reflect(Resource)]
 struct TimebankAnimationAssets {
     #[dependency]
+    pub model: Handle<Scene>,
+    #[dependency]
     pub spin: Handle<AnimationClip>,
 }
 
@@ -22,6 +24,7 @@ impl FromWorld for TimebankAnimationAssets {
     fn from_world(world: &mut World) -> Self {
         let assets = world.resource::<AssetServer>();
         Self {
+            model: assets.load(GltfAssetLabel::Scene(0).from_asset("scenes/TimePickUp.glb")),
             spin: assets.load(GltfAssetLabel::Animation(0).from_asset("scenes/TimePickUp.glb")),
         }
     }
@@ -33,6 +36,7 @@ fn setup_animation(
     assets: Res<TimebankAnimationAssets>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
 ) {
+    info!("Triggered animation setup for time!");
     let (graph, index) = AnimationGraph::from_clip(assets.spin.clone());
 
     let graph_handle = graphs.add(graph);
@@ -41,10 +45,10 @@ fn setup_animation(
         graph_handle,
         index,
     };
-
+    //SceneRoot(assets.model.clone())
     commands
         .entity(trigger.target())
-        .insert(animation_to_play)
+        .insert((animation_to_play,))
         .observe(play_when_ready);
 }
 
@@ -65,6 +69,7 @@ fn play_when_ready(
     children: Query<&Children>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
+    info!("Timebank ready for animation!");
     // The entity we spawned in `setup_mesh_and_animation` is the trigger's target.
     // Start by finding the AnimationToPlay component we added to that entity.
     if let Ok(animation_to_play) = animations_to_play.get(trigger.target()) {
@@ -73,7 +78,9 @@ fn play_when_ready(
         // mesh and animations, it will also have spawned an animation player
         // component. Search our entity's descendants to find the animation player.
         for child in children.iter_descendants(trigger.target()) {
+            info!("Timebank child!!");
             if let Ok(mut player) = players.get_mut(child) {
+                info!("ANIMATION PLAYER!!!");
                 // Tell the animation player to start the animation and keep
                 // repeating it.
                 //
