@@ -9,6 +9,9 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Used in bevy skein
+///
+///
+/// TODO: need to give an initial time for the next room
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Portal {
@@ -40,5 +43,6 @@ fn portal_me_elsewhere(
     player.translation = portal.to;
     commands.trigger(NewRoom {
         respawn_point: portal.to,
+        initial_time: 5000,
     });
 }

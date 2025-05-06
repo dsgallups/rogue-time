@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{screens::Screen, theme::widgets};
 
-use super::{GameSet, player::Player, rewind::CanRewind, stopwatch::StopwatchTimer};
+use super::{GameSet, lives::Lives, player::Player, rewind::CanRewind, stopwatch::StopwatchTimer};
 
 mod pause;
 
@@ -15,7 +15,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Gameplay), spawn_game_ui)
         .add_systems(
             Update,
-            (update_time_ui, update_rewind_ui)
+            (update_time_ui, update_rewind_ui, update_lives_ui)
                 .in_set(GameSet::UiUpdate)
                 .run_if(in_state(Screen::Gameplay)),
         );
@@ -27,6 +27,9 @@ struct StopwatchTimeUi;
 #[derive(Component)]
 pub struct GameUi;
 
+#[derive(Component)]
+pub struct LivesUi;
+
 fn spawn_game_ui(mut commands: Commands) {
     let font = TextFont {
         font_size: 20.,
@@ -37,47 +40,70 @@ fn spawn_game_ui(mut commands: Commands) {
             widgets::ui_root("Game UI"),
             GameUi,
             StateScoped(Screen::Gameplay),
-            children![(
-                Node {
-                    flex_grow: 1.,
-                    align_items: AlignItems::End,
-                    ..default()
-                },
-                children![
-                    (
-                        Node {
-                            width: Val::Px(80.),
-                            height: Val::Px(50.),
-                            border: UiRect::all(Val::Px(10.)),
-                            margin: UiRect::all(Val::Px(20.)),
-                            align_items: AlignItems::Center,
-                            justify_content: JustifyContent::Center,
-                            ..default()
-                        },
-                        BorderColor(BLACK.into()),
-                        BackgroundColor(WHITE.into()),
-                        children![(
-                            StopwatchTimeUi,
-                            Text::new("N/A"),
-                            font.clone(),
-                            TextColor(BLACK.into())
-                        )]
-                    ),
-                    (
-                        RewindParent,
-                        Node {
-                            border: UiRect::all(Val::Px(10.)),
-                            margin: UiRect::all(Val::Px(20.)),
-                            align_items: AlignItems::Center,
-                            justify_content: JustifyContent::Center,
-                            ..default()
-                        },
-                        BorderColor(BLACK.into()),
-                        BackgroundColor(WHITE.into()),
-                        children![(RewindUi, Text::default(), font, TextColor(BLACK.into()))]
-                    ),
-                ],
-            )],
+            children![
+                (
+                    Node {
+                        width: Val::Px(200.),
+                        height: Val::Px(50.),
+                        border: UiRect::all(Val::Px(10.)),
+                        margin: UiRect::all(Val::Px(20.)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..default()
+                    },
+                    BorderColor(BLACK.into()),
+                    BackgroundColor(WHITE.into()),
+                    children![(
+                        LivesUi,
+                        Text::new("N/A"),
+                        font.clone(),
+                        TextColor(BLACK.into())
+                    )]
+                ),
+                (
+                    Node {
+                        flex_grow: 1.,
+                        align_self: AlignSelf::Stretch,
+                        align_items: AlignItems::End,
+                        justify_content: JustifyContent::SpaceBetween,
+                        ..default()
+                    },
+                    children![
+                        (
+                            Node {
+                                width: Val::Px(80.),
+                                height: Val::Px(50.),
+                                border: UiRect::all(Val::Px(5.)),
+                                margin: UiRect::all(Val::Px(20.)),
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::Center,
+                                ..default()
+                            },
+                            BorderColor(BLACK.into()),
+                            BackgroundColor(WHITE.into()),
+                            children![(
+                                StopwatchTimeUi,
+                                Text::new("N/A"),
+                                font.clone(),
+                                TextColor(BLACK.into())
+                            )]
+                        ),
+                        (
+                            RewindParent,
+                            Node {
+                                border: UiRect::all(Val::Px(10.)),
+                                margin: UiRect::all(Val::Px(20.)),
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::Center,
+                                ..default()
+                            },
+                            BorderColor(BLACK.into()),
+                            BackgroundColor(WHITE.into()),
+                            children![(RewindUi, Text::default(), font, TextColor(BLACK.into()))]
+                        ),
+                    ],
+                )
+            ],
         ))
         .insert(BackgroundColor(Color::NONE));
 }
@@ -142,4 +168,27 @@ fn update_rewind_ui(
         *text_color = BLACK.into();
     }
     *prev = can_rewind;
+}
+
+fn update_lives_ui(
+    rewindable: Query<&Lives>,
+    mut text: Query<&mut Text, With<LivesUi>>,
+    mut prev: Local<u8>,
+) {
+    // we could check against a Local<bool> but eh
+    let Ok(lives) = rewindable.single() else {
+        //warn!("Stopwatch not detected!");
+        return;
+    };
+    if lives.count() == *prev {
+        return;
+    }
+
+    let Ok(mut text) = text.single_mut() else {
+        warn!("Missing rewind text!");
+        return;
+    };
+    text.0 = format!("{} lives", lives.count());
+
+    *prev = lives.count();
 }

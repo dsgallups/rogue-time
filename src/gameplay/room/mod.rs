@@ -18,6 +18,7 @@ pub fn plugin(app: &mut App) {
 #[derive(Event)]
 pub struct NewRoom {
     pub respawn_point: Vec3,
+    pub initial_time: u64,
 }
 
 #[derive(Resource)]

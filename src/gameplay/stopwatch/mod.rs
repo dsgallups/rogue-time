@@ -49,6 +49,9 @@ impl StopwatchTimer {
         let new_duration = current_duration + time;
         self.0.set_duration(new_duration);
     }
+    pub fn set_duration(&mut self, new_duration: Duration) {
+        self.0.set_duration(new_duration);
+    }
     pub fn reset_duration(&mut self) {
         self.0.set_duration(DEFAULT_DURATION);
     }
@@ -78,12 +81,14 @@ fn tick_stopwatch(mut stopwatch: Query<&mut StopwatchTimer>, time: Res<Time>) {
     };
     stopwatch.0.tick(time.delta());
 }
-fn reset_on_new_level(_trigger: Trigger<NewRoom>, mut stopwatch: Query<&mut StopwatchTimer>) {
+fn reset_on_new_level(trigger: Trigger<NewRoom>, mut stopwatch: Query<&mut StopwatchTimer>) {
     let Ok(mut stopwatch) = stopwatch.single_mut() else {
+        error!("No stopwatch for level reset!");
         return;
     };
+    let event = trigger.event();
     stopwatch.pause();
-    stopwatch.reset_duration();
+    stopwatch.set_duration(Duration::from_millis(event.initial_time));
 }
 
 fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: Query<&mut StopwatchTimer>) {
