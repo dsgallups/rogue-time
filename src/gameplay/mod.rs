@@ -9,7 +9,6 @@ mod lives;
 pub mod player;
 mod portal;
 mod respawn;
-mod rewind;
 mod room;
 mod stopwatch;
 mod timebank;
@@ -66,7 +65,6 @@ pub fn plugin(app: &mut App) {
         animation::plugin,
         timebank::plugin,
         portal::plugin,
-        rewind::plugin,
         respawn::plugin,
         lives::plugin,
     ));

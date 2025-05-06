@@ -5,8 +5,7 @@ use crate::screens::Screen;
 use super::{GameState, player::Player};
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(setup_lives);
-    app.add_systems(
+    app.add_observer(setup_lives).add_systems(
         PreUpdate,
         on_no_more_lives.run_if(in_state(GameState::Playing)),
     );

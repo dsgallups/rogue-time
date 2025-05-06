@@ -16,9 +16,15 @@ pub fn plugin(app: &mut App) {
 }
 
 #[derive(Event)]
+pub struct StartCountdown(pub u64);
+
+/// Sends a player to a new room with a respawn point.
+///
+/// DOES NOT start a countdown intentionally.
+#[derive(Event)]
 pub struct NewRoom {
-    pub respawn_point: Vec3,
-    pub initial_time: u64,
+    /// This is the spawn point of the room
+    pub spawn_point: Vec3,
 }
 
 #[derive(Resource)]
@@ -42,7 +48,7 @@ impl Default for RoomCountdown {
     }
 }
 
-fn on_new_room(_trigger: Trigger<NewRoom>, mut commands: Commands) {
+fn on_new_room(_trigger: Trigger<StartCountdown>, mut commands: Commands) {
     commands.init_resource::<RoomCountdown>();
     info!("Level Countdown: 3");
 }

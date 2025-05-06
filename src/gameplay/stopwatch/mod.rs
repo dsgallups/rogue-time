@@ -6,7 +6,9 @@ use super::{
     GameSet, GameState,
     animation::AnimationPlayerAncestor,
     lives::Lives,
-    room::{NewRoom, RoomStarted},
+    player::TeleportTo,
+    respawn::RespawnPoint,
+    room::{RoomStarted, StartCountdown},
 };
 
 mod animation;
@@ -52,8 +54,12 @@ impl StopwatchTimer {
     pub fn set_duration(&mut self, new_duration: Duration) {
         self.0.set_duration(new_duration);
     }
-    pub fn reset_duration(&mut self) {
-        self.0.set_duration(DEFAULT_DURATION);
+    /// returns in millis
+    pub fn duration(&self) -> u64 {
+        self.0.duration().as_millis() as u64
+    }
+    pub fn reset(&mut self) {
+        self.0.reset();
     }
 }
 
@@ -81,14 +87,15 @@ fn tick_stopwatch(mut stopwatch: Query<&mut StopwatchTimer>, time: Res<Time>) {
     };
     stopwatch.0.tick(time.delta());
 }
-fn reset_on_new_level(trigger: Trigger<NewRoom>, mut stopwatch: Query<&mut StopwatchTimer>) {
+fn reset_on_new_level(trigger: Trigger<StartCountdown>, mut stopwatch: Query<&mut StopwatchTimer>) {
     let Ok(mut stopwatch) = stopwatch.single_mut() else {
         error!("No stopwatch for level reset!");
         return;
     };
     let event = trigger.event();
+    stopwatch.reset();
     stopwatch.pause();
-    stopwatch.set_duration(Duration::from_millis(event.initial_time));
+    stopwatch.set_duration(Duration::from_millis(event.0));
 }
 
 fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: Query<&mut StopwatchTimer>) {
@@ -99,14 +106,26 @@ fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: Query<&mu
     stopwatch.unpause();
 }
 
-fn out_of_time(mut stopwatch: Query<&mut StopwatchTimer>, mut lives: Query<&mut Lives>) {
-    let Ok(mut stopwatch) = stopwatch.single_mut() else {
+fn out_of_time(
+    mut stopwatch: Query<&StopwatchTimer>,
+    mut commands: Commands,
+    current_respawn_point: Single<&RespawnPoint>,
+    mut lives: Single<&mut Lives>,
+) {
+    let Ok(stopwatch) = stopwatch.single_mut() else {
         return;
     };
     if !stopwatch.0.finished() {
         return;
     }
-    let mut lives = lives.single_mut().expect("Something should be living");
+
+    error!(
+        "Stopwatch stuff: {} {}",
+        stopwatch.0.duration().as_secs_f64(),
+        stopwatch.0.elapsed_secs_f64()
+    );
+
     lives.remove_life();
-    stopwatch.reset_duration();
+    commands.trigger(TeleportTo(current_respawn_point.0));
+    commands.trigger(StartCountdown(stopwatch.duration()));
 }

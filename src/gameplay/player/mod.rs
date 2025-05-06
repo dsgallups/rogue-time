@@ -12,12 +12,19 @@ use super::stopwatch::StopwatchTimer;
 pub mod camera;
 mod default_input;
 pub mod movement;
+pub mod rewind;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
-    app.add_observer(setup_player);
+    app.add_plugins((
+        camera::plugin,
+        default_input::plugin,
+        movement::plugin,
+        rewind::plugin,
+    ));
+    app.add_observer(setup_player)
+        .add_observer(update_transform_on_teleport);
 }
 
 #[derive(Component, Reflect)]
@@ -73,4 +80,20 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
                                       //PlayerLandmassCharacter(player_character),
     ));
     //.observe(setup_player_animations);
+}
+
+/// updates the respawn point AND travels there
+#[derive(Event)]
+pub struct TeleportTo(pub Vec3);
+
+fn update_transform_on_teleport(
+    trigger: Trigger<TeleportTo>,
+    mut player: Query<&mut Transform, With<Player>>,
+) {
+    info!("teleporting player!");
+    let Ok(mut trns) = player.single_mut() else {
+        error!("Can't teleport player!");
+        return;
+    };
+    trns.translation = trigger.event().0;
 }

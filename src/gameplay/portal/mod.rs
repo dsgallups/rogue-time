@@ -1,7 +1,10 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::{player::Player, room::NewRoom};
+use super::{
+    player::Player,
+    room::{NewRoom, StartCountdown},
+};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Portal>();
@@ -30,19 +33,18 @@ fn portal_me_elsewhere(
     trigger: Trigger<OnCollisionStart>,
     mut commands: Commands,
     portals: Query<&Portal>,
-    mut player: Query<&mut Transform, With<Player>>,
+    player: Query<&Player>,
 ) {
     let portal = portals.get(trigger.target()).unwrap();
 
     let event = trigger.event();
 
-    let Ok(mut player) = player.get_mut(event.collider) else {
+    if player.get(event.collider).is_err() {
         return;
     };
 
-    player.translation = portal.to;
     commands.trigger(NewRoom {
-        respawn_point: portal.to,
-        initial_time: 5000,
+        spawn_point: portal.to,
     });
+    commands.trigger(StartCountdown(5000));
 }

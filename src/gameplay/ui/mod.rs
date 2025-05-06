@@ -5,7 +5,12 @@ use bevy::{
 
 use crate::{screens::Screen, theme::widgets};
 
-use super::{GameSet, lives::Lives, player::Player, rewind::CanRewind, stopwatch::StopwatchTimer};
+use super::{
+    GameSet,
+    lives::Lives,
+    player::{Player, rewind::CanRewind},
+    stopwatch::StopwatchTimer,
+};
 
 mod pause;
 

@@ -3,7 +3,7 @@ use std::time::Duration;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::gameplay::rewind::CanRewind;
+use crate::gameplay::player::rewind::CanRewind;
 
 use super::{player::Player, stopwatch::StopwatchTimer};
 
