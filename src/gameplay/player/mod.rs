@@ -7,18 +7,22 @@ use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
 
-use super::GameState;
+use super::stopwatch::StopwatchTimer;
 
-mod camera;
+pub mod camera;
 mod default_input;
-mod movement;
+pub mod movement;
+mod respawn;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
-    //temporary
-    app.add_systems(OnEnter(GameState::Playing), spawn_player);
+    app.add_plugins((
+        camera::plugin,
+        default_input::plugin,
+        movement::plugin,
+        respawn::plugin,
+    ));
     app.add_observer(setup_player);
 }
 
@@ -44,12 +48,9 @@ const PLAYER_HALF_HEIGHT: f32 = PLAYER_HEIGHT / 2.0;
 /// In this case, we use 30 cm of padding to make the player float nicely up stairs.
 const PLAYER_FLOAT_HEIGHT: f32 = PLAYER_HALF_HEIGHT + 0.01;
 
-//placeholder for now
-fn spawn_player(mut commands: Commands) {
-    commands.spawn(Player);
-}
-
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
+    let mut stopwatch_timer = StopwatchTimer::default();
+    stopwatch_timer.pause();
     commands.entity(trigger.target()).insert((
         RigidBody::Dynamic,
         Actions::<DefaultInputContext>::default(),
@@ -70,6 +71,7 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             static_coefficient: 0.0,
             combine_rule: CoefficientCombine::Multiply,
         },
+        stopwatch_timer,
         ColliderDensity(100.0),
         CollisionEventsEnabled,
         CollidingEntities::default(), //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),

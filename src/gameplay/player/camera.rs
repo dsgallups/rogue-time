@@ -8,8 +8,6 @@ use std::{
     iter,
 };
 
-use avian_pickup::prelude::*;
-use avian3d::prelude::*;
 use bevy::{
     core_pipeline::tonemapping::Tonemapping,
     pbr::NotShadowCaster,

@@ -5,8 +5,9 @@ use bevy::{
 };
 
 mod animation;
-mod player;
-mod scene;
+pub mod player;
+mod portal;
+mod room;
 mod stopwatch;
 mod timebank;
 mod ui;
@@ -28,19 +29,47 @@ pub enum GameState {
     Paused,
 }
 
+/// High level groups of systems in the "Update" schedule that ONLY run when Screen::Game is enabled.
+///
+/// Following the justifications of foxtrot, thought it would be nice to have now rather than later
+#[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Reflect)]
+enum GameSet {
+    /// Tick timers
+    TickTimers,
+    /// Record player input
+    RecordInput,
+    /// things like removing timers and statuses and stuff
+    BeforeUiUpdate,
+    /// do everything else
+    UiUpdate,
+}
+
 pub fn plugin(app: &mut App) {
-    app.register_type::<GameState>();
+    app.register_type::<GameState>().register_type::<GameSet>();
 
     app.add_sub_state::<GameState>();
     app.enable_state_scoped_entities::<GameState>();
 
+    app.configure_sets(
+        Update,
+        (
+            GameSet::TickTimers,
+            GameSet::RecordInput,
+            GameSet::BeforeUiUpdate,
+            GameSet::UiUpdate,
+        )
+            .chain()
+            .run_if(in_state(Screen::Gameplay)),
+    );
+
     app.add_plugins((
         ui::plugin,
-        scene::plugin,
         stopwatch::plugin,
         player::plugin,
+        room::plugin,
         animation::plugin,
         timebank::plugin,
+        portal::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);

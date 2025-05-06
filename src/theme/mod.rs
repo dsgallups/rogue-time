@@ -1,7 +1,7 @@
-mod widgets;
-pub use widgets::*;
 pub mod interaction;
 pub mod shader;
+pub mod palette;
+pub mod widgets;
 
 use bevy::prelude::*;
 pub fn plugin(app: &mut App) {
