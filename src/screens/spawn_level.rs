@@ -15,7 +15,7 @@ pub fn plugin(app: &mut App) {
     // spawn the level in the background, the title screen is valuable time to speed up things
     // we're ready to go as soon as we leave the loading screen.
     app.add_systems(OnExit(Screen::Loading), spawn_level)
-        .add_systems(OnExit(Screen::Gameplay), unspawn_player);
+        .add_systems(OnExit(Screen::Gameplay), (unspawn_player, respawn_level));
 
     app.load_resource::<LevelAssets>()
         .init_resource::<LevelLoaded>()
@@ -82,14 +82,31 @@ fn spawn_spawn_level_screen(mut commands: Commands) {
     ));
 }
 
-// fn advance_to_gameplay_screen(
-//     player_camera: Query<&PlayerCamera>,
-//     mut next_screen: ResMut<NextState<Screen>>,
-// ) {
-//     if !player_camera.is_empty() {
-//         next_screen.set(Screen::Gameplay);
-//     }
-// }
+fn respawn_level(
+    mut commands: Commands,
+    scenes: Query<(Entity, Option<&ChildOf>), With<SceneRoot>>,
+    scene_assets: Res<LevelAssets>,
+) {
+    for (scene, child_of) in scenes {
+        if let Some(child_of) = child_of {
+            commands.entity(child_of.parent()).despawn();
+        } else {
+            commands.entity(scene).despawn();
+        }
+    }
+
+    commands
+        .spawn(SceneRoot(scene_assets.level.clone()))
+        .observe(announce_ready);
+
+    commands.spawn((
+        PointLight {
+            intensity: 5000.,
+            ..default()
+        },
+        Transform::default(),
+    ));
+}
 
 /// A [`Resource`] that contains all the assets needed to spawn the level.
 /// We use this to preload assets before the level is spawned.

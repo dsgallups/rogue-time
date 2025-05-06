@@ -8,6 +8,8 @@ use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
 
+use crate::screens::Screen;
+
 use super::stopwatch::StopwatchTimer;
 
 pub mod camera;
@@ -26,6 +28,8 @@ pub fn plugin(app: &mut App) {
     ));
     app.add_observer(setup_player)
         .add_observer(update_transform_on_teleport);
+
+    app.add_systems(OnExit(Screen::Gameplay), remove_player);
 }
 
 #[derive(Component, Reflect)]
@@ -127,4 +131,8 @@ fn update_transform_on_teleport(
         return;
     };
     *camera = camera.looking_to(facing, Dir3::Y);
+}
+// we can't scope player to the screen state due to initializations in spawnlevel
+fn remove_player(mut commands: Commands, player: Query<Entity, With<Player>>) {
+    commands.entity(player.single().unwrap()).despawn();
 }
