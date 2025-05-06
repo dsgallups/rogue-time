@@ -52,6 +52,7 @@ bevy = { version = "0.16", default-features = false, features = [
     "bevy_winit",
     "bevy_input_focus",
     "bevy_picking",
+    "bevy_ui_picking_backend",
     "bevy_pbr",
     "bevy_render",
     "bevy_scene",
@@ -60,7 +61,7 @@ bevy = { version = "0.16", default-features = false, features = [
     "bevy_ui",
     "bevy_window",
     "bevy_audio",
-    "default_font",       # we should remove this
+    "default_font",            # we should remove this
     "std",
 ] }
 bevy_skein = { version = "0.2.0", default-features = false }
@@ -128,7 +129,7 @@ unused_parens = "allow"
 opt-level = "z"
 lto = "fat"
 codegen-units = 1
-strip = true
+strip = false
 
 # this is what `release` should be
 [profile.release-dist]
