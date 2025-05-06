@@ -2,9 +2,14 @@
 command = "trunk"
 args = ["serve", "--release", "--features", "web"]
 
+
+[tasks.run]
+command = "cargo"
+args = ["run", "--features", "native"]
+
 [tasks.dev]
 command = "cargo"
-args = ["run", "--features", "\"dev, dynamic_linking\""]
+args = ["run", "--features", "\"dev, dynamic_linking, native\""]
 
 [tasks.dyn]
 command = "cargo"
@@ -13,4 +18,4 @@ args = ["run", "--features", "dynamic_linking"]
 
 [tasks.release]
 command = "cargo"
-args = ["build", "--profile", "release-dist"]
+args = ["build", "--features", "native", "--profile", "release-dist"]
