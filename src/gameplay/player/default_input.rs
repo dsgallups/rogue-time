@@ -3,11 +3,19 @@
 use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 
+use crate::gameplay::{
+    GameSet,
+    rewind::{CanRewind, Rewind},
+};
+
+use super::Player;
+
 pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
     app.add_input_context::<DefaultInputContext>();
     // Add observer to set up bindings.
     app.add_observer(default_binding);
+    app.add_systems(Update, rewind.in_set(GameSet::RecordInput));
 }
 
 // All actions should implement the `InputAction` trait.
@@ -85,4 +93,23 @@ fn default_binding(
     actions
         .bind::<DropProp>()
         .to((MouseButton::Right, GamepadButton::East));
+}
+
+// in theory, we could make this an observer attached to the player
+// on the collect_timebank fn but fk it
+fn rewind(
+    mut commands: Commands,
+    has_rewind: Query<Entity, (With<Player>, With<CanRewind>)>,
+    keys: Res<ButtonInput<KeyCode>>,
+) {
+    let Ok(entity) = has_rewind.single() else {
+        //can't rewind
+        return;
+    };
+
+    if !keys.just_pressed(KeyCode::KeyE) {
+        return;
+    }
+    commands.entity(entity).remove::<CanRewind>();
+    commands.trigger_targets(Rewind, entity);
 }

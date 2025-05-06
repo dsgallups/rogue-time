@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::gameplay::room::NewRoom;
 
-use super::Player;
+use super::player::Player;
 
 pub fn plugin(app: &mut App) {
     app.add_observer(init_respawn_point)
@@ -11,7 +11,7 @@ pub fn plugin(app: &mut App) {
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct RespawnPoint(Vec3);
+pub struct RespawnPoint(pub Vec3);
 
 fn init_respawn_point(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands

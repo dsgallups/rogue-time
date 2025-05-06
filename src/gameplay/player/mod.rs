@@ -12,17 +12,11 @@ use super::stopwatch::StopwatchTimer;
 pub mod camera;
 mod default_input;
 pub mod movement;
-mod respawn;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
-    app.add_plugins((
-        camera::plugin,
-        default_input::plugin,
-        movement::plugin,
-        respawn::plugin,
-    ));
+    app.add_plugins((camera::plugin, default_input::plugin, movement::plugin));
     app.add_observer(setup_player);
 }
 

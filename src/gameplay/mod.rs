@@ -7,6 +7,7 @@ use bevy::{
 mod animation;
 pub mod player;
 mod portal;
+mod respawn;
 mod rewind;
 mod room;
 mod stopwatch;
@@ -39,8 +40,6 @@ enum GameSet {
     TickTimers,
     /// Record player input
     RecordInput,
-    /// things like removing timers and statuses and stuff
-    BeforeUiUpdate,
     /// do everything else
     UiUpdate,
 }
@@ -53,12 +52,7 @@ pub fn plugin(app: &mut App) {
 
     app.configure_sets(
         Update,
-        (
-            GameSet::TickTimers,
-            GameSet::RecordInput,
-            GameSet::BeforeUiUpdate,
-            GameSet::UiUpdate,
-        )
+        (GameSet::TickTimers, GameSet::RecordInput, GameSet::UiUpdate)
             .chain()
             .run_if(in_state(Screen::Gameplay)),
     );
@@ -72,6 +66,7 @@ pub fn plugin(app: &mut App) {
         timebank::plugin,
         portal::plugin,
         rewind::plugin,
+        respawn::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);
