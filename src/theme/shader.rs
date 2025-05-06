@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::*,
-    render::render_resource::{AsBindGroup, ShaderRef},
-};
+use bevy::prelude::*;
 
 // const DEFAULT_COLOR1: LinearRgba = LinearRgba::GREEN;
 

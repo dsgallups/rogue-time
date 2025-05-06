@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-dev = []
+# use this to spin up brp
+dev = ["bevy/async_executor", "bevy_skein/default"]
+dynamic_linking = ["bevy/dynamic_linking"]
 
 [dependencies]
 avian3d = { version = "0.2.0", default-features = false, features = [
@@ -57,11 +59,9 @@ bevy = { version = "0.16", default-features = false, features = [
     "tonemapping_luts",
     "webgl2",
     "x11",
-    "async_executor",
-    "async-io",
 ] }
 bevy_kira_audio = { version = "0.23.0", features = ["mp3"] }
-bevy_skein = "0.2.0"
+bevy_skein = { version = "0.2.0", default-features = false }
 avian_pickup = { version = "0.2.0-dev" }
 bitflags = "2.9.0"
 bevy_dither_post_process = "0.4"
@@ -103,9 +103,6 @@ bevy = { version = "0.16", default-features = false, features = [
     "tonemapping_luts",
     "webgl2",
     "wayland",
-    "async_executor",
-    "async-io",
-    "dynamic_linking",
 ] }
 
 [profile.dev]

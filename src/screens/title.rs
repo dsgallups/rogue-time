@@ -12,16 +12,27 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn spawn_title_screen(mut commands: Commands) {
-    commands.spawn((
-        widgets::ui_root("Title Scree"),
-        StateScoped(Screen::Title),
-        children![
-            widgets::button("Play", enter_gameplay_screen),
-            widgets::button("Credits", enter_credits_screen),
+    {
+        commands.spawn((
+            widgets::ui_root("Title Screen"),
+            StateScoped(Screen::Title),
+            #[cfg(target_family = "wasm")]
+            {
+                children![
+                    widgets::button("Play", enter_gameplay_screen),
+                    widgets::button("Credits", enter_credits_screen),
+                ]
+            },
             #[cfg(not(target_family = "wasm"))]
-            widgets::button("Exit", exit_app),
-        ],
-    ));
+            {
+                children![
+                    widgets::button("Play", enter_gameplay_screen),
+                    widgets::button("Credits", enter_credits_screen),
+                    widgets::button("Exit", exit_app),
+                ]
+            },
+        ));
+    }
 }
 
 fn enter_gameplay_screen(_trigger: Trigger<OnPress>, mut next_screen: ResMut<NextState<Screen>>) {
