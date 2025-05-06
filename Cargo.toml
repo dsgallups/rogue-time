@@ -64,6 +64,7 @@ bevy_kira_audio = { version = "0.23.0", features = ["mp3"] }
 bevy_skein = "0.2.0"
 avian_pickup = { version = "0.2.0-dev" }
 bitflags = "2.9.0"
+bevy_dither_post_process = "0.4"
 
 [target.x86_64-unknown-linux-gnu.dependencies]
 bevy = { version = "0.16", default-features = false, features = [
@@ -134,3 +135,5 @@ avian3d = { git = "https://github.com/Jondolf/avian.git", branch = "main" }
 bevy-tnua = { git = "https://github.com/janhohenheim/bevy-tnua", branch = "bevy-0.16" }
 bevy-tnua-avian3d = { git = "https://github.com/janhohenheim/bevy-tnua", branch = "bevy-0.16" }
 avian_pickup = { git = "https://github.com/janhohenheim/avian_pickup", branch = "main" }
+bevy_dither_post_process = {git = "https://github.com/Jaghov/bevy_dither_post_process", branch = "main"}
+
