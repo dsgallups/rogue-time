@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
+use camera::PlayerCamera;
 use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
@@ -84,16 +85,46 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
 
 /// Only teleports the player to a location. Does not do anything to the respawn point
 #[derive(Event)]
-pub struct TeleportTo(pub Vec3);
+pub struct TeleportTo {
+    location: Vec3,
+    facing: Option<Dir3>,
+}
+
+impl TeleportTo {
+    pub fn new(location: Vec3) -> Self {
+        Self {
+            location,
+            facing: None,
+        }
+    }
+    pub fn new_facing(location: Vec3, facing: Dir3) -> Self {
+        Self {
+            //inner: Transform::from_xyz(location.x, location.y, location.z)
+            //.looking_to(facing, Dir3::Y),
+            location,
+            facing: Some(facing),
+        }
+    }
+}
 
 fn update_transform_on_teleport(
     trigger: Trigger<TeleportTo>,
-    mut player: Query<&mut Transform, With<Player>>,
+    mut player: Query<&mut Transform, (With<Player>, Without<PlayerCamera>)>,
+    mut camera: Query<&mut Transform, (With<PlayerCamera>, Without<Player>)>,
 ) {
     info!("teleporting player!");
-    let Ok(mut trns) = player.single_mut() else {
+    let Ok(mut player) = player.single_mut() else {
         error!("Can't teleport player!");
         return;
     };
-    trns.translation = trigger.event().0;
+    let ev = trigger.event();
+    player.translation = ev.location;
+    let Some(facing) = ev.facing else {
+        return;
+    };
+    let Ok(mut camera) = camera.single_mut() else {
+        error!("Can't rotate camera!");
+        return;
+    };
+    *camera = camera.looking_to(facing, Dir3::Y);
 }

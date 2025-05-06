@@ -126,6 +126,6 @@ fn out_of_time(
     );
 
     lives.remove_life();
-    commands.trigger(TeleportTo(current_respawn_point.0));
+    commands.trigger(TeleportTo::new(current_respawn_point.0));
     commands.trigger(StartCountdown(stopwatch.duration()));
 }
