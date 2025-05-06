@@ -3,8 +3,9 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use super::{
-    GameSet,
+    GameSet, GameState,
     animation::AnimationPlayerAncestor,
+    lives::Lives,
     room::{NewRoom, RoomStarted},
 };
 
@@ -18,6 +19,7 @@ pub fn plugin(app: &mut App) {
     app.add_observer(on_stopwatch_spawn)
         .add_observer(reset_on_new_level)
         .add_systems(Update, tick_stopwatch.in_set(GameSet::TickTimers))
+        .add_systems(PostUpdate, out_of_time.run_if(in_state(GameState::Playing)))
         .add_observer(start_timer_on_level);
 }
 
@@ -70,24 +72,36 @@ fn on_stopwatch_spawn(trigger: Trigger<OnAdd, Stopwatch>, mut commands: Commands
         .insert(AnimationPlayerAncestor);
 }
 
-fn tick_stopwatch(mut stopwatches: Query<&mut StopwatchTimer>, time: Res<Time>) {
-    for mut stopwatch in &mut stopwatches {
-        stopwatch.0.tick(time.delta());
-    }
+fn tick_stopwatch(mut stopwatch: Query<&mut StopwatchTimer>, time: Res<Time>) {
+    let Ok(mut stopwatch) = stopwatch.single_mut() else {
+        return;
+    };
+    stopwatch.0.tick(time.delta());
 }
-fn reset_on_new_level(_trigger: Trigger<NewRoom>, mut timers: Query<&mut StopwatchTimer>) {
-    for mut timer in &mut timers {
-        timer.pause();
-        timer.reset_duration();
-    }
+fn reset_on_new_level(_trigger: Trigger<NewRoom>, mut stopwatch: Query<&mut StopwatchTimer>) {
+    let Ok(mut stopwatch) = stopwatch.single_mut() else {
+        return;
+    };
+    stopwatch.pause();
+    stopwatch.reset_duration();
 }
 
-fn start_timer_on_level(
-    _trigger: Trigger<RoomStarted>,
-    mut stopwatches: Query<&mut StopwatchTimer>,
-) {
-    for mut stopwatch in &mut stopwatches {
-        info!("Starting stopwatch");
-        stopwatch.unpause();
+fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: Query<&mut StopwatchTimer>) {
+    let Ok(mut stopwatch) = stopwatch.single_mut() else {
+        return;
+    };
+    info!("Starting stopwatch");
+    stopwatch.unpause();
+}
+
+fn out_of_time(mut stopwatch: Query<&mut StopwatchTimer>, mut lives: Query<&mut Lives>) {
+    let Ok(mut stopwatch) = stopwatch.single_mut() else {
+        return;
+    };
+    if !stopwatch.0.finished() {
+        return;
     }
+    let mut lives = lives.single_mut().expect("Something should be living");
+    lives.remove_life();
+    stopwatch.reset_duration();
 }

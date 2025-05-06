@@ -5,6 +5,7 @@ use bevy::{
 };
 
 mod animation;
+mod lives;
 pub mod player;
 mod portal;
 mod respawn;
@@ -67,6 +68,7 @@ pub fn plugin(app: &mut App) {
         portal::plugin,
         rewind::plugin,
         respawn::plugin,
+        lives::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);
