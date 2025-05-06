@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_trauma_shake::Shake;
 
 use super::{player::Player, respawn::RespawnPoint};
 
@@ -16,8 +17,10 @@ pub struct Rewind;
 fn on_rewind(
     _trigger: Trigger<Rewind>,
     mut player: Query<(&mut Transform, &RespawnPoint), With<Player>>,
+    mut shake: Single<&mut Shake>,
 ) {
     //camera shake? idk. definitely move camera back
+    shake.add_trauma(0.2);
     let Ok((mut trns, respawn_point)) = player.single_mut() else {
         error!("Can't rewind player!");
         return;

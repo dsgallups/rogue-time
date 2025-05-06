@@ -19,6 +19,7 @@ use bevy::{
     scene::SceneInstanceReady,
 };
 use bevy_enhanced_input::prelude::*;
+use bevy_trauma_shake::Shake;
 
 use crate::{
     AppSet, CameraOrder, RenderLayer,
@@ -84,6 +85,7 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             parent.spawn((
                 Name::new("World Model Camera"),
                 Camera3d::default(),
+                Shake::default(),
                 Camera {
                     order: CameraOrder::World.into(),
                     ..default()
