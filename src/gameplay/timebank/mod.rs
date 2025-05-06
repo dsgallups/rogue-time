@@ -1,3 +1,5 @@
+mod animation;
+
 use std::time::Duration;
 
 use avian3d::prelude::*;
@@ -9,6 +11,8 @@ use super::{player::Player, stopwatch::StopwatchTimer};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<TimeBank>();
+
+    app.add_plugins(animation::plugin);
 
     app.add_observer(insert_timebank);
 }
