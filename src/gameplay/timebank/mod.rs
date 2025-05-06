@@ -14,7 +14,7 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins(animation::plugin);
 
-    app.add_observer(insert_timebank);
+    app.add_observer(on_add_timebank);
 }
 
 /// This is going to be something that gives time to the user
@@ -26,8 +26,7 @@ pub struct TimeBank {
     pub milliseconds: u64,
 }
 
-fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
-    //can't insert sensor in blender.
+fn on_add_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     commands
         .entity(trigger.target())
         .insert((

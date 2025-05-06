@@ -45,10 +45,10 @@ fn setup_animation(
         graph_handle,
         index,
     };
-    //SceneRoot(assets.model.clone())
+
     commands
         .entity(trigger.target())
-        .insert((animation_to_play,))
+        .insert((animation_to_play, SceneRoot(assets.model.clone())))
         .observe(play_when_ready);
 }
 
