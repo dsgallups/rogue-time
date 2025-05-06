@@ -1,0 +1,11 @@
+[tasks.web]
+command = "trunk"
+args = ["serve", "--release"]
+
+[tasks.dev]
+command = "cargo"
+args = ["run", "--features", "dev"]
+
+[tasks.release]
+command = "cargo"
+args = ["build", "--profile", "release-dist"]
