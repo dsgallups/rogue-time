@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 // const DEFAULT_COLOR1: LinearRgba = LinearRgba::GREEN;
 
-pub fn shader_plugin(app: &mut App) {
+pub fn plugin(app: &mut App) {
     app
         // .register_type::<OneBitColor>()
         .add_plugins((

@@ -7,6 +7,7 @@ edition = "2024"
 # use this to spin up brp
 dev = ["bevy/async_executor", "bevy_skein/default"]
 dynamic_linking = ["bevy/dynamic_linking"]
+web = ["bevy/webgpu"]
 
 [dependencies]
 avian3d = { version = "0.2.0", default-features = false, features = [
@@ -54,11 +55,7 @@ bevy = { version = "0.16", default-features = false, features = [
     "multi_threaded",
     "png",
     "smaa_luts",
-    "std",
     "sysinfo_plugin",
-    "tonemapping_luts",
-    "webgl2",
-    "x11",
 ] }
 bevy_kira_audio = { version = "0.23.0", features = ["mp3"] }
 bevy_skein = { version = "0.2.0", default-features = false }
@@ -121,10 +118,10 @@ double-parens = "allow"
 [lints.rust]
 unused_parens = "allow"
 
-# This is used by trunk as it doesn't support custom profiles: https://github.com/trunk-rs/trunk/issues/605
+# Also, no wasm-opt performed by trunk if not the release profile
 [profile.release]
-opt-level = "s"
-lto = true
+opt-level = "z"
+lto = "fat"
 codegen-units = 1
 strip = true
 
@@ -132,7 +129,7 @@ strip = true
 [profile.release-dist]
 inherits = "release"
 opt-level = 3
-lto = true
+lto = "fat"
 codegen-units = 1
 strip = true
 
