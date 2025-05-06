@@ -9,11 +9,15 @@ args = ["run", "--features", "native"]
 
 [tasks.dev]
 command = "cargo"
-args = ["run", "--features", "\"dev, dynamic_linking, native\""]
+args = ["run", "--features", "dev native"]
 
 [tasks.dyn]
 command = "cargo"
-args = ["run", "--features", "dynamic_linking"]
+args = ["run", "--features", "dynamic_linking native"]
+
+[tasks.dyn-dev]
+command = "cargo"
+args = ["run", "--features", "dev dynamic_linking native"]
 
 
 [tasks.release]

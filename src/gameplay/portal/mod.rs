@@ -19,6 +19,8 @@ pub fn plugin(app: &mut App) {
 #[reflect(Component)]
 pub struct Portal {
     to: Vec3,
+    facing: Vec3,
+    initial_stopwatch_duration: u64,
 }
 
 ///Portals are sensors
@@ -45,6 +47,7 @@ fn portal_me_elsewhere(
 
     commands.trigger(NewRoom {
         spawn_point: portal.to,
+        facing: Dir3::new(portal.facing).ok(),
     });
-    commands.trigger(StartCountdown(5000));
+    commands.trigger(StartCountdown(portal.initial_stopwatch_duration));
 }

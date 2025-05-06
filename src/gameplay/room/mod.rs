@@ -25,6 +25,8 @@ pub struct StartCountdown(pub u64);
 pub struct NewRoom {
     /// This is the spawn point of the room
     pub spawn_point: Vec3,
+    /// this is the direction to face in the new room
+    pub facing: Option<Dir3>,
 }
 
 #[derive(Resource)]

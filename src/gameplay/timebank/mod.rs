@@ -1,3 +1,5 @@
+mod animation;
+
 use std::time::Duration;
 
 use avian3d::prelude::*;
@@ -8,9 +10,39 @@ use crate::gameplay::player::rewind::CanRewind;
 use super::{player::Player, stopwatch::StopwatchTimer};
 
 pub fn plugin(app: &mut App) {
-    app.register_type::<TimeBank>();
+    app.register_type::<TimeBank>()
+        .register_type::<BlenderTimebank>();
 
-    app.add_observer(insert_timebank);
+    app.add_plugins(animation::plugin);
+
+    app.add_systems(PreUpdate, on_add_blender_timebank);
+    app.add_observer(on_add_timebank);
+}
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct BlenderTimebank {
+    pub milliseconds: u64,
+}
+
+fn on_add_blender_timebank(
+    mut commands: Commands,
+    blender_timebanks: Query<(Entity, &Transform, &BlenderTimebank)>,
+) {
+    for (entity, transform, timebank) in blender_timebanks {
+        // we are going to take this thing,
+        // remove it from the scene entirely,
+        // and then construct it ourselves.
+        //let BlenderTimebank { milliseconds } = blender_timebanks.get(trigger.target()).unwrap();
+
+        commands.entity(entity).despawn();
+        commands.spawn((
+            TimeBank {
+                milliseconds: timebank.milliseconds,
+            },
+            *transform,
+        ));
+    }
 }
 
 /// This is going to be something that gives time to the user
@@ -22,8 +54,7 @@ pub struct TimeBank {
     pub milliseconds: u64,
 }
 
-fn insert_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
-    //can't insert sensor in blender.
+fn on_add_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
     commands
         .entity(trigger.target())
         .insert((

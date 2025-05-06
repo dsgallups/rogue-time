@@ -33,5 +33,5 @@ fn rewind_input(
     let respawn_point = respawn_point.single().unwrap();
     commands.entity(entity).remove::<CanRewind>();
     commands.trigger(RewindAnimation);
-    commands.trigger_targets(TeleportTo(respawn_point.0), entity);
+    commands.trigger_targets(TeleportTo::new(respawn_point.0), entity);
 }
