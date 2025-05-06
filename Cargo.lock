@@ -428,7 +428,7 @@ dependencies = [
 [[package]]
 name = "bevy-tnua"
 version = "0.23.0"
-source = "git+https://github.com/janhohenheim/bevy-tnua?branch=bevy-0.16#db13dfd350f86afe70c1f288e1f3cf075a943ffe"
+source = "git+https://github.com/dsgallups/bevy-tnua?branch=bevy-0.16#451311e0db621a74ac17273b9f6e9340823a2e6e"
 dependencies = [
  "bevy",
  "bevy-tnua-physics-integration-layer",
@@ -438,7 +438,7 @@ dependencies = [
 [[package]]
 name = "bevy-tnua-avian3d"
 version = "0.5.0"
-source = "git+https://github.com/janhohenheim/bevy-tnua?branch=bevy-0.16#db13dfd350f86afe70c1f288e1f3cf075a943ffe"
+source = "git+https://github.com/dsgallups/bevy-tnua?branch=bevy-0.16#451311e0db621a74ac17273b9f6e9340823a2e6e"
 dependencies = [
  "avian3d",
  "bevy",
@@ -448,7 +448,7 @@ dependencies = [
 [[package]]
 name = "bevy-tnua-physics-integration-layer"
 version = "0.8.0"
-source = "git+https://github.com/janhohenheim/bevy-tnua?branch=bevy-0.16#db13dfd350f86afe70c1f288e1f3cf075a943ffe"
+source = "git+https://github.com/dsgallups/bevy-tnua?branch=bevy-0.16#451311e0db621a74ac17273b9f6e9340823a2e6e"
 dependencies = [
  "bevy",
 ]

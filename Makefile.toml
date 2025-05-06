@@ -1,6 +1,6 @@
 [tasks.web]
 command = "trunk"
-args = ["serve", "--release"]
+args = ["serve", "--release", "--features", "web"]
 
 [tasks.dev]
 command = "cargo"
