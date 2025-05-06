@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{asset_tracking::ResourceHandles, theme::Containers};
+use crate::{asset_tracking::ResourceHandles, theme::widgets};
 
 use super::Screen;
 
@@ -14,7 +14,10 @@ pub fn plugin(app: &mut App) {
 }
 
 fn spawn_loading_screen(mut commands: Commands) {
-    commands.ui_root().insert(StateScoped(Screen::Loading));
+    commands.spawn((
+        widgets::ui_root("Loading screen"),
+        StateScoped(Screen::Loading),
+    ));
 }
 
 fn continue_to_title_screen(mut next_screen: ResMut<NextState<Screen>>) {

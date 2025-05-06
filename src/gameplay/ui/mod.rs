@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{screens::Screen, theme::Containers};
+use crate::{screens::Screen, theme::widgets};
 
 use super::{GameSet, stopwatch::StopwatchTimer};
 
@@ -28,16 +28,16 @@ struct StopwatchTimeUi;
 pub struct GameUi;
 
 fn spawn_game_ui(mut commands: Commands) {
-    // this does nothing essentially
+    let font = TextFont {
+        font_size: 20.,
+        ..default()
+    };
     commands
-        .ui_root()
-        .insert((GameUi, Name::new("Game UI"), StateScoped(Screen::Gameplay)))
-        .with_children(|parent| {
-            let font = TextFont {
-                font_size: 20.,
-                ..default()
-            };
-            parent.spawn((
+        .spawn((
+            widgets::ui_root("Game UI"),
+            GameUi,
+            StateScoped(Screen::Gameplay),
+            children![(
                 Node {
                     flex_grow: 1.,
                     align_items: AlignItems::End,
@@ -62,8 +62,9 @@ fn spawn_game_ui(mut commands: Commands) {
                         TextColor(BLACK.into())
                     )]
                 )],
-            ));
-        });
+            )],
+        ))
+        .insert(BackgroundColor(Color::NONE));
 }
 
 fn update_time_ui(
@@ -71,7 +72,7 @@ fn update_time_ui(
     mut text: Query<&mut Text, With<StopwatchTimeUi>>,
 ) {
     let Ok(stopwatch) = stopwatch.single() else {
-        warn!("Stopwatch not detected!");
+        //warn!("Stopwatch not detected!");
         return;
     };
     let Ok(mut text) = text.single_mut() else {

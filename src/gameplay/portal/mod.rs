@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::{level::NewLevel, player::Player};
+use super::{player::Player, room::NewRoom};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Portal>();
@@ -38,7 +38,7 @@ fn portal_me_elsewhere(
     };
 
     player.translation = portal.to;
-    commands.trigger(NewLevel {
+    commands.trigger(NewRoom {
         respawn_point: portal.to,
     });
 }

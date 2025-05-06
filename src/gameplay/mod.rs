@@ -5,10 +5,9 @@ use bevy::{
 };
 
 mod animation;
-mod level;
-mod player;
+pub mod player;
 mod portal;
-mod scene;
+mod room;
 mod stopwatch;
 mod timebank;
 mod ui;
@@ -65,10 +64,9 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins((
         ui::plugin,
-        scene::plugin,
         stopwatch::plugin,
         player::plugin,
-        level::plugin,
+        room::plugin,
         animation::plugin,
         timebank::plugin,
         portal::plugin,

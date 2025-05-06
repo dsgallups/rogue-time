@@ -43,7 +43,8 @@ fn main() {
                     title: "Rogue Time".to_string(),
                     fit_canvas_to_parent: true,
                     // might need to adjust this for WASM
-                    mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
+                    mode: WindowMode::Windowed,
+                    //mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
                     ..default()
                 }
                 .into(),
@@ -54,10 +55,9 @@ fn main() {
     //other plugins
     app.add_plugins((
         third_party::plugin,
-        screens::plugin,
         asset_tracking::plugin,
         theme::plugin,
-        gameplay::plugin,
+        screens::plugin,
     ));
 
     //spawn ui camera. should always exist

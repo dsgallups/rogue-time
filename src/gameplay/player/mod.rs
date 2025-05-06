@@ -7,11 +7,9 @@ use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
 
-use crate::screens::Screen;
-
 use super::stopwatch::StopwatchTimer;
 
-mod camera;
+pub mod camera;
 mod default_input;
 pub mod movement;
 mod respawn;
@@ -25,9 +23,7 @@ pub fn plugin(app: &mut App) {
         movement::plugin,
         respawn::plugin,
     ));
-    //temporary
-    app.add_systems(OnEnter(Screen::Gameplay), spawn_player)
-        .add_observer(setup_player);
+    app.add_observer(setup_player);
 }
 
 #[derive(Component, Reflect)]
@@ -51,11 +47,6 @@ const PLAYER_HALF_HEIGHT: f32 = PLAYER_HEIGHT / 2.0;
 ///
 /// In this case, we use 30 cm of padding to make the player float nicely up stairs.
 const PLAYER_FLOAT_HEIGHT: f32 = PLAYER_HALF_HEIGHT + 0.01;
-
-//placeholder for now
-fn spawn_player(mut commands: Commands) {
-    commands.spawn(Player);
-}
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     let mut stopwatch_timer = StopwatchTimer::default();
