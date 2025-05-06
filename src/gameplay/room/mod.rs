@@ -29,7 +29,7 @@ pub struct NewRoom {
 
 #[derive(Resource)]
 pub struct RoomCountdown {
-    secs_left: u8,
+    pub secs_left: u8,
     timer: Timer,
 }
 

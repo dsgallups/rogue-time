@@ -9,6 +9,7 @@ use super::{
     GameSet,
     lives::Lives,
     player::{Player, rewind::CanRewind},
+    room::RoomCountdown,
     stopwatch::StopwatchTimer,
 };
 
@@ -20,7 +21,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Gameplay), spawn_game_ui)
         .add_systems(
             Update,
-            (update_time_ui, update_rewind_ui, update_lives_ui)
+            (
+                update_time_ui,
+                update_rewind_ui,
+                update_lives_ui,
+                update_countdown,
+            )
                 .in_set(GameSet::UiUpdate)
                 .run_if(in_state(Screen::Gameplay)),
         );
@@ -34,6 +40,9 @@ pub struct GameUi;
 
 #[derive(Component)]
 pub struct LivesUi;
+
+#[derive(Component)]
+pub struct CountdownUi;
 
 fn spawn_game_ui(mut commands: Commands) {
     let font = TextFont {
@@ -62,6 +71,26 @@ fn spawn_game_ui(mut commands: Commands) {
                         LivesUi,
                         Text::new("N/A"),
                         font.clone(),
+                        TextColor(BLACK.into())
+                    )]
+                ),
+                (
+                    Node {
+                        width: Val::Px(200.),
+                        height: Val::Px(200.),
+                        border: UiRect::all(Val::Px(10.)),
+                        margin: UiRect::all(Val::Px(20.)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..default()
+                    },
+                    children![(
+                        CountdownUi,
+                        Text::new("N/A"),
+                        TextFont {
+                            font_size: 40.,
+                            ..default()
+                        },
                         TextColor(BLACK.into())
                     )]
                 ),
@@ -196,4 +225,20 @@ fn update_lives_ui(
     text.0 = format!("{} lives", lives.count());
 
     *prev = lives.count();
+}
+
+fn update_countdown(
+    countdown: Option<Res<RoomCountdown>>,
+    mut text: Query<&mut Text, With<CountdownUi>>,
+) {
+    let Ok(mut text) = text.single_mut() else {
+        warn!("Missing countdown UI!");
+        return;
+    };
+    let Some(countdown) = countdown else {
+        text.0 = String::new();
+        return;
+    };
+
+    text.0 = countdown.secs_left.to_string();
 }

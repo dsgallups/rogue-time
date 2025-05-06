@@ -1,10 +1,6 @@
 use bevy::{prelude::*, scene::SceneInstanceReady};
 
-use crate::{
-    asset_tracking::LoadResource,
-    gameplay::player::{Player, camera::PlayerCamera},
-    theme::widgets,
-};
+use crate::{asset_tracking::LoadResource, gameplay::player::Player, theme::widgets};
 
 use super::Screen;
 
