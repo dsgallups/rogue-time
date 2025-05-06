@@ -184,9 +184,9 @@ fn configure_player_view_model(
 fn rotate_camera_yaw_and_pitch(
     trigger: Trigger<Fired<Rotate>>,
     mut transform: Single<&mut Transform, With<PlayerCamera>>,
-    game_state: Res<State<GameState>>,
+    game_state: Option<Res<State<GameState>>>,
 ) {
-    if *game_state.get() != GameState::Playing {
+    if game_state.is_none_or(|gs| *gs.get() != GameState::Playing) {
         return;
     }
     let delta = trigger.value;
