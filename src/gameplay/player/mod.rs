@@ -82,7 +82,7 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     //.observe(setup_player_animations);
 }
 
-/// updates the respawn point AND travels there
+/// Only teleports the player to a location. Does not do anything to the respawn point
 #[derive(Event)]
 pub struct TeleportTo(pub Vec3);
 
