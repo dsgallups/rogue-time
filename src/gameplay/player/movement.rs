@@ -6,7 +6,7 @@ use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 
 use crate::gameplay::GameState;
-use crate::gameplay::room::{NewRoom, RoomStarted};
+use crate::gameplay::room::{RoomStarted, StartCountdown};
 
 use super::default_input::{Jump, Move};
 
@@ -17,15 +17,15 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(PreUpdate, reset_movement)
         .add_observer(apply_movement)
         .add_observer(jump)
-        .add_observer(disable_movement_on_new_level)
+        .add_observer(disable_movement_on_countdown)
         .add_observer(reenable_movement);
 }
 
 #[derive(Component)]
 pub struct MovementDisabled;
 
-fn disable_movement_on_new_level(
-    _trigger: Trigger<NewRoom>,
+fn disable_movement_on_countdown(
+    _trigger: Trigger<StartCountdown>,
     mut commands: Commands,
     mut player: Query<(Entity, &mut LinearVelocity), With<Player>>,
 ) {

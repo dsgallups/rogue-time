@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_trauma_shake::TraumaPlugin;
 
 pub mod avian3d;
 pub mod bevy_tnua;
@@ -12,5 +13,6 @@ pub fn plugin(app: &mut App) {
         bevy_tnua::plugin,
         enhanced_input::plugin,
         skein::plugin,
+        TraumaPlugin,
     ));
 }

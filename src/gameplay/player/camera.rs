@@ -19,6 +19,7 @@ use bevy::{
     scene::SceneInstanceReady,
 };
 use bevy_enhanced_input::prelude::*;
+use bevy_trauma_shake::Shake;
 
 use crate::{
     AppSet, CameraOrder, RenderLayer,
@@ -26,19 +27,20 @@ use crate::{
     screens::Screen,
 };
 
-use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate};
+use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate, rewind::RewindAnimation};
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_observer(spawn_view_model);
-    app.add_observer(add_render_layers_to_point_light);
-    app.add_observer(rotate_camera_yaw_and_pitch);
-    app.add_systems(
-        Update,
-        sync_camera_translation_with_player
-            .run_if(in_state(Screen::Gameplay))
-            .in_set(AppSet::Update),
-    );
     app.register_type::<PlayerCamera>();
+    app.add_observer(spawn_view_model)
+        .add_observer(add_render_layers_to_point_light)
+        .add_observer(rotate_camera_yaw_and_pitch)
+        .add_observer(add_trauma_on_rewind)
+        .add_systems(
+            Update,
+            sync_camera_translation_with_player
+                .run_if(in_state(Screen::Gameplay))
+                .in_set(AppSet::Update),
+        );
 }
 
 /// The parent entity of the player's cameras.
@@ -84,6 +86,7 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             parent.spawn((
                 Name::new("World Model Camera"),
                 Camera3d::default(),
+                Shake::default(),
                 Camera {
                     order: CameraOrder::World.into(),
                     ..default()
@@ -221,4 +224,10 @@ fn add_render_layers_to_point_light(trigger: Trigger<OnAdd, PointLight>, mut com
     commands.entity(entity).insert(RenderLayers::from(
         RenderLayer::DEFAULT | RenderLayer::VIEW_MODEL,
     ));
+}
+
+// may want to split this up into the seperate plugins' systems
+fn add_trauma_on_rewind(_trigger: Trigger<RewindAnimation>, mut shake: Single<&mut Shake>) {
+    //camera shake? idk. definitely move camera back
+    shake.add_trauma(0.2);
 }
