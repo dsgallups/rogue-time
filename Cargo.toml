@@ -22,7 +22,6 @@ native = [
     "bevy/hdr",
     "bevy/smaa_luts",
     "bevy/sysinfo_plugin",
-    "bevy/bevy_ui_picking_backend",     # might not need
     "bevy/multi_threaded",              # not useful for web
     "bevy/bevy_mesh_picking_backend",   # might not need
     "bevy/bevy_sprite",
