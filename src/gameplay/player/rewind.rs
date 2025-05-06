@@ -1,25 +1,75 @@
 use bevy::prelude::*;
 
-use crate::gameplay::{GameSet, respawn::RespawnPoint};
+use crate::gameplay::{
+    GameSet, GameState,
+    room::{NewRoom, StartCountdown},
+};
 
-use super::{Player, TeleportTo};
+use super::{Player, camera::PlayerCamera};
+
+/// How many times per second we record the player position
+pub const LOG_FREQUENCY: f32 = 8.;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Update, rewind_input.in_set(GameSet::RecordInput));
+    app.add_systems(Update, rewind_input.in_set(GameSet::RecordInput))
+        .add_observer(start_log_on_new_room)
+        .insert_resource(LogPeriod(Timer::from_seconds(
+            1.0 / LOG_FREQUENCY,
+            TimerMode::Repeating,
+        )))
+        .add_systems(Update, tick_log_timer.in_set(GameSet::TickTimers))
+        .add_systems(
+            Update,
+            record_movements.in_set(GameSet::RecordInput).run_if(
+                in_state(GameState::Playing)
+                    .and(resource_exists::<MovementLog>)
+                    .and(check_log_timer),
+            ),
+        )
+        .add_systems(
+            Update,
+            play_logged_recording
+                .in_set(GameSet::RecordInput)
+                .run_if(in_state(GameState::Rewinding).and(resource_exists::<MovementLog>)),
+        )
+        .add_observer(handle_rewind_event);
 }
 
 #[derive(Event)]
-pub struct RewindAnimation;
+pub enum RewindAnimation {
+    Start,
+    End,
+}
 
 #[derive(Component)]
 pub struct CanRewind;
+
+#[derive(Resource)]
+pub struct LogPeriod(Timer);
+
+fn tick_log_timer(time: Res<Time>, mut timer: ResMut<LogPeriod>) {
+    timer.0.tick(time.delta());
+}
+
+fn check_log_timer(timer: Res<LogPeriod>) -> bool {
+    if timer.0.just_finished() { true } else { false }
+}
+
+#[derive(Resource, Default)]
+pub struct MovementLog {
+    player: Vec<Transform>,
+    camera: Vec<Transform>,
+}
+
+fn start_log_on_new_room(_trigger: Trigger<StartCountdown>, mut commands: Commands) {
+    commands.init_resource::<MovementLog>();
+}
 
 // in theory, we could make this an observer attached to the player
 // on the collect_timebank fn but fk it
 fn rewind_input(
     mut commands: Commands,
     has_rewind: Query<Entity, (With<Player>, With<CanRewind>)>,
-    respawn_point: Query<&RespawnPoint>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
     let Ok(entity) = has_rewind.single() else {
@@ -30,8 +80,58 @@ fn rewind_input(
     if !keys.just_pressed(KeyCode::KeyE) {
         return;
     }
-    let respawn_point = respawn_point.single().unwrap();
     commands.entity(entity).remove::<CanRewind>();
-    commands.trigger(RewindAnimation);
-    commands.trigger_targets(TeleportTo(respawn_point.0), entity);
+    commands.trigger(RewindAnimation::Start);
+}
+
+// Might delete later and just change the trigger to a state
+fn handle_rewind_event(
+    trigger: Trigger<RewindAnimation>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    match trigger.event() {
+        RewindAnimation::Start => next_state.set(GameState::Rewinding),
+        RewindAnimation::End => next_state.set(GameState::Playing),
+    }
+}
+
+fn reser_timer_on_rewind(_trigger: Trigger<RewindAnimation>, mut timer: ResMut<LogPeriod>) {
+    timer.0.pause();
+    timer.0.reset();
+}
+
+fn play_logged_recording(
+    mut commands: Commands,
+    camera: Query<Entity, With<PlayerCamera>>,
+    player: Query<Entity, With<Player>>,
+    mut log: ResMut<MovementLog>,
+) {
+    let (Ok(camera), Ok(player)) = (camera.single(), player.single()) else {
+        return;
+    };
+
+    let (Some(player_transform), Some(camera_transfrom)) = (log.player.pop(), log.camera.pop())
+    else {
+        commands.trigger(RewindAnimation::End);
+        return;
+    };
+
+    commands.entity(camera).insert(camera_transfrom);
+    commands.entity(player).insert(player_transform);
+}
+
+fn record_movements(
+    camera_transform: Query<&Transform, With<PlayerCamera>>,
+    player_transform: Query<&Transform, With<Player>>,
+    timer: Res<LogPeriod>,
+    mut log: ResMut<MovementLog>,
+) {
+    let (Ok(camera_transform), Ok(player_transform)) =
+        (camera_transform.single(), player_transform.single())
+    else {
+        return;
+    };
+
+    log.player.push(player_transform.clone());
+    log.camera.push(camera_transform.clone());
 }
