@@ -1,17 +1,15 @@
 use bevy::prelude::*;
 
-use crate::gameplay::{
-    GameSet, GameState,
-    room::{NewRoom, StartCountdown},
-};
+use crate::gameplay::{GameSet, GameState, room::StartCountdown};
 
-use super::{Player, camera::PlayerCamera};
+use super::{Player, camera::PlayerCamera, movement::MovementDisabled};
 
 /// How many times per second we record the player position
 pub const LOG_FREQUENCY: f32 = 8.;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, rewind_input.in_set(GameSet::RecordInput))
+        .add_observer(reset_logtimer_on_rewind)
         .add_observer(start_log_on_new_room)
         .insert_resource(LogPeriod(Timer::from_seconds(
             1.0 / LOG_FREQUENCY,
@@ -44,6 +42,7 @@ pub enum RewindAnimation {
 #[derive(Component)]
 pub struct CanRewind;
 
+/// Timer for triggering [`Player`] snapshots
 #[derive(Resource)]
 pub struct LogPeriod(Timer);
 
@@ -55,13 +54,21 @@ fn check_log_timer(timer: Res<LogPeriod>) -> bool {
     if timer.0.just_finished() { true } else { false }
 }
 
+/// Stores [`Player`] movement From start of a level
 #[derive(Resource, Default)]
 pub struct MovementLog {
     player: Vec<Transform>,
     camera: Vec<Transform>,
 }
 
-fn start_log_on_new_room(_trigger: Trigger<StartCountdown>, mut commands: Commands) {
+/// Adds Movement Log when room starts
+fn start_log_on_new_room(
+    _trigger: Trigger<StartCountdown>,
+    mut commands: Commands,
+    mut timer: ResMut<LogPeriod>,
+) {
+    timer.0.reset();
+    timer.0.unpause();
     commands.init_resource::<MovementLog>();
 }
 
@@ -69,7 +76,7 @@ fn start_log_on_new_room(_trigger: Trigger<StartCountdown>, mut commands: Comman
 // on the collect_timebank fn but fk it
 fn rewind_input(
     mut commands: Commands,
-    has_rewind: Query<Entity, (With<Player>, With<CanRewind>)>,
+    has_rewind: Query<Entity, (With<Player>, With<CanRewind>, Without<MovementDisabled>)>,
     keys: Res<ButtonInput<KeyCode>>,
 ) {
     let Ok(entity) = has_rewind.single() else {
@@ -84,7 +91,7 @@ fn rewind_input(
     commands.trigger(RewindAnimation::Start);
 }
 
-// Might delete later and just change the trigger to a state
+/// Sets state depending on rewind trigger
 fn handle_rewind_event(
     trigger: Trigger<RewindAnimation>,
     mut next_state: ResMut<NextState<GameState>>,
@@ -95,11 +102,12 @@ fn handle_rewind_event(
     }
 }
 
-fn reser_timer_on_rewind(_trigger: Trigger<RewindAnimation>, mut timer: ResMut<LogPeriod>) {
+fn reset_logtimer_on_rewind(_trigger: Trigger<RewindAnimation>, mut timer: ResMut<LogPeriod>) {
     timer.0.pause();
     timer.0.reset();
 }
 
+/// reads out [`MovementLog`] LIFO fashion
 fn play_logged_recording(
     mut commands: Commands,
     camera: Query<Entity, With<PlayerCamera>>,
@@ -120,10 +128,10 @@ fn play_logged_recording(
     commands.entity(player).insert(player_transform);
 }
 
+/// Record movement to [`MovementLog`] stack when in [`GameState::Playing`] during a level  
 fn record_movements(
     camera_transform: Query<&Transform, With<PlayerCamera>>,
     player_transform: Query<&Transform, With<Player>>,
-    timer: Res<LogPeriod>,
     mut log: ResMut<MovementLog>,
 ) {
     let (Ok(camera_transform), Ok(player_transform)) =

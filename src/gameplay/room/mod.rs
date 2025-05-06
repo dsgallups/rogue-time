@@ -2,8 +2,6 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::gameplay::player::rewind::MovementLog;
-
 use super::GameSet;
 
 pub fn plugin(app: &mut App) {
