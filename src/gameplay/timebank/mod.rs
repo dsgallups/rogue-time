@@ -3,7 +3,9 @@ use std::time::Duration;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::stopwatch::StopwatchTimer;
+use crate::gameplay::rewind::CanRewind;
+
+use super::{player::Player, stopwatch::StopwatchTimer};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<TimeBank>();
@@ -41,6 +43,7 @@ fn collect_timebank(
     timebanks: Query<&TimeBank>,
     mut commands: Commands,
     mut stopwatch: Query<&mut StopwatchTimer>,
+    player: Query<Entity, With<Player>>,
 ) {
     let timebank = timebanks.get(trigger.target()).unwrap();
     //only if the trigger was the human
@@ -57,4 +60,7 @@ fn collect_timebank(
     stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
 
     commands.entity(trigger.target()).despawn();
+
+    // use insert if new if we allow multiple rewinds
+    commands.entity(player.single().unwrap()).insert(CanRewind);
 }

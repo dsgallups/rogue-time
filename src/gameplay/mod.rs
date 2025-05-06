@@ -7,6 +7,7 @@ use bevy::{
 mod animation;
 pub mod player;
 mod portal;
+mod rewind;
 mod room;
 mod stopwatch;
 mod timebank;
@@ -70,6 +71,7 @@ pub fn plugin(app: &mut App) {
         animation::plugin,
         timebank::plugin,
         portal::plugin,
+        rewind::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);
