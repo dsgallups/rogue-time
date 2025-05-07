@@ -92,6 +92,7 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
                 Shake::default(),
                 Camera {
                     order: CameraOrder::World.into(),
+                    msaa_writeback: false,
                     ..default()
                 },
                 Projection::from(PerspectiveProjection {
@@ -112,8 +113,10 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
                 Camera {
                     // Bump the order to render on top of the world model.
                     order: CameraOrder::ViewModel.into(),
+                    msaa_writeback: false,
                     ..default()
                 },
+                Msaa::Off,
                 Projection::from(PerspectiveProjection {
                     // We use whatever FOV we set in the animation software, e.g. Blender.
                     // Tip: if you want to set a camera in Blender to the same defaults as Bevy,
