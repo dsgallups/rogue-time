@@ -8,8 +8,13 @@ pub fn plugin(app: &mut App) {
 
 fn insert_post_process(query: Query<(Entity), (Added<Camera3d>)>, mut commands: Commands) {
     for camera in query {
-        commands
-            .entity(camera)
-            .insert((DoGSettings::OUTLINE_DITHER, PassesSettings::default()));
+        commands.entity(camera).insert((
+            DoGSettings {
+                min_color: Vec3::ZERO,
+                max_color: Vec3::ONE,
+                ..DoGSettings::OUTLINE_DITHER
+            },
+            PassesSettings::default(),
+        ));
     }
 }
