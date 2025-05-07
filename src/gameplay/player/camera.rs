@@ -45,13 +45,6 @@ pub(super) fn plugin(app: &mut App) {
                 .in_set(AppSet::Update),
         );
 }
-/// marks model viewing camera for viewing held items
-#[derive(Component, Debug)]
-struct ViewModelCamera;
-
-/// Mark world camera for rendering scene
-#[derive(Component, Debug)]
-pub struct WorldCamera;
 
 /// The parent entity of the player's cameras.
 #[derive(Component, Debug, Reflect)]
@@ -95,7 +88,6 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
         .with_children(|parent| {
             parent.spawn((
                 Name::new("World Model Camera"),
-                WorldCamera,
                 Camera3d::default(),
                 Shake::default(),
                 Camera {
@@ -117,7 +109,6 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             parent.spawn((
                 Name::new("View Model Camera"),
                 Camera3d::default(),
-                ViewModelCamera,
                 Camera {
                     // Bump the order to render on top of the world model.
                     order: CameraOrder::ViewModel.into(),
