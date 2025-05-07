@@ -17,7 +17,7 @@ pub fn plugin(app: &mut App) {
         PreUpdate,
         tick_animation_busy.run_if(in_state(Screen::Gameplay)),
     );
-    app.add_observer(link_animation_player);
+    //app.add_observer(link_animation_player);
 }
 
 #[derive(Component, Reflect)]

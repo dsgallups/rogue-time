@@ -88,6 +88,7 @@ fn rewind_input(
         return;
     }
     commands.entity(entity).remove::<CanRewind>();
+
     commands.trigger(RewindAnimation::Start);
 }
 

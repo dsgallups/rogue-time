@@ -163,6 +163,7 @@ fn update_time_ui(
 pub struct RewindParent;
 #[derive(Component)]
 pub struct RewindUi;
+// we could make this two observers, but nahhhh
 fn update_rewind_ui(
     rewindable: Query<Has<CanRewind>, With<Player>>,
     mut text: Query<(&mut Text, &mut TextColor), With<RewindUi>>,
@@ -205,26 +206,18 @@ fn update_rewind_ui(
 }
 
 fn update_lives_ui(
-    rewindable: Query<&Lives>,
+    rewindable: Query<&Lives, Changed<Lives>>,
     mut text: Query<&mut Text, With<LivesUi>>,
-    mut prev: Local<u8>,
 ) {
-    // we could check against a Local<bool> but eh
     let Ok(lives) = rewindable.single() else {
-        //warn!("Stopwatch not detected!");
         return;
     };
-    if lives.count() == *prev {
-        return;
-    }
 
     let Ok(mut text) = text.single_mut() else {
         warn!("Missing rewind text!");
         return;
     };
     text.0 = format!("{} lives", lives.count());
-
-    *prev = lives.count();
 }
 
 fn update_countdown(

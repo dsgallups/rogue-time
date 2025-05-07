@@ -13,7 +13,11 @@ fn on_timebank_insert(
     transform: Query<&Transform>,
 ) {
     let transform = transform.get(trigger.target()).unwrap();
-    debug!("Inserting timebank, {:?}", transform.translation);
+    info!(
+        "Inserting timebank, {:?}, entity: {:?}",
+        transform.translation,
+        trigger.target()
+    );
     commands
         .entity(trigger.target())
         .observe(on_timebank_collision);
