@@ -42,8 +42,11 @@ fn main() {
                 primary_window: Window {
                     title: "Rogue Time".to_string(),
                     fit_canvas_to_parent: true,
+                    canvas: Some("#bevy".to_owned()),
                     // might need to adjust this for WASM
                     mode: WindowMode::Windowed,
+                    // Tells wasm not to override default event handling, like F5 and Ctrl+R
+                    prevent_default_event_handling: false,
                     //mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
                     ..default()
                 }

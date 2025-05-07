@@ -1,7 +1,10 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use super::{player::Player, room::NewRoom};
+use super::{
+    player::Player,
+    room::{NewRoom, StartCountdown},
+};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Portal>();
@@ -9,10 +12,15 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Used in bevy skein
+///
+///
+/// TODO: need to give an initial time for the next room
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Portal {
     to: Vec3,
+    facing: Vec3,
+    initial_stopwatch_duration: u64,
 }
 
 ///Portals are sensors
@@ -27,18 +35,19 @@ fn portal_me_elsewhere(
     trigger: Trigger<OnCollisionStart>,
     mut commands: Commands,
     portals: Query<&Portal>,
-    mut player: Query<&mut Transform, With<Player>>,
+    player: Query<&Player>,
 ) {
     let portal = portals.get(trigger.target()).unwrap();
 
     let event = trigger.event();
 
-    let Ok(mut player) = player.get_mut(event.collider) else {
+    if player.get(event.collider).is_err() {
         return;
     };
 
-    player.translation = portal.to;
     commands.trigger(NewRoom {
-        respawn_point: portal.to,
+        spawn_point: portal.to,
+        facing: Dir3::new(portal.facing).ok(),
     });
+    commands.trigger(StartCountdown(portal.initial_stopwatch_duration));
 }

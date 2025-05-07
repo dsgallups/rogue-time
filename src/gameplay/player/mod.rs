@@ -3,16 +3,19 @@ use bevy::prelude::*;
 use bevy_enhanced_input::prelude::*;
 use bevy_tnua::prelude::*;
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
+use camera::PlayerCamera;
 use default_input::DefaultInputContext;
 
 //use crate::third_party::avian3d::CollisionLayer;
+
+use crate::screens::Screen;
 
 use super::stopwatch::StopwatchTimer;
 
 pub mod camera;
 mod default_input;
 pub mod movement;
-mod respawn;
+pub mod rewind;
 
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
@@ -21,9 +24,12 @@ pub fn plugin(app: &mut App) {
         camera::plugin,
         default_input::plugin,
         movement::plugin,
-        respawn::plugin,
+        rewind::plugin,
     ));
-    app.add_observer(setup_player);
+    app.add_observer(setup_player)
+        .add_observer(update_transform_on_teleport);
+
+    app.add_systems(OnExit(Screen::Gameplay), remove_player);
 }
 
 #[derive(Component, Reflect)]
@@ -79,4 +85,54 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
                                       //PlayerLandmassCharacter(player_character),
     ));
     //.observe(setup_player_animations);
+}
+
+/// Only teleports the player to a location. Does not do anything to the respawn point
+#[derive(Event)]
+pub struct TeleportTo {
+    location: Vec3,
+    facing: Option<Dir3>,
+}
+
+impl TeleportTo {
+    pub fn new(location: Vec3) -> Self {
+        Self {
+            location,
+            facing: None,
+        }
+    }
+    pub fn new_facing(location: Vec3, facing: Dir3) -> Self {
+        Self {
+            //inner: Transform::from_xyz(location.x, location.y, location.z)
+            //.looking_to(facing, Dir3::Y),
+            location,
+            facing: Some(facing),
+        }
+    }
+}
+
+fn update_transform_on_teleport(
+    trigger: Trigger<TeleportTo>,
+    mut player: Query<&mut Transform, (With<Player>, Without<PlayerCamera>)>,
+    mut camera: Query<&mut Transform, (With<PlayerCamera>, Without<Player>)>,
+) {
+    info!("teleporting player!");
+    let Ok(mut player) = player.single_mut() else {
+        error!("Can't teleport player!");
+        return;
+    };
+    let ev = trigger.event();
+    player.translation = ev.location;
+    let Some(facing) = ev.facing else {
+        return;
+    };
+    let Ok(mut camera) = camera.single_mut() else {
+        error!("Can't rotate camera!");
+        return;
+    };
+    *camera = camera.looking_to(facing, Dir3::Y);
+}
+// we can't scope player to the screen state due to initializations in spawnlevel
+fn remove_player(mut commands: Commands, player: Query<Entity, With<Player>>) {
+    commands.entity(player.single().unwrap()).despawn();
 }
