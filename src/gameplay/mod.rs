@@ -25,6 +25,7 @@ use crate::{AppSet, screens::Screen};
 pub enum GameState {
     #[default]
     Playing,
+    Rewinding,
     // this Debug state will be useful for later
     #[cfg(feature = "dev")]
     Debug,
