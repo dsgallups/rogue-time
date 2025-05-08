@@ -13,6 +13,7 @@ mod room;
 pub mod stopwatch;
 pub mod time;
 mod timebank;
+mod timelines;
 mod ui;
 
 #[cfg(feature = "dev")]
@@ -70,6 +71,7 @@ pub fn plugin(app: &mut App) {
         respawn::plugin,
         lives::plugin,
         time::plugin,
+        timelines::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);
