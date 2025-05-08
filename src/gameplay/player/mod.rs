@@ -10,7 +10,7 @@ use default_input::DefaultInputContext;
 
 use crate::screens::Screen;
 
-use super::stopwatch::StopwatchTimer;
+use super::time::LevelTimer;
 
 pub mod camera;
 mod default_input;
@@ -55,7 +55,7 @@ const PLAYER_HALF_HEIGHT: f32 = PLAYER_HEIGHT / 2.0;
 const PLAYER_FLOAT_HEIGHT: f32 = PLAYER_HALF_HEIGHT + 0.01;
 
 fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
-    let mut stopwatch_timer = StopwatchTimer::default();
+    let mut stopwatch_timer = LevelTimer::default();
     stopwatch_timer.pause();
     commands.entity(trigger.target()).insert((
         RigidBody::Dynamic,
@@ -77,7 +77,7 @@ fn setup_player(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
             static_coefficient: 0.0,
             combine_rule: CoefficientCombine::Multiply,
         },
-        stopwatch_timer,
+        // stopwatch_timer,
         ColliderDensity(100.0),
         CollisionEventsEnabled,
         CollidingEntities::default(), //CollisionLayers::new(CollisionLayer::Character, LayerMask::ALL),

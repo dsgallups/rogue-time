@@ -7,7 +7,7 @@ use bevy::prelude::*;
 
 use crate::gameplay::player::rewind::CanRewind;
 
-use super::{player::Player, stopwatch::StopwatchTimer};
+use super::{player::Player, time::LevelTimer};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<TimeBank>()
@@ -73,14 +73,14 @@ fn collect_timebank(
     trigger: Trigger<OnCollisionStart>,
     timebanks: Query<&TimeBank>,
     mut commands: Commands,
-    mut stopwatch: Query<&mut StopwatchTimer>,
-    player: Query<Entity, With<Player>>,
+    mut stopwatch: ResMut<LevelTimer>,
+    mut player: Query<Entity, With<Player>>,
 ) {
     let timebank = timebanks.get(trigger.target()).unwrap();
     //only if the trigger was the human
     let event = trigger.event();
     //dont use event.body,
-    let Ok(mut stopwatch) = stopwatch.get_mut(event.collider) else {
+    let Ok(player) = player.get_mut(event.collider) else {
         return;
     };
 
@@ -93,5 +93,5 @@ fn collect_timebank(
     commands.entity(trigger.target()).despawn();
 
     // use insert if new if we allow multiple rewinds
-    commands.entity(player.single().unwrap()).insert(CanRewind);
+    commands.entity(player).insert(CanRewind);
 }

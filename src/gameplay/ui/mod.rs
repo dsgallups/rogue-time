@@ -10,7 +10,7 @@ use super::{
     lives::Lives,
     player::{Player, rewind::CanRewind},
     room::RoomCountdown,
-    stopwatch::StopwatchTimer,
+    time::LevelTimer,
 };
 
 mod pause;
@@ -142,14 +142,7 @@ fn spawn_game_ui(mut commands: Commands) {
         .insert(BackgroundColor(Color::NONE));
 }
 
-fn update_time_ui(
-    stopwatch: Query<&StopwatchTimer>,
-    mut text: Query<&mut Text, With<StopwatchTimeUi>>,
-) {
-    let Ok(stopwatch) = stopwatch.single() else {
-        //warn!("Stopwatch not detected!");
-        return;
-    };
+fn update_time_ui(stopwatch: Res<LevelTimer>, mut text: Query<&mut Text, With<StopwatchTimeUi>>) {
     let Ok(mut text) = text.single_mut() else {
         warn!("Missing stopwatch UI!");
         return;

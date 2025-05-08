@@ -17,3 +17,6 @@ pub(crate) const BUTTON_PRESSED_BACKGROUND: Color = Color::srgb(0.239, 0.286, 0.
 
 /// #2b2c2f, taken from the Bevy website
 pub(crate) const SCREEN_BACKGROUND: Color = Color::srgb(0.16862746, 0.17254902, 0.18431373);
+
+pub(crate) const NO_TIME_COLOR: LinearRgba = LinearRgba::RED;
+pub(crate) const FULL_TIME_COLOR: LinearRgba = LinearRgba::BLUE;

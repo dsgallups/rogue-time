@@ -18,3 +18,5 @@ fn insert_post_process(query: Query<(Entity), (Added<Camera3d>)>, mut commands: 
         ));
     }
 }
+
+// fn change_palette_with_time(query: Res<StopwatchTimer>) {}
