@@ -6,7 +6,7 @@ use crate::gameplay::{player::TeleportTo, room::StartCountdown};
 
 use super::{GameSet, GameState, lives::Lives, respawn::RespawnPoint, room::RoomStarted};
 
-const DEFAULT_DURATION: Duration = Duration::from_secs(5);
+pub(crate) const DEFAULT_DURATION: Duration = Duration::from_secs(5);
 
 pub fn plugin(app: &mut App) {
     app.insert_resource(LevelTimer::default())
