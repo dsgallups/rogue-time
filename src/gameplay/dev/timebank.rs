@@ -7,8 +7,8 @@ use crate::{
 };
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(on_timebank_insert)
-        .add_systems(Update, print_player_transform);
+    app.add_observer(on_timebank_insert);
+    //app.add_systems(Update, print_player_transform);
 }
 
 fn on_timebank_insert(

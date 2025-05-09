@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::level::{Level, LevelSpawnPoints};
+use crate::level::{Level, LevelOrigins};
 
 use super::{
     player::Player,
@@ -38,7 +38,7 @@ fn portal_me_elsewhere(
     mut commands: Commands,
     portals: Query<(&Portal, Has<GameWin>)>,
     player: Query<&Player>,
-    spawn_points: Res<LevelSpawnPoints>,
+    spawn_points: Res<LevelOrigins>,
 ) {
     let (portal, wins_game) = portals.get(trigger.target()).unwrap();
 

@@ -5,7 +5,10 @@ use std::time::Duration;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::{gameplay::player::rewind::CanRewind, level::Level};
+use crate::{
+    gameplay::player::rewind::CanRewind,
+    level::{Level, LevelOrigins},
+};
 
 use super::{player::Player, time::LevelTimer};
 
@@ -29,6 +32,7 @@ pub struct BlenderTimebank {
 fn on_add_blender_timebank(
     mut commands: Commands,
     blender_timebanks: Query<(Entity, &Transform, &BlenderTimebank)>,
+    level_origins: Res<LevelOrigins>,
 ) {
     for (entity, transform, timebank) in blender_timebanks {
         // we are going to take this thing,
@@ -37,13 +41,16 @@ fn on_add_blender_timebank(
         //let BlenderTimebank { milliseconds } = blender_timebanks.get(trigger.target()).unwrap();
         info!("added blender timebank");
 
+        let origin = level_origins.get_spawn_point(timebank.level);
+        let transform = transform.with_translation(transform.translation + origin);
+
         commands.entity(entity).despawn();
         commands.spawn((
             timebank.level,
             TimeBank {
                 milliseconds: timebank.milliseconds,
             },
-            *transform,
+            transform,
         ));
     }
 }

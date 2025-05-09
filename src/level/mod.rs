@@ -24,7 +24,7 @@ impl Plugin for LevelPlugin {
         app.add_plugins(assets::plugin);
 
         app.init_resource::<LevelsLoaded>()
-            .init_resource::<LevelSpawnPoints>()
+            .init_resource::<LevelOrigins>()
             .register_type::<Level>();
 
         if self.load_level {
@@ -44,9 +44,9 @@ const NUM_LEVELS: u8 = 2;
 pub struct SpawnWorld;
 
 #[derive(Resource)]
-pub struct LevelSpawnPoints(HashMap<Level, Vec3>);
+pub struct LevelOrigins(HashMap<Level, Vec3>);
 
-impl LevelSpawnPoints {
+impl LevelOrigins {
     // panics if not found, but like we totally control this.
     pub fn get_spawn_point(&self, level: Level) -> Vec3 {
         info!("getting spawn point for {level:?}");
@@ -54,7 +54,7 @@ impl LevelSpawnPoints {
     }
 }
 
-impl Default for LevelSpawnPoints {
+impl Default for LevelOrigins {
     fn default() -> Self {
         let mut map: HashMap<Level, Vec3> = HashMap::with_capacity(5);
 
@@ -105,7 +105,7 @@ fn spawn_world(
     _trigger: Trigger<SpawnWorld>,
     mut commands: Commands,
     scene_assets: Res<LevelAssets>,
-    spawn_points: Res<LevelSpawnPoints>,
+    spawn_points: Res<LevelOrigins>,
 ) {
     for (level, scene) in &scene_assets.levels {
         commands
