@@ -26,4 +26,4 @@ args = ["build", "--features", "native", "--profile", "release-dist"]
 
 [tasks.brp]
 command = "cargo"
-args = ["run", "--bin", "brp"]
+args = ["run", "--features", "dev", "--bin", "brp"]
