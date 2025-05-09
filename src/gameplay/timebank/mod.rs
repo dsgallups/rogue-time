@@ -34,6 +34,7 @@ fn on_add_blender_timebank(
         // remove it from the scene entirely,
         // and then construct it ourselves.
         //let BlenderTimebank { milliseconds } = blender_timebanks.get(trigger.target()).unwrap();
+        info!("added blender timebank");
 
         commands.entity(entity).despawn();
         commands.spawn((
