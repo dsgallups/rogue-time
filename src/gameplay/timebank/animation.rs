@@ -58,7 +58,7 @@ struct TimeBankAnimation {
     index: AnimationNodeIndex,
 }
 
-// we will have a trigger will then trigger this on the StopWatch component being inserted...
+// we will have a trigger which will then trigger this on the StopWatch component being inserted...
 // or maybe this happens automagically with the animation plugin via link_animation_player
 //
 // note the observer is not app wide
