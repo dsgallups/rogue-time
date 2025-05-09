@@ -24,8 +24,8 @@ impl FromWorld for PortalAnimationAssets {
     fn from_world(world: &mut World) -> Self {
         let assets = world.resource::<AssetServer>();
         Self {
-            model: assets.load(GltfAssetLabel::Scene(0).from_asset("scenes/Portal.glb")),
-            spin: assets.load(GltfAssetLabel::Animation(0).from_asset("scenes/Portal.glb")),
+            model: assets.load(GltfAssetLabel::Scene(0).from_asset("scenes/Door.glb")),
+            spin: assets.load(GltfAssetLabel::Animation(0).from_asset("scenes/Door.glb")),
         }
     }
 }
