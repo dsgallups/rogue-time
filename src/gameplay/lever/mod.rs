@@ -2,7 +2,10 @@ use bevy::prelude::*;
 mod animation;
 use crate::level::Level;
 
-use super::blender::{BlenderObject, replace_blender_object};
+use super::{
+    blender::{BlenderObject, replace_blender_object},
+    portal::PortalKey,
+};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<BlenderLever>()
@@ -61,8 +64,11 @@ pub struct Lever;
 // }
 
 fn on_add_lever(trigger: Trigger<OnAdd, Lever>, mut commands: Commands) {
-    // Add mesh and animation junk
-    commands.entity(trigger.target());
+    //let level = levels.get(trigger.target()).unwrap();
+
+    commands
+        .entity(trigger.target())
+        .insert(PortalKey::default());
 }
 
 // fn flip_lever(_trigger: Trigger<Pointer<Click>>) {

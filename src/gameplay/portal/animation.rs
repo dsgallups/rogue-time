@@ -1,14 +1,16 @@
-use bevy::{prelude::*, scene::SceneInstanceReady};
+use bevy::{animation::RepeatAnimation, prelude::*};
 
 use crate::asset_tracking::LoadResource;
 
-use super::Portal;
+use super::{Opened, Portal, PortalKey, PortalKeys};
 
 pub fn plugin(app: &mut App) {
     app.load_resource::<PortalAnimationAssets>();
     app.register_type::<PortalAnimationAssets>();
 
     app.add_observer(setup_animation);
+
+    app.add_systems(Update, open_door);
 }
 
 #[derive(Resource, Asset, Clone, Reflect)]
@@ -48,8 +50,7 @@ fn setup_animation(
 
     commands
         .entity(trigger.target())
-        .insert((animation_to_play, SceneRoot(assets.model.clone())))
-        .observe(play_when_ready);
+        .insert((animation_to_play, SceneRoot(assets.model.clone())));
 }
 
 #[derive(Component)]
@@ -58,38 +59,45 @@ struct PortalAnimation {
     index: AnimationNodeIndex,
 }
 
-// we will have a trigger which will then trigger this on the StopWatch component being inserted...
-// or maybe this happens automagically with the animation plugin via link_animation_player
-//
-// note the observer is not app wide
-fn play_when_ready(
-    trigger: Trigger<SceneInstanceReady>,
+fn open_door(
     mut commands: Commands,
+    portals: Query<(Entity, &PortalKeys), (With<Portal>, Without<Opened>)>,
+    keys: Query<&PortalKey>,
     animations_to_play: Query<&PortalAnimation>,
     children: Query<&Children>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
-    // The entity we spawned in `setup_mesh_and_animation` is the trigger's target.
-    // Start by finding the AnimationToPlay component we added to that entity.
-    if let Ok(animation_to_play) = animations_to_play.get(trigger.target()) {
-        // The SceneRoot component will have spawned the scene as a hierarchy
-        // of entities parented to our entity. Since the asset contained a skinned
-        // mesh and animations, it will also have spawned an animation player
-        // component. Search our entity's descendants to find the animation player.
-        for child in children.iter_descendants(trigger.target()) {
-            if let Ok(mut player) = players.get_mut(child) {
-                // Tell the animation player to start the animation and keep
-                // repeating it.
-                //
-                // If you want to try stopping and switching animations, see the
-                // `animated_mesh_control.rs` example.
-                player.play(animation_to_play.index).set_speed(2.);
+    'outer: for (portal, portal_keys) in portals {
+        //see if we can open this door
+        for key in keys.iter_many(&portal_keys.0) {
+            if !key.interacted {
+                continue 'outer;
+            }
+        }
+        commands.entity(portal).insert(Opened);
 
-                // Add the animation graph. This only needs to be done once to
-                // connect the animation player to the mesh.
-                commands
-                    .entity(child)
-                    .insert(AnimationGraphHandle(animation_to_play.graph_handle.clone()));
+        if let Ok(animation_to_play) = animations_to_play.get(portal) {
+            // The SceneRoot component will have spawned the scene as a hierarchy
+            // of entities parented to our entity. Since the asset contained a skinned
+            // mesh and animations, it will also have spawned an animation player
+            // component. Search our entity's descendants to find the animation player.
+            for child in children.iter_descendants(portal) {
+                if let Ok(mut player) = players.get_mut(child) {
+                    // Tell the animation player to start the animation and keep
+                    // repeating it.
+                    //
+                    // If you want to try stopping and switching animations, see the
+                    // `animated_mesh_control.rs` example.
+                    player
+                        .play(animation_to_play.index)
+                        .set_repeat(RepeatAnimation::Never);
+
+                    // Add the animation graph. This only needs to be done once to
+                    // connect the animation player to the mesh.
+                    commands
+                        .entity(child)
+                        .insert(AnimationGraphHandle(animation_to_play.graph_handle.clone()));
+                }
             }
         }
     }

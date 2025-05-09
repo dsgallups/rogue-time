@@ -44,6 +44,7 @@ impl BlenderObject for BlenderPortal {
     }
 }
 
+/// Need this because the door should stay opened if all portal keys have been clicked
 #[derive(Component)]
 pub struct Opened;
 
@@ -59,8 +60,10 @@ pub struct Portal {
 #[relationship(relationship_target = PortalKeys)]
 pub struct KeyFor(pub Entity);
 
-#[derive(Component)]
-pub struct PortalKey;
+#[derive(Component, Default)]
+pub struct PortalKey {
+    pub interacted: bool,
+}
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
