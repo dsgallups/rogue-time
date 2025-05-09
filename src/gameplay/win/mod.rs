@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::screens::Screen;
 
 pub fn plugin(app: &mut App) {
-    app.register_type::<GameWin>();
+    app.register_type::<GameWin>().add_observer(win_game);
 }
 
 #[derive(Component, Reflect, Event)]

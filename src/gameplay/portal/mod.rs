@@ -1,9 +1,12 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
+use crate::level::{Level, LevelSpawnPoints};
+
 use super::{
     player::Player,
     room::{NewRoom, StartCountdown},
+    win::GameWin,
 };
 
 pub fn plugin(app: &mut App) {
@@ -18,8 +21,7 @@ pub fn plugin(app: &mut App) {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Portal {
-    to: Vec3,
-    facing: Vec3,
+    to: Level,
     initial_stopwatch_duration: u64,
 }
 
@@ -34,10 +36,11 @@ fn insert_portal(trigger: Trigger<OnAdd, Portal>, mut commands: Commands) {
 fn portal_me_elsewhere(
     trigger: Trigger<OnCollisionStart>,
     mut commands: Commands,
-    portals: Query<&Portal>,
+    portals: Query<(&Portal, Has<GameWin>)>,
     player: Query<&Player>,
+    spawn_points: Res<LevelSpawnPoints>,
 ) {
-    let portal = portals.get(trigger.target()).unwrap();
+    let (portal, wins_game) = portals.get(trigger.target()).unwrap();
 
     let event = trigger.event();
 
@@ -45,9 +48,16 @@ fn portal_me_elsewhere(
         return;
     };
 
+    if wins_game {
+        commands.trigger(GameWin);
+        return;
+    }
+
+    let spawn_point = spawn_points.get_spawn_point(portal.to);
+
     commands.trigger(NewRoom {
-        spawn_point: portal.to,
-        facing: Dir3::new(portal.facing).ok(),
+        spawn_point,
+        facing: Some(Dir3::NEG_Z),
     });
     commands.trigger(StartCountdown(portal.initial_stopwatch_duration));
 }

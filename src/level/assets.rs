@@ -4,10 +4,6 @@ use crate::asset_tracking::LoadResource;
 
 pub fn plugin(app: &mut App) {
     app.load_resource::<LevelAssets>();
-
-    app.register_type::<Level0>()
-        .register_type::<Level1>()
-        .register_type::<Level2>();
 }
 
 /// A [`Resource`] that contains all the assets needed to spawn the level.
@@ -27,15 +23,3 @@ impl FromWorld for LevelAssets {
         }
     }
 }
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct Level0;
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct Level1;
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct Level2;
