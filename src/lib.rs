@@ -31,7 +31,7 @@ impl Plugin for AppPlugin {
             (AppSet::TickTimers, AppSet::RecordInput, AppSet::Update).chain(),
         );
 
-        app.add_plugins(
+        app.add_plugins((
             DefaultPlugins
                 .set(AssetPlugin {
                     meta_check: AssetMetaCheck::Never,
@@ -52,7 +52,12 @@ impl Plugin for AppPlugin {
                     .into(),
                     ..default()
                 }),
-        );
+            MeshPickingPlugin,
+        ))
+        .insert_resource(MeshPickingSettings {
+            require_markers: true,
+            ..default()
+        });
 
         //other plugins
         app.add_plugins((
@@ -86,64 +91,6 @@ enum AppSet {
     Update,
 }
 
-<<<<<<< HEAD:src/main.rs
-fn main() {
-    let mut app = App::new();
-
-    app.register_type::<AppSet>();
-
-    app.configure_sets(
-        Update,
-        (AppSet::TickTimers, AppSet::RecordInput, AppSet::Update).chain(),
-    );
-
-    app.add_plugins((
-        DefaultPlugins
-            .set(AssetPlugin {
-                meta_check: AssetMetaCheck::Never,
-                ..default()
-            })
-            .set(WindowPlugin {
-                primary_window: Window {
-                    title: "Rogue Time".to_string(),
-                    fit_canvas_to_parent: true,
-                    canvas: Some("#bevy".to_owned()),
-                    // might need to adjust this for WASM
-                    mode: WindowMode::Windowed,
-                    // Tells wasm not to override default event handling, like F5 and Ctrl+R
-                    prevent_default_event_handling: false,
-                    //mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
-                    ..default()
-                }
-                .into(),
-                ..default()
-            }),
-        MeshPickingPlugin,
-    ))
-    .insert_resource(MeshPickingSettings {
-        require_markers: true,
-        ..default()
-    });
-
-    //other plugins
-    app.add_plugins((
-        third_party::plugin,
-        asset_tracking::plugin,
-        theme::plugin,
-        screens::plugin,
-    ));
-
-    //spawn ui camera. should always exist
-    app.add_systems(Startup, spawn_ui_camera);
-
-    // Bevy should rotate gltf coordinates to properly work in the system
-    //app.add_observer(fix_gltf_coordinates);
-
-    app.run();
-}
-
-=======
->>>>>>> main:src/lib.rs
 impl From<CameraOrder> for isize {
     fn from(order: CameraOrder) -> Self {
         order as isize
