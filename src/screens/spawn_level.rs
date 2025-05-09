@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{gameplay::player::Player, level::LevelLoaded, theme::widgets};
+use crate::{gameplay::player::Player, level::LevelsLoaded, theme::widgets};
 
 use super::Screen;
 
@@ -31,7 +31,7 @@ fn unspawn_player(mut player_spawned: ResMut<PlayerAlreadySpawned>) {
 //
 // This in turn will kick off a set of observers that will eventually create the player camera.
 fn spawn_player(
-    level_ready: Res<LevelLoaded>,
+    level_ready: Res<LevelsLoaded>,
     mut player_spawned: ResMut<PlayerAlreadySpawned>,
     mut commands: Commands,
     mut next_screen: ResMut<NextState<Screen>>,
