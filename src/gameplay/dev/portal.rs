@@ -1,14 +1,30 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::gameplay::{player::Player, portal::Portal};
+use crate::gameplay::{
+    player::Player,
+    portal::{Portal, PortalKey},
+};
 
-pub fn plugin(_app: &mut App) {
+pub fn plugin(app: &mut App) {
     //app.add_observer(debug_portal_insert);
     // app.add_systems(
     //     Update,
     //     determine_distance_from_portal.in_set(GameSet::Update),
     // );
+    //
+
+    app.add_systems(Update, open_portals);
+}
+// set all portal keys to interacted
+fn open_portals(mut portal_keys: Query<&mut PortalKey>, keys: Res<ButtonInput<KeyCode>>) {
+    if !keys.just_pressed(KeyCode::KeyP) {
+        return;
+    }
+
+    for mut key in &mut portal_keys {
+        key.interacted = true;
+    }
 }
 
 ///Portals are sensors
