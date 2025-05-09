@@ -1,6 +1,9 @@
 use bevy::{ecs::relationship::RelatedSpawnerCommands, prelude::*};
 mod animation;
-use crate::gameplay::door::{Door, KeyFor};
+use crate::{
+    gameplay::portal::{KeyFor, Portal},
+    level::Level,
+};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<BlenderLever>()
@@ -13,7 +16,9 @@ pub fn plugin(app: &mut App) {
 /// Marker type for lever with door id
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct BlenderLever(u8);
+pub struct BlenderLever {
+    level: Level,
+}
 
 /// Lever for trickering events
 #[derive(Component, Reflect)]
@@ -21,11 +26,11 @@ pub struct BlenderLever(u8);
 #[reflect(Component)]
 pub struct Lever;
 
-// TODO NEEDS TO RUN AFTER [`Door`]s ARE INSERTED
+// TODO NEEDS TO RUN AFTER [`Portal`]s ARE INSERTED
 fn on_add_blender_lever(
     mut commands: Commands,
     blender_lever: Query<(Entity, &Transform, &BlenderLever)>,
-    doors: Query<(Entity, &Door)>,
+    doors: Query<(Entity, &Portal)>,
 ) {
     for (entity, transform, lever) in blender_lever.iter() {
         // Skip if the door ID is not the same as the lever ID
