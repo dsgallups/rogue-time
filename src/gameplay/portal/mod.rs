@@ -15,14 +15,12 @@ mod animation;
 pub fn plugin(app: &mut App) {
     app.register_type::<BlenderPortal>()
         .register_type::<KeyFor>()
-        .register_type::<Unlockers>()
+        .register_type::<PortalKeys>()
         .add_plugins(animation::plugin)
         .add_observer(insert_portal)
-        .add_systems(PreUpdate, replace_blender_object::<BlenderPortal>);
+        .add_systems(PreUpdate, replace_blender_object::<BlenderPortal>)
+        .add_observer(insert_portal_key);
 }
-
-#[derive(Component)]
-pub struct Opened;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
@@ -46,32 +44,9 @@ impl BlenderObject for BlenderPortal {
     }
 }
 
-// fn on_add_blender_portal(
-//     mut commands: Commands,
-//     blender_door: Query<(Entity, &Transform, &BlenderPortal)>,
-//     level_origins: Res<LevelOrigins>,
-// ) {
-//     /*
-//     commands
-//         .entity(trigger.target())
-//         .insert((CollisionEventsEnabled, RigidBody::Static))
-//         .observe(portal_me_elsewhere);
+#[derive(Component)]
+pub struct Opened;
 
-//     */
-//     for (entity, transform, door) in blender_door {
-//         // we are going to take this thing,
-//         // remove it from the scene entirely,
-//         // and then construct it ourselves.
-//         commands.entity(entity).despawn();
-//         //commands.spawn((Door(door.0), *transform));
-//         info!("Spawned Door")
-//     }
-// }
-
-/// Used in bevy skein
-///
-///
-/// TODO: need to give an initial time for the next room
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Portal {
@@ -79,10 +54,50 @@ pub struct Portal {
     initial_stopwatch_duration: u64,
 }
 
-fn insert_portal(trigger: Trigger<OnAdd, Portal>, mut commands: Commands) {
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+#[relationship(relationship_target = PortalKeys)]
+pub struct KeyFor(pub Entity);
+
+#[derive(Component)]
+pub struct PortalKey;
+
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+#[relationship_target(relationship=KeyFor, linked_spawn)]
+pub struct PortalKeys(Vec<Entity>);
+
+fn insert_portal(
+    trigger: Trigger<OnAdd, Portal>,
+    mut commands: Commands,
+    levels: Query<&Level>,
+    portal_keys: Query<(Entity, &Level), With<PortalKey>>,
+) {
     commands
         .entity(trigger.target())
         .observe(portal_me_elsewhere);
+    let portal_level = levels.get(trigger.target()).unwrap();
+
+    for (entity, level) in portal_keys {
+        if portal_level != level {
+            continue;
+        }
+        commands.entity(entity).insert(KeyFor(trigger.target()));
+    }
+}
+
+fn insert_portal_key(
+    trigger: Trigger<OnAdd, PortalKey>,
+    mut commands: Commands,
+    levels: Query<&Level>,
+    portals: Query<(Entity, &Level), With<Portal>>,
+) {
+    let key_level = levels.get(trigger.target()).unwrap();
+    for (portal, portal_level) in portals {
+        if key_level == portal_level {
+            commands.entity(trigger.target()).insert(KeyFor(portal));
+        }
+    }
 }
 
 fn portal_me_elsewhere(
@@ -113,19 +128,3 @@ fn portal_me_elsewhere(
     });
     commands.trigger(StartCountdown(portal.initial_stopwatch_duration));
 }
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-#[relationship(relationship_target = Unlockers )]
-pub struct KeyFor(pub Entity);
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-#[relationship_target(relationship=KeyFor, linked_spawn)]
-pub struct Unlockers(Vec<Entity>);
-
-// Should open the door with the captured entity
-#[derive(Event)]
-struct OpenDoor(Entity);
-
-fn portal_lever_connection() {}
