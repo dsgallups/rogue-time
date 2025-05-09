@@ -4,7 +4,8 @@ use bevy::prelude::*;
 use crate::gameplay::{player::Player, timebank::TimeBank};
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(on_timebank_insert);
+    app.add_observer(on_timebank_insert)
+        .add_systems(Update, print_player_transform);
 }
 
 fn on_timebank_insert(
@@ -43,7 +44,9 @@ fn print_player_transform(
     player: Query<&Transform, With<Player>>,
     timebank: Query<&Transform, With<TimeBank>>,
 ) {
-    let player = player.single().unwrap();
+    let Ok(player) = player.single() else {
+        return;
+    };
     let Ok(timebank) = timebank.single() else {
         error!("No timebank!");
         return;

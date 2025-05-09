@@ -9,19 +9,34 @@ use crate::screens::Screen;
 
 mod assets;
 
-pub fn plugin(app: &mut App) {
-    app.add_plugins(assets::plugin);
-
-    app.init_resource::<LevelsLoaded>()
-        .init_resource::<LevelSpawnPoints>()
-        .register_type::<Level>();
-
-    app.add_systems(OnExit(Screen::Loading), |mut commands: Commands| {
-        commands.trigger(SpawnWorld);
-    })
-    .add_observer(spawn_world)
-    .add_systems(OnExit(Screen::Gameplay), respawn_world);
+pub struct LevelPlugin {
+    pub load_level: bool,
 }
+
+impl Default for LevelPlugin {
+    fn default() -> Self {
+        Self { load_level: true }
+    }
+}
+
+impl Plugin for LevelPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(assets::plugin);
+
+        app.init_resource::<LevelsLoaded>()
+            .init_resource::<LevelSpawnPoints>()
+            .register_type::<Level>();
+
+        if self.load_level {
+            app.add_systems(OnExit(Screen::Loading), |mut commands: Commands| {
+                commands.trigger(SpawnWorld);
+            })
+            .add_observer(spawn_world)
+            .add_systems(OnExit(Screen::Gameplay), respawn_world);
+        }
+    }
+}
+
 /// note that levels start at 0. this is length.
 const NUM_LEVELS: u8 = 2;
 

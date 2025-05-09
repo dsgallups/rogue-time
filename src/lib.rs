@@ -1,5 +1,6 @@
 use bevy::{asset::AssetMetaCheck, prelude::*, render::view::RenderLayers, window::WindowMode};
 use bitflags::bitflags;
+use level::LevelPlugin;
 
 mod asset_tracking;
 mod gameplay;
@@ -9,6 +10,67 @@ mod theme;
 mod third_party;
 
 const UI_RENDER_LAYER: usize = 2;
+
+pub struct AppPlugin {
+    pub load_level: bool,
+}
+
+impl Default for AppPlugin {
+    fn default() -> Self {
+        Self { load_level: true }
+    }
+}
+
+impl Plugin for AppPlugin {
+    fn build(&self, app: &mut App) {
+        app.register_type::<AppSet>();
+
+        app.configure_sets(
+            Update,
+            (AppSet::TickTimers, AppSet::RecordInput, AppSet::Update).chain(),
+        );
+
+        app.add_plugins(
+            DefaultPlugins
+                .set(AssetPlugin {
+                    meta_check: AssetMetaCheck::Never,
+                    ..default()
+                })
+                .set(WindowPlugin {
+                    primary_window: Window {
+                        title: "Rogue Time".to_string(),
+                        fit_canvas_to_parent: true,
+                        canvas: Some("#bevy".to_owned()),
+                        // might need to adjust this for WASM
+                        mode: WindowMode::Windowed,
+                        // Tells wasm not to override default event handling, like F5 and Ctrl+R
+                        prevent_default_event_handling: false,
+                        //mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
+                        ..default()
+                    }
+                    .into(),
+                    ..default()
+                }),
+        );
+
+        //other plugins
+        app.add_plugins((
+            third_party::plugin,
+            asset_tracking::plugin,
+            theme::plugin,
+            screens::plugin,
+            LevelPlugin {
+                load_level: self.load_level,
+            },
+        ));
+
+        //spawn ui camera. should always exist
+        app.add_systems(Startup, spawn_ui_camera);
+
+        // Bevy should rotate gltf coordinates to properly work in the system
+        //app.add_observer(fix_gltf_coordinates);
+    }
+}
 
 /// High level groups of systems in the "Update" schedule.
 ///
@@ -21,57 +83,6 @@ enum AppSet {
     RecordInput,
     /// do everything else
     Update,
-}
-
-fn main() {
-    let mut app = App::new();
-
-    app.register_type::<AppSet>();
-
-    app.configure_sets(
-        Update,
-        (AppSet::TickTimers, AppSet::RecordInput, AppSet::Update).chain(),
-    );
-
-    app.add_plugins(
-        DefaultPlugins
-            .set(AssetPlugin {
-                meta_check: AssetMetaCheck::Never,
-                ..default()
-            })
-            .set(WindowPlugin {
-                primary_window: Window {
-                    title: "Rogue Time".to_string(),
-                    fit_canvas_to_parent: true,
-                    canvas: Some("#bevy".to_owned()),
-                    // might need to adjust this for WASM
-                    mode: WindowMode::Windowed,
-                    // Tells wasm not to override default event handling, like F5 and Ctrl+R
-                    prevent_default_event_handling: false,
-                    //mode: WindowMode::BorderlessFullscreen(MonitorSelection::Primary),
-                    ..default()
-                }
-                .into(),
-                ..default()
-            }),
-    );
-
-    //other plugins
-    app.add_plugins((
-        third_party::plugin,
-        asset_tracking::plugin,
-        theme::plugin,
-        screens::plugin,
-        level::plugin,
-    ));
-
-    //spawn ui camera. should always exist
-    app.add_systems(Startup, spawn_ui_camera);
-
-    // Bevy should rotate gltf coordinates to properly work in the system
-    //app.add_observer(fix_gltf_coordinates);
-
-    app.run();
 }
 
 impl From<CameraOrder> for isize {

@@ -5,7 +5,7 @@ use std::time::Duration;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::gameplay::player::rewind::CanRewind;
+use crate::{gameplay::player::rewind::CanRewind, level::Level};
 
 use super::{player::Player, time::LevelTimer};
 
@@ -23,6 +23,7 @@ pub fn plugin(app: &mut App) {
 #[reflect(Component)]
 pub struct BlenderTimebank {
     pub milliseconds: u64,
+    pub level: Level,
 }
 
 fn on_add_blender_timebank(
@@ -38,6 +39,7 @@ fn on_add_blender_timebank(
 
         commands.entity(entity).despawn();
         commands.spawn((
+            timebank.level,
             TimeBank {
                 milliseconds: timebank.milliseconds,
             },
