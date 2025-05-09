@@ -1,6 +1,6 @@
 //! Code to load all of our gltfs and scene stuffs
 
-use std::collections::HashMap;
+use std::{collections::HashMap, iter};
 
 use assets::LevelAssets;
 use bevy::{prelude::*, scene::SceneInstanceReady};
@@ -16,9 +16,17 @@ pub fn plugin(app: &mut App) {
         .init_resource::<LevelSpawnPoints>()
         .register_type::<Level>();
 
-    app.add_systems(OnExit(Screen::Loading), spawn_level)
-        .add_systems(OnExit(Screen::Gameplay), respawn_level);
+    app.add_systems(OnExit(Screen::Loading), |mut commands: Commands| {
+        commands.trigger(SpawnWorld);
+    })
+    .add_observer(spawn_world)
+    .add_systems(OnExit(Screen::Gameplay), respawn_world);
 }
+/// note that levels start at 0. this is length.
+const NUM_LEVELS: u8 = 2;
+
+#[derive(Event)]
+pub struct SpawnWorld;
 
 #[derive(Resource)]
 pub struct LevelSpawnPoints(HashMap<Level, Vec3>);
@@ -35,7 +43,7 @@ impl Default for LevelSpawnPoints {
     fn default() -> Self {
         let mut map: HashMap<Level, Vec3> = HashMap::with_capacity(5);
 
-        for i in 0..5 {
+        for i in 0..NUM_LEVELS {
             map.insert(Level(i), Vec3::new(0., 3., (i as f32) * 120.));
         }
 
@@ -50,13 +58,49 @@ impl Default for LevelSpawnPoints {
 #[reflect(Component)]
 pub struct Level(pub u8);
 
-#[derive(Resource, Default)]
-pub struct LevelsLoaded(pub bool);
+#[derive(Resource)]
+pub struct LevelsLoaded {
+    loaded: Vec<bool>,
+}
 
-fn spawn_level(mut commands: Commands, scene_assets: Res<LevelAssets>) {
-    commands
-        .spawn(SceneRoot(scene_assets.level0.clone()))
-        .observe(announce_ready);
+impl Default for LevelsLoaded {
+    fn default() -> Self {
+        Self {
+            loaded: iter::repeat_n(false, NUM_LEVELS as usize).collect(),
+        }
+    }
+}
+
+impl LevelsLoaded {
+    pub fn reset(&mut self) {
+        self.loaded.iter_mut().for_each(|l| {
+            *l = false;
+        });
+    }
+    pub fn set_ready(&mut self, level: Level) {
+        let val = &mut self.loaded[level.0 as usize];
+        *val = true;
+    }
+    pub fn all_ready(&self) -> bool {
+        self.loaded.iter().all(|l| *l)
+    }
+}
+
+fn spawn_world(
+    _trigger: Trigger<SpawnWorld>,
+    mut commands: Commands,
+    scene_assets: Res<LevelAssets>,
+    spawn_points: Res<LevelSpawnPoints>,
+) {
+    for (level, scene) in &scene_assets.levels {
+        commands
+            .spawn((
+                *level,
+                SceneRoot(scene.clone()),
+                Transform::from_translation(spawn_points.get_spawn_point(*level)),
+            ))
+            .observe(announce_ready);
+    }
 
     commands.spawn((
         PointLight {
@@ -67,16 +111,22 @@ fn spawn_level(mut commands: Commands, scene_assets: Res<LevelAssets>) {
     ));
 }
 
-fn announce_ready(_trigger: Trigger<SceneInstanceReady>, mut res: ResMut<LevelsLoaded>) {
-    info!("Scene is ready!");
-    res.0 = true;
+fn announce_ready(
+    trigger: Trigger<SceneInstanceReady>,
+    levels: Query<&Level>,
+    mut res: ResMut<LevelsLoaded>,
+) {
+    let scene_level = levels.get(trigger.target()).unwrap();
+    info!("Level {} is ready!", scene_level.0);
+    res.set_ready(*scene_level);
 }
 
-fn respawn_level(
+fn respawn_world(
     mut commands: Commands,
     scenes: Query<(Entity, Option<&ChildOf>), With<SceneRoot>>,
-    scene_assets: Res<LevelAssets>,
+    mut levels_loaded: ResMut<LevelsLoaded>,
 ) {
+    levels_loaded.reset();
     for (scene, child_of) in scenes {
         if let Some(child_of) = child_of {
             commands.entity(child_of.parent()).despawn();
@@ -85,15 +135,5 @@ fn respawn_level(
         }
     }
 
-    commands
-        .spawn(SceneRoot(scene_assets.level0.clone()))
-        .observe(announce_ready);
-
-    commands.spawn((
-        PointLight {
-            intensity: 5000.,
-            ..default()
-        },
-        Transform::default(),
-    ));
+    commands.trigger(SpawnWorld);
 }

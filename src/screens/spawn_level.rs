@@ -39,7 +39,7 @@ fn spawn_player(
     if player_spawned.0 {
         return;
     }
-    if !level_ready.0 {
+    if !level_ready.all_ready() {
         return;
     }
     info!("Spawning player!");
