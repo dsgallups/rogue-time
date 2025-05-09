@@ -1,3 +1,4 @@
+use avian3d::prelude::*;
 use bevy::prelude::*;
 mod animation;
 use crate::level::Level;
@@ -44,5 +45,5 @@ fn on_add_lever(trigger: Trigger<OnAdd, Lever>, mut commands: Commands) {
 
     commands
         .entity(trigger.target())
-        .insert(PortalKey::default());
+        .insert((PortalKey::default(), Collider::sphere(2.)));
 }

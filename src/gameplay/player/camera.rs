@@ -104,7 +104,6 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
                 ),
                 Exposure::INDOOR,
                 Tonemapping::AcesFitted,
-                MeshPickingCamera,
             ));
 
             // Spawn view model camera.
@@ -129,7 +128,6 @@ fn spawn_view_model(_trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
                 RenderLayers::from(RenderLayer::VIEW_MODEL),
                 Exposure::INDOOR,
                 Tonemapping::AcesFitted,
-                MeshPickingCamera,
             ));
 
             // Spawn the player's view model
