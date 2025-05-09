@@ -26,10 +26,7 @@ native = [
     "bevy/hdr",
     "bevy/smaa_luts",
     "bevy/sysinfo_plugin",
-    "bevy/multi_threaded",              # not useful for web
-    "bevy/bevy_mesh_picking_backend",   # might not need
-    "bevy/bevy_sprite",
-    "bevy/bevy_sprite_picking_backend",
+    "bevy/multi_threaded", # not useful for web
 ]
 
 [dependencies]
@@ -41,7 +38,6 @@ avian3d = { version = "0.2.0", default-features = false, features = [
     "default-collider",
     "simd",
     "collider-from-mesh",
-    "bevy_picking"
 ] }
 bevy-tnua = { version = "0.23" }
 bevy-tnua-avian3d = { version = "0.5" }

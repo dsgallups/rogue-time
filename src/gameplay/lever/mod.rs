@@ -39,30 +39,6 @@ impl BlenderObject for BlenderLever {
 #[reflect(Component)]
 pub struct Lever;
 
-// fn on_add_blender_lever(
-//     mut commands: Commands,
-//     blender_lever: Query<(Entity, &Transform, &BlenderLever)>,
-//     portals: Query<(Entity, &Portal)>,
-// ) {
-//     for (entity, transform, lever) in blender_lever.iter() {
-//         // Skip if the door ID is not the same as the lever ID
-//         let Some((door_entity, _)) = portals.iter().find(|(_, door)| door.0 == lever.0) else {
-//             continue;
-//         };
-
-//         // Despawn the original lever entity
-//         commands.entity(entity).despawn();
-
-//         // Spawn the new lever in relation to the matching door
-//         commands.entity(door_entity).with_related_entities(
-//             |door: &mut RelatedSpawnerCommands<KeyFor>| {
-//                 door.spawn((Lever, *transform)).observe(flip_lever);
-//                 info!("Spawned lever {}", lever.0);
-//             },
-//         );
-//     }
-// }
-
 fn on_add_lever(trigger: Trigger<OnAdd, Lever>, mut commands: Commands) {
     //let level = levels.get(trigger.target()).unwrap();
 
@@ -70,7 +46,3 @@ fn on_add_lever(trigger: Trigger<OnAdd, Lever>, mut commands: Commands) {
         .entity(trigger.target())
         .insert(PortalKey::default());
 }
-
-// fn flip_lever(_trigger: Trigger<Pointer<Click>>) {
-//     info!("Lever clicked!");
-// }
