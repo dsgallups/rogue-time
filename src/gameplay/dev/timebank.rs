@@ -1,7 +1,10 @@
 use avian3d::prelude::OnCollisionStart;
 use bevy::prelude::*;
 
-use crate::gameplay::{player::Player, timebank::TimeBank};
+use crate::{
+    gameplay::{player::Player, timebank::TimeBank},
+    level::Level,
+};
 
 pub fn plugin(app: &mut App) {
     app.add_observer(on_timebank_insert)
@@ -42,17 +45,23 @@ fn on_timebank_collision(
 #[allow(dead_code)]
 fn print_player_transform(
     player: Query<&Transform, With<Player>>,
-    timebank: Query<&Transform, With<TimeBank>>,
+    timebanks: Query<(&Transform, &Level), With<TimeBank>>,
 ) {
     let Ok(player) = player.single() else {
         return;
     };
-    let Ok(timebank) = timebank.single() else {
-        error!("No timebank!");
-        return;
-    };
+    for (transform, level) in timebanks {
+        if level.0 != 0 {
+            //info!("Ignoring Timebank({level:?}");
+            continue;
+        }
+        let diff = (player.translation - transform.translation);
+        info!(
+            "Timebank({level:?}): distance: {}\ndiff: {:?} ",
+            diff.length(),
+            diff
+        );
+    }
 
-    let diff = (player.translation - timebank.translation);
-    debug!("distance: {}\ndiff: {:?} ", diff.length(), diff);
     //error!("player trns: {:?}", player.single().unwrap().translation);
 }

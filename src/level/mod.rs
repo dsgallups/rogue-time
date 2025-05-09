@@ -59,7 +59,7 @@ impl Default for LevelSpawnPoints {
         let mut map: HashMap<Level, Vec3> = HashMap::with_capacity(5);
 
         for i in 0..NUM_LEVELS {
-            map.insert(Level(i), Vec3::new(0., 3., (i as f32) * 120.));
+            map.insert(Level(i), Vec3::new(0., 0., (i as f32) * 120.));
         }
 
         Self(map)
