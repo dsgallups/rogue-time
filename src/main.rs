@@ -1,5 +1,6 @@
 use bevy::{asset::AssetMetaCheck, prelude::*, render::view::RenderLayers, window::WindowMode};
 use bitflags::bitflags;
+use gameplay::GameState;
 
 mod asset_tracking;
 mod gameplay;
@@ -32,7 +33,7 @@ fn main() {
         (AppSet::TickTimers, AppSet::RecordInput, AppSet::Update).chain(),
     );
 
-    app.add_plugins(
+    app.add_plugins((
         DefaultPlugins
             .set(AssetPlugin {
                 meta_check: AssetMetaCheck::Never,
@@ -53,7 +54,12 @@ fn main() {
                 .into(),
                 ..default()
             }),
-    );
+        MeshPickingPlugin,
+    ))
+    .insert_resource(MeshPickingSettings {
+        require_markers: true,
+        ..default()
+    });
 
     //other plugins
     app.add_plugins((

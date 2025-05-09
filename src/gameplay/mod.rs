@@ -5,6 +5,8 @@ use bevy::{
 };
 
 mod animation;
+mod door;
+mod interactables;
 mod lives;
 pub mod player;
 mod portal;
@@ -72,6 +74,8 @@ pub fn plugin(app: &mut App) {
         lives::plugin,
         time::plugin,
         timelines::plugin,
+        interactables::plugin,
+        door::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);
