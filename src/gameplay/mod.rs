@@ -5,7 +5,8 @@ use bevy::{
 };
 
 mod animation;
-mod interactables;
+mod blender;
+mod lever;
 mod lives;
 pub mod player;
 mod portal;
@@ -73,7 +74,7 @@ pub fn plugin(app: &mut App) {
         lives::plugin,
         time::plugin,
         timelines::plugin,
-        interactables::plugin,
+        lever::plugin,
         portal::plugin,
         win::plugin,
     ));

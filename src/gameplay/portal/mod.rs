@@ -4,6 +4,7 @@ use bevy::prelude::*;
 use crate::level::{Level, LevelOrigins};
 
 use super::{
+    blender::{BlenderObject, replace_blender_object},
     player::Player,
     room::{NewRoom, StartCountdown},
     win::GameWin,
@@ -17,35 +18,55 @@ pub fn plugin(app: &mut App) {
         .register_type::<Unlockers>()
         .add_plugins(animation::plugin)
         .add_observer(insert_portal)
-        .add_systems(PreUpdate, on_add_blender_door);
+        .add_systems(PreUpdate, replace_blender_object::<BlenderPortal>);
 }
+
+#[derive(Component)]
+pub struct Opened;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 struct BlenderPortal {
     level: Level,
+    to: Level,
+    initial_stopwatch_duration: u64,
 }
 
-fn on_add_blender_door(
-    mut commands: Commands,
-    blender_door: Query<(Entity, &Transform, &BlenderPortal)>,
-) {
-    /*
-    commands
-        .entity(trigger.target())
-        .insert((CollisionEventsEnabled, RigidBody::Static))
-        .observe(portal_me_elsewhere);
+impl BlenderObject for BlenderPortal {
+    type BevyComponent = Portal;
+    fn level(&self) -> Level {
+        self.level
+    }
 
-    */
-    for (entity, transform, door) in blender_door {
-        // we are going to take this thing,
-        // remove it from the scene entirely,
-        // and then construct it ourselves.
-        commands.entity(entity).despawn();
-        //commands.spawn((Door(door.0), *transform));
-        info!("Spawned Door")
+    fn to_component(&self) -> Self::BevyComponent {
+        Portal {
+            to: self.level,
+            initial_stopwatch_duration: self.initial_stopwatch_duration,
+        }
     }
 }
+
+// fn on_add_blender_portal(
+//     mut commands: Commands,
+//     blender_door: Query<(Entity, &Transform, &BlenderPortal)>,
+//     level_origins: Res<LevelOrigins>,
+// ) {
+//     /*
+//     commands
+//         .entity(trigger.target())
+//         .insert((CollisionEventsEnabled, RigidBody::Static))
+//         .observe(portal_me_elsewhere);
+
+//     */
+//     for (entity, transform, door) in blender_door {
+//         // we are going to take this thing,
+//         // remove it from the scene entirely,
+//         // and then construct it ourselves.
+//         commands.entity(entity).despawn();
+//         //commands.spawn((Door(door.0), *transform));
+//         info!("Spawned Door")
+//     }
+// }
 
 /// Used in bevy skein
 ///
@@ -107,6 +128,4 @@ pub struct Unlockers(Vec<Entity>);
 #[derive(Event)]
 struct OpenDoor(Entity);
 
-fn try_open_door(_trigger: Trigger<Pointer<Click>>) {
-    info!("Door Triggered")
-}
+fn portal_lever_connection() {}
