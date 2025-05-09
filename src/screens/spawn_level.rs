@@ -1,11 +1,8 @@
-use bevy::{prelude::*, scene::SceneInstanceReady};
+use bevy::prelude::*;
 
-use crate::{asset_tracking::LoadResource, gameplay::player::Player, theme::widgets};
+use crate::{gameplay::player::Player, level::LevelsLoaded, theme::widgets};
 
 use super::Screen;
-
-#[derive(Resource, Default)]
-struct LevelLoaded(bool);
 
 /// set to true when the player has spawned, and set to false when leaving gameplay
 #[derive(Resource, Default)]
@@ -14,11 +11,7 @@ pub struct PlayerAlreadySpawned(bool);
 pub fn plugin(app: &mut App) {
     // spawn the level in the background, the title screen is valuable time to speed up things
     // we're ready to go as soon as we leave the loading screen.
-    app.add_systems(OnExit(Screen::Loading), spawn_level)
-        .add_systems(OnExit(Screen::Gameplay), (unspawn_player, respawn_level));
-
-    app.load_resource::<LevelAssets>()
-        .init_resource::<LevelLoaded>()
+    app.add_systems(OnExit(Screen::Gameplay), (unspawn_player))
         .init_resource::<PlayerAlreadySpawned>();
     app.add_systems(OnEnter(Screen::SpawnLevel), spawn_spawn_level_screen)
         .add_systems(Update, spawn_player.run_if(in_state(Screen::SpawnLevel)));
@@ -26,25 +19,6 @@ pub fn plugin(app: &mut App) {
     //     Update,
     //     advance_to_gameplay_screen.run_if(in_state(Screen::SpawnLevel)),
     // );
-}
-
-fn spawn_level(mut commands: Commands, scene_assets: Res<LevelAssets>) {
-    commands
-        .spawn(SceneRoot(scene_assets.level.clone()))
-        .observe(announce_ready);
-
-    commands.spawn((
-        PointLight {
-            intensity: 5000.,
-            ..default()
-        },
-        Transform::default(),
-    ));
-}
-
-fn announce_ready(_trigger: Trigger<SceneInstanceReady>, mut res: ResMut<LevelLoaded>) {
-    info!("Scene is ready!");
-    res.0 = true;
 }
 
 fn unspawn_player(mut player_spawned: ResMut<PlayerAlreadySpawned>) {
@@ -57,7 +31,7 @@ fn unspawn_player(mut player_spawned: ResMut<PlayerAlreadySpawned>) {
 //
 // This in turn will kick off a set of observers that will eventually create the player camera.
 fn spawn_player(
-    level_ready: Res<LevelLoaded>,
+    level_ready: Res<LevelsLoaded>,
     mut player_spawned: ResMut<PlayerAlreadySpawned>,
     mut commands: Commands,
     mut next_screen: ResMut<NextState<Screen>>,
@@ -65,7 +39,7 @@ fn spawn_player(
     if player_spawned.0 {
         return;
     }
-    if !level_ready.0 {
+    if !level_ready.all_ready() {
         return;
     }
     info!("Spawning player!");
@@ -80,48 +54,4 @@ fn spawn_spawn_level_screen(mut commands: Commands) {
         StateScoped(Screen::SpawnLevel),
         children![widgets::label("Spawning Level...")],
     ));
-}
-
-fn respawn_level(
-    mut commands: Commands,
-    scenes: Query<(Entity, Option<&ChildOf>), With<SceneRoot>>,
-    scene_assets: Res<LevelAssets>,
-) {
-    for (scene, child_of) in scenes {
-        if let Some(child_of) = child_of {
-            commands.entity(child_of.parent()).despawn();
-        } else {
-            commands.entity(scene).despawn();
-        }
-    }
-
-    commands
-        .spawn(SceneRoot(scene_assets.level.clone()))
-        .observe(announce_ready);
-
-    commands.spawn((
-        PointLight {
-            intensity: 5000.,
-            ..default()
-        },
-        Transform::default(),
-    ));
-}
-
-/// A [`Resource`] that contains all the assets needed to spawn the level.
-/// We use this to preload assets before the level is spawned.
-#[derive(Resource, Asset, Clone, TypePath)]
-pub(crate) struct LevelAssets {
-    #[dependency]
-    pub(crate) level: Handle<Scene>,
-}
-
-impl FromWorld for LevelAssets {
-    fn from_world(world: &mut World) -> Self {
-        let assets = world.resource::<AssetServer>();
-
-        Self {
-            level: assets.load(GltfAssetLabel::Scene(0).from_asset("scenes/sandbox.glb")),
-        }
-    }
 }

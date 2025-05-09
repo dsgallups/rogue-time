@@ -17,6 +17,7 @@ pub mod time;
 mod timebank;
 mod timelines;
 mod ui;
+mod win;
 
 #[cfg(feature = "dev")]
 mod dev;
@@ -76,6 +77,7 @@ pub fn plugin(app: &mut App) {
         timelines::plugin,
         interactables::plugin,
         door::plugin,
+        win::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);

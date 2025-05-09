@@ -21,7 +21,7 @@ pub(super) fn plugin(app: &mut App) {
             record_movements.in_set(GameSet::RecordInput).run_if(
                 in_state(GameState::Playing)
                     .and(resource_exists::<MovementLog>)
-                    .and(check_log_timer),
+                    .and(|timer: Res<LogPeriod>| timer.0.just_finished()),
             ),
         )
         .add_systems(
@@ -48,10 +48,6 @@ pub struct LogPeriod(Timer);
 
 fn tick_log_timer(time: Res<Time>, mut timer: ResMut<LogPeriod>) {
     timer.0.tick(time.delta());
-}
-
-fn check_log_timer(timer: Res<LogPeriod>) -> bool {
-    if timer.0.just_finished() { true } else { false }
 }
 
 /// Stores [`Player`] movement From start of a level
@@ -129,7 +125,7 @@ fn play_logged_recording(
     commands.entity(player).insert(player_transform);
 }
 
-/// Record movement to [`MovementLog`] stack when in [`GameState::Playing`] during a level  
+/// Record movement to [`MovementLog`] stack when in [`GameState::Playing`] during a level
 fn record_movements(
     camera_transform: Query<&Transform, With<PlayerCamera>>,
     player_transform: Query<&Transform, With<Player>>,
@@ -141,6 +137,6 @@ fn record_movements(
         return;
     };
 
-    log.player.push(player_transform.clone());
-    log.camera.push(camera_transform.clone());
+    log.player.push(*player_transform);
+    log.camera.push(*camera_transform);
 }
