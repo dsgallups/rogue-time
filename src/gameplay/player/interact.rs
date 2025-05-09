@@ -1,7 +1,7 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::gameplay::GameState;
+use crate::gameplay::{GameState, interact::Interact};
 
 use super::{Player, camera::PlayerCamera};
 
@@ -12,6 +12,7 @@ pub fn plugin(app: &mut App) {
 }
 
 fn interact(
+    mut commands: Commands,
     buttons: Res<ButtonInput<MouseButton>>,
     spatial_query: SpatialQuery,
     player: Single<Entity, With<Player>>,
@@ -35,7 +36,7 @@ fn interact(
         return;
     };
 
-    info!("hit: {hit:?}");
+    commands.entity(hit.entity).trigger(Interact);
 
     //todo
 }

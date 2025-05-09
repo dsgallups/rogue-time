@@ -6,6 +6,7 @@ use bevy::{
 
 mod animation;
 mod blender;
+mod interact;
 mod lever;
 mod lives;
 pub mod player;

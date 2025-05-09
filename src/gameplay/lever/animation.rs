@@ -1,4 +1,4 @@
-use bevy::{prelude::*, scene::SceneInstanceReady};
+use bevy::{animation::RepeatAnimation, prelude::*, scene::SceneInstanceReady};
 
 use crate::asset_tracking::LoadResource;
 
@@ -49,44 +49,38 @@ fn setup_animation(
     commands
         .entity(trigger.target())
         .insert((animation_to_play, SceneRoot(assets.model.clone())))
-        .observe(play_when_ready);
+        .observe(ready_animation);
 }
 
 #[derive(Component)]
-struct LeverAnimation {
-    graph_handle: Handle<AnimationGraph>,
-    index: AnimationNodeIndex,
+pub struct LeverAnimation {
+    pub graph_handle: Handle<AnimationGraph>,
+    pub index: AnimationNodeIndex,
 }
 
 // we will have a trigger which will then trigger this on the StopWatch component being inserted...
 // or maybe this happens automagically with the animation plugin via link_animation_player
 //
 // note the observer is not app wide
-fn play_when_ready(
+fn ready_animation(
     trigger: Trigger<SceneInstanceReady>,
     mut commands: Commands,
     animations_to_play: Query<&LeverAnimation>,
     children: Query<&Children>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
-    // The entity we spawned in `setup_mesh_and_animation` is the trigger's target.
-    // Start by finding the AnimationToPlay component we added to that entity.
     if let Ok(animation_to_play) = animations_to_play.get(trigger.target()) {
-        // The SceneRoot component will have spawned the scene as a hierarchy
-        // of entities parented to our entity. Since the asset contained a skinned
-        // mesh and animations, it will also have spawned an animation player
-        // component. Search our entity's descendants to find the animation player.
         for child in children.iter_descendants(trigger.target()) {
-            if let Ok(mut player) = players.get_mut(child) {
-                // Tell the animation player to start the animation and keep
-                // repeating it.
-                //
-                // If you want to try stopping and switching animations, see the
-                // `animated_mesh_control.rs` example.
-                player.play(animation_to_play.index).repeat();
+            // Add the animation graph. This only needs to be done once to
+            // connect the animation player to the mesh.
+            //
 
-                // Add the animation graph. This only needs to be done once to
-                // connect the animation player to the mesh.
+            if let Ok(mut player) = players.get_mut(child) {
+                //set the animation, but start it paused.
+                player
+                    .play(animation_to_play.index)
+                    .set_repeat(RepeatAnimation::Never);
+
                 commands
                     .entity(child)
                     .insert(AnimationGraphHandle(animation_to_play.graph_handle.clone()));
