@@ -1,6 +1,6 @@
 use bevy::{prelude::*, scene::SceneInstanceReady};
 
-use crate::{asset_tracking::LoadResource, gameplay::player::Player, theme::widgets};
+use crate::{gameplay::player::Player, scene::LevelAssets, theme::widgets};
 
 use super::Screen;
 
@@ -17,8 +17,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnExit(Screen::Loading), spawn_level)
         .add_systems(OnExit(Screen::Gameplay), (unspawn_player, respawn_level));
 
-    app.load_resource::<LevelAssets>()
-        .init_resource::<LevelLoaded>()
+    app.init_resource::<LevelLoaded>()
         .init_resource::<PlayerAlreadySpawned>();
     app.add_systems(OnEnter(Screen::SpawnLevel), spawn_spawn_level_screen)
         .add_systems(Update, spawn_player.run_if(in_state(Screen::SpawnLevel)));
@@ -30,7 +29,7 @@ pub fn plugin(app: &mut App) {
 
 fn spawn_level(mut commands: Commands, scene_assets: Res<LevelAssets>) {
     commands
-        .spawn(SceneRoot(scene_assets.level.clone()))
+        .spawn(SceneRoot(scene_assets.level0.clone()))
         .observe(announce_ready);
 
     commands.spawn((
@@ -96,7 +95,7 @@ fn respawn_level(
     }
 
     commands
-        .spawn(SceneRoot(scene_assets.level.clone()))
+        .spawn(SceneRoot(scene_assets.level0.clone()))
         .observe(announce_ready);
 
     commands.spawn((
@@ -106,22 +105,4 @@ fn respawn_level(
         },
         Transform::default(),
     ));
-}
-
-/// A [`Resource`] that contains all the assets needed to spawn the level.
-/// We use this to preload assets before the level is spawned.
-#[derive(Resource, Asset, Clone, TypePath)]
-pub(crate) struct LevelAssets {
-    #[dependency]
-    pub(crate) level: Handle<Scene>,
-}
-
-impl FromWorld for LevelAssets {
-    fn from_world(world: &mut World) -> Self {
-        let assets = world.resource::<AssetServer>();
-
-        Self {
-            level: assets.load(GltfAssetLabel::Scene(0).from_asset("scenes/sandbox.glb")),
-        }
-    }
 }

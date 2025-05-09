@@ -3,6 +3,7 @@ use bitflags::bitflags;
 
 mod asset_tracking;
 mod gameplay;
+mod scene;
 mod screens;
 mod theme;
 mod third_party;
@@ -61,6 +62,7 @@ fn main() {
         asset_tracking::plugin,
         theme::plugin,
         screens::plugin,
+        scene::plugin,
     ));
 
     //spawn ui camera. should always exist

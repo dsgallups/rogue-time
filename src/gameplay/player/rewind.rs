@@ -129,7 +129,7 @@ fn play_logged_recording(
     commands.entity(player).insert(player_transform);
 }
 
-/// Record movement to [`MovementLog`] stack when in [`GameState::Playing`] during a level  
+/// Record movement to [`MovementLog`] stack when in [`GameState::Playing`] during a level
 fn record_movements(
     camera_transform: Query<&Transform, With<PlayerCamera>>,
     player_transform: Query<&Transform, With<Player>>,
