@@ -6843,8 +6843,3 @@ checksum = "99a5bab8d7dedf81405c4bb1f2b83ea057643d9cb28778cea9eecddeedd2e028"
 dependencies = [
  "zune-core",
 ]
-
-[[patch.unused]]
-name = "bevy_dither_post_process"
-version = "0.4.0"
-source = "git+https://github.com/Jaghov/bevy_dither_post_process?branch=main#3ac91e6941386d3629c8a49408d77cda1a917447"

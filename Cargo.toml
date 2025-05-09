@@ -2,6 +2,7 @@
 name = "rogue-time"
 version = "0.1.0"
 edition = "2024"
+default-run = "game"
 
 [features]
 # use this to spin up brp
@@ -114,7 +115,6 @@ bevy = { version = "0.16", default-features = false, features = [
 ] }
 
 
-
 [profile.dev]
 opt-level = 1
 
@@ -150,4 +150,4 @@ avian3d = { git = "https://github.com/Jondolf/avian.git", branch = "main" }
 bevy-tnua = { git = "https://github.com/dsgallups/bevy-tnua", branch = "bevy-0.16" }
 bevy-tnua-avian3d = { git = "https://github.com/dsgallups/bevy-tnua", branch = "bevy-0.16" }
 avian_pickup = { git = "https://github.com/janhohenheim/avian_pickup", branch = "main" }
-bevy_dither_post_process = { git = "https://github.com/Jaghov/bevy_dither_post_process", branch = "main" }
+# bevy_dither_post_process = { git = "https://github.com/Jaghov/bevy_dither_post_process", branch = "main" }

@@ -14,6 +14,7 @@ pub mod stopwatch;
 pub mod time;
 mod timebank;
 mod ui;
+mod win;
 
 #[cfg(feature = "dev")]
 mod dev;
@@ -70,6 +71,7 @@ pub fn plugin(app: &mut App) {
         respawn::plugin,
         lives::plugin,
         time::plugin,
+        win::plugin,
     ));
     #[cfg(feature = "dev")]
     app.add_plugins(dev::plugin);

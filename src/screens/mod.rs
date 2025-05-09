@@ -20,7 +20,8 @@ pub enum Screen {
     Credits,
     SpawnLevel,
     Gameplay,
-    //GameOver,
+    Win,
+    GameOver,
 }
 
 pub fn plugin(app: &mut App) {
