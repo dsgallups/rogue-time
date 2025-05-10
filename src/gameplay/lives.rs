@@ -33,10 +33,12 @@ fn setup_lives(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
 }
 
 fn on_no_more_lives(lives: Query<&Lives>, mut next_state: ResMut<NextState<Screen>>) {
-    let lives = lives.single().expect("A single living thing");
+    let Ok(lives) = lives.single() else {
+        error!("No more lives, but expected something to be living!");
+        return;
+    };
     if lives.0 != 0 {
         return;
     }
-    next_state.set(Screen::Title);
-    //todo
+    next_state.set(Screen::Lose);
 }
