@@ -1,13 +1,13 @@
 use animation::LeverAnimation;
 use avian3d::prelude::*;
-use bevy::{animation::RepeatAnimation, prelude::*};
+use bevy::prelude::*;
 mod animation;
 use crate::level::Level;
 
 use super::{
     blender::{BlenderObject, replace_blender_object},
     interact::Interact,
-    portal::PortalKey,
+    portal::{KeyFor, PortalKey},
 };
 
 pub fn plugin(app: &mut App) {
@@ -53,12 +53,13 @@ fn on_add_lever(trigger: Trigger<OnAdd, Lever>, mut commands: Commands) {
 
 fn on_interact(
     trigger: Trigger<Interact>,
-    mut portal_keys: Query<&mut PortalKey>,
+    mut commands: Commands,
+    mut portal_keys: Query<(&mut PortalKey, &KeyFor)>,
     animations_to_play: Query<&LeverAnimation>,
     children: Query<&Children>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
-    let mut portal_key = portal_keys.get_mut(trigger.target()).unwrap();
+    let (mut portal_key, portal) = portal_keys.get_mut(trigger.target()).unwrap();
     portal_key.interacted = !portal_key.interacted;
     info!(
         "Interacted with lever!, switched to {}",
@@ -69,15 +70,19 @@ fn on_interact(
             if let Ok(mut player) = players.get_mut(child) {
                 let animation = player.animation_mut(animation_to_play.index).unwrap();
                 let seek = animation.seek_time();
+                if animation.is_paused() {
+                    animation.resume();
+                }
                 animation.replay();
+                animation.seek_to(seek);
                 // play the animation to the end
                 if portal_key.interacted {
                     animation.set_speed(1.);
                 } else {
-                    animation.seek_to(seek);
                     animation.set_speed(-1.);
                 }
             }
         }
     }
+    commands.entity(portal.0).trigger(Interact);
 }

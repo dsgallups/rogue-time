@@ -79,6 +79,7 @@ fn ready_animation(
                 //set the animation, but start it paused.
                 player
                     .play(animation_to_play.index)
+                    .pause()
                     .set_repeat(RepeatAnimation::Never);
 
                 commands

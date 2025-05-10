@@ -1,16 +1,14 @@
-use bevy::{animation::RepeatAnimation, prelude::*};
+use bevy::{animation::RepeatAnimation, prelude::*, scene::SceneInstanceReady};
 
 use crate::asset_tracking::LoadResource;
 
-use super::{Opened, Portal, PortalKey, PortalKeys};
+use super::Portal;
 
 pub fn plugin(app: &mut App) {
     app.load_resource::<PortalAnimationAssets>();
     app.register_type::<PortalAnimationAssets>();
 
     app.add_observer(setup_animation);
-
-    app.add_systems(Update, open_door);
 }
 
 #[derive(Resource, Asset, Clone, Reflect)]
@@ -50,55 +48,40 @@ fn setup_animation(
 
     commands
         .entity(trigger.target())
-        .insert((animation_to_play, SceneRoot(assets.model.clone())));
+        .insert((animation_to_play, SceneRoot(assets.model.clone())))
+        .observe(ready_animation);
 }
 
-#[derive(Component)]
-struct PortalAnimation {
-    graph_handle: Handle<AnimationGraph>,
-    index: AnimationNodeIndex,
-}
-
-fn open_door(
+fn ready_animation(
+    trigger: Trigger<SceneInstanceReady>,
     mut commands: Commands,
-    portals: Query<(Entity, &PortalKeys), (With<Portal>, Without<Opened>)>,
-    keys: Query<&PortalKey>,
     animations_to_play: Query<&PortalAnimation>,
     children: Query<&Children>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
-    'outer: for (portal, portal_keys) in portals {
-        //see if we can open this door
-        for key in keys.iter_many(&portal_keys.0) {
-            if !key.interacted {
-                continue 'outer;
-            }
-        }
-        commands.entity(portal).insert(Opened);
+    if let Ok(animation_to_play) = animations_to_play.get(trigger.target()) {
+        for child in children.iter_descendants(trigger.target()) {
+            // Add the animation graph. This only needs to be done once to
+            // connect the animation player to the mesh.
+            //
 
-        if let Ok(animation_to_play) = animations_to_play.get(portal) {
-            // The SceneRoot component will have spawned the scene as a hierarchy
-            // of entities parented to our entity. Since the asset contained a skinned
-            // mesh and animations, it will also have spawned an animation player
-            // component. Search our entity's descendants to find the animation player.
-            for child in children.iter_descendants(portal) {
-                if let Ok(mut player) = players.get_mut(child) {
-                    // Tell the animation player to start the animation and keep
-                    // repeating it.
-                    //
-                    // If you want to try stopping and switching animations, see the
-                    // `animated_mesh_control.rs` example.
-                    player
-                        .play(animation_to_play.index)
-                        .set_repeat(RepeatAnimation::Never);
+            if let Ok(mut player) = players.get_mut(child) {
+                //set the animation, but start it paused.
+                player
+                    .play(animation_to_play.index)
+                    .pause()
+                    .set_repeat(RepeatAnimation::Never);
 
-                    // Add the animation graph. This only needs to be done once to
-                    // connect the animation player to the mesh.
-                    commands
-                        .entity(child)
-                        .insert(AnimationGraphHandle(animation_to_play.graph_handle.clone()));
-                }
+                commands
+                    .entity(child)
+                    .insert(AnimationGraphHandle(animation_to_play.graph_handle.clone()));
             }
         }
     }
+}
+
+#[derive(Component)]
+pub struct PortalAnimation {
+    graph_handle: Handle<AnimationGraph>,
+    pub index: AnimationNodeIndex,
 }
