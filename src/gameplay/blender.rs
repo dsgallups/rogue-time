@@ -9,16 +9,14 @@ pub trait BlenderObject: Component {
 
 pub fn replace_blender_object<T: BlenderObject>(
     mut commands: Commands,
-    blender_timebanks: Query<(Entity, &Transform, &T)>,
+    blender_object: Query<(Entity, &Transform, &T)>,
     level_origins: Res<LevelOrigins>,
 ) {
-    for (entity, transform, timebank) in blender_timebanks {
-        info!("added blender timebank");
-
-        let origin = level_origins.get_spawn_point(timebank.level());
+    for (entity, transform, object) in blender_object {
+        let origin = level_origins.get_spawn_point(object.level());
         let transform = transform.with_translation(transform.translation + origin);
 
         commands.entity(entity).despawn();
-        commands.spawn((timebank.level(), timebank.to_component(), transform));
+        commands.spawn((object.level(), object.to_component(), transform));
     }
 }
