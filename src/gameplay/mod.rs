@@ -12,6 +12,7 @@ mod lever;
 mod lives;
 pub mod player;
 mod portal;
+mod pressure_plate;
 mod respawn;
 mod room;
 pub mod stopwatch;
@@ -72,6 +73,7 @@ pub fn plugin(app: &mut App) {
         timebank::plugin,
         respawn::plugin,
         lives::plugin,
+        pressure_plate::plugin,
         stopwatch::plugin,
         lever::plugin,
         portal::plugin,

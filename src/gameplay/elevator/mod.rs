@@ -78,6 +78,7 @@ fn add_elevator_collider(
 ) {
     let (elevator, transform) = elevators.get(trigger.target()).unwrap();
     let mut ec = commands.entity(trigger.target());
+    ec.observe(interact_with_keys);
 
     // I hate this but we're spawning an elevator collider
     // seperate from the mesh.
@@ -88,9 +89,6 @@ fn add_elevator_collider(
         Collider::cylinder(1., 0.5),
         *transform,
     ));
-    // ec.observe(elevator_me_elsewhere)
-    //     .observe(interact_with_keys)
-    // ;
     // let elevator_level = levels.get(trigger.target()).unwrap();
 
     // for (entity, level) in elevator_keys {
@@ -127,7 +125,7 @@ fn interact_with_keys(
     mut players: Query<&mut AnimationPlayer>,
 ) {
     let (elevator, elevator_keys, is_rising) = elevators.get(trigger.target()).unwrap();
-    //see if we can open this activated elevator
+    //see if we can this activated elevator
     let mut can_rise = true;
     for key in keys.iter_many(&elevator_keys.0) {
         if !key.interacted {
