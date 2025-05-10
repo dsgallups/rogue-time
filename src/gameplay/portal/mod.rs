@@ -7,6 +7,7 @@ use crate::level::{Level, LevelOrigins};
 use super::{
     blender::{BlenderObject, replace_blender_object},
     interact::Interact,
+    lives::LostLife,
     player::Player,
     room::{NewRoom, StartCountdown},
     win::GameWin,
@@ -21,7 +22,8 @@ pub fn plugin(app: &mut App) {
         .add_plugins(animation::plugin)
         .add_observer(insert_portal)
         .add_systems(PreUpdate, replace_blender_object::<BlenderPortal>)
-        .add_observer(insert_portal_key);
+        .add_observer(insert_portal_key)
+        .add_observer(reset_on_life_lost);
 }
 
 #[derive(Component, Reflect)]
@@ -29,6 +31,7 @@ pub fn plugin(app: &mut App) {
 struct BlenderPortal {
     level: Level,
     to: Level,
+    wins: bool,
     initial_stopwatch_duration: u64,
 }
 
@@ -40,7 +43,8 @@ impl BlenderObject for BlenderPortal {
 
     fn to_component(&self) -> Self::BevyComponent {
         Portal {
-            to: self.level,
+            to: self.to,
+            wins: self.wins,
             initial_stopwatch_duration: self.initial_stopwatch_duration,
         }
     }
@@ -54,6 +58,7 @@ pub struct Opened;
 #[reflect(Component)]
 pub struct Portal {
     to: Level,
+    wins: bool,
     initial_stopwatch_duration: u64,
 }
 
@@ -74,13 +79,17 @@ pub struct PortalKeys(Vec<Entity>);
 
 fn insert_portal(
     trigger: Trigger<OnAdd, Portal>,
+    portals: Query<&Portal>,
     mut commands: Commands,
     levels: Query<&Level>,
     portal_keys: Query<(Entity, &Level), With<PortalKey>>,
 ) {
-    commands
-        .entity(trigger.target())
-        .insert((CollisionEventsEnabled, Collider::cuboid(10., 15., 1.)))
+    let portal = portals.get(trigger.target()).unwrap();
+    let mut ec = commands.entity(trigger.target());
+    if portal.wins {
+        ec.insert(GameWin);
+    };
+    ec.insert((CollisionEventsEnabled, Collider::cuboid(10., 15., 1.)))
         .observe(portal_me_elsewhere)
         .observe(interact_with_keys);
     let portal_level = levels.get(trigger.target()).unwrap();
@@ -129,6 +138,8 @@ fn portal_me_elsewhere(
         commands.trigger(GameWin);
         return;
     }
+
+    info!("Moving to level {:?}", portal.to);
 
     let spawn_point = spawn_points.get_spawn_point(portal.to);
 
@@ -189,5 +200,11 @@ fn interact_with_keys(
                 }
             }
         }
+    }
+}
+
+fn reset_on_life_lost(_trigger: Trigger<LostLife>, mut keys: Query<&mut PortalKey>) {
+    for mut key in &mut keys {
+        key.interacted = false;
     }
 }

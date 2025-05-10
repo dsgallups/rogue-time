@@ -80,7 +80,7 @@ fn spawn_spawn_level_screen(mut commands: Commands) {
                 - Timebank: An item that will add a few seconds to your time. Jump on it!\n
                 \n\
                 When picking up a timebank, you unlock the ability to start the level over.\
-                The actions of your previous run will be performed again. \n\
+                The actions of your previous run will be performed again.\n\
                 Press the [E] key to rewind your events.\n
                 \n\
                 So, if the room requires you press two levers, but they're too far to reach in time, you \
