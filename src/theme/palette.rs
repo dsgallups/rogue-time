@@ -1,9 +1,6 @@
 use bevy::{ecs::component::Mutable, prelude::*};
 
-use crate::gameplay::{
-    GameSet,
-    time::{DEFAULT_DURATION, LevelTimer},
-};
+use crate::gameplay::{GameSet, time::LevelTimer};
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Palette>()

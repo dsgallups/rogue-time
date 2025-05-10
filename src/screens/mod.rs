@@ -5,9 +5,11 @@ use bevy::prelude::*;
 
 mod credits;
 mod loading;
+mod lose;
 mod spawn_level;
 mod splash;
 mod title;
+mod win;
 // the gameplay module handles the gameplay screen state
 use crate::gameplay;
 
@@ -21,7 +23,7 @@ pub enum Screen {
     SpawnLevel,
     Gameplay,
     Win,
-    GameOver,
+    Lose,
 }
 
 pub fn plugin(app: &mut App) {
@@ -38,6 +40,8 @@ pub fn plugin(app: &mut App) {
         title::plugin,
         spawn_level::plugin,
         gameplay::plugin,
+        win::plugin,
+        lose::plugin,
         credits::plugin,
     ));
 }

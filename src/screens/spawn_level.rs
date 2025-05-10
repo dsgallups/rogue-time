@@ -21,7 +21,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(
             Update,
             update_instruction_status
-                .run_if(in_state(Screen::SpawnLevel).and(input_just_pressed(KeyCode::KeyE))),
+                .run_if(in_state(Screen::SpawnLevel).and(input_just_pressed(KeyCode::KeyQ))),
         )
         .add_systems(
             Update,
@@ -72,21 +72,21 @@ fn spawn_spawn_level_screen(mut commands: Commands) {
             widgets::header("Here's the gist"),
             widgets::label("\
                 You're on the clock. You have 5 seconds at the beginning of every round \
-                to get to the portal. If we did it right, you won't have enough time to open \
-                the portal with your time. So you have some options:\n\n\
+                to get to the portal. You don't have time to use \
+                the portal. So you have some options:\n\n\
                 On the first level, you will be shown all the components:\n\
-                - Portal: the method to proceed to the next level\n\
-                - Lever: A device used to open the portal. There may be multiple per level\n\
-                - Timebank: An item that will add a few seconds to your time.\n
+                - Portal: the method to proceed to the next level. Run through it!\n\
+                - Lever: A device used to open the portal. There may be multiple per level. Click it!\n\
+                - Timebank: An item that will add a few seconds to your time. Jump on it!\n
                 \n\
                 When picking up a timebank, you unlock the ability to start the level over.\
                 The actions of your previous run will be performed again. \n\
-                Press the E key to rewind your events.\n
+                Press the [E] key to rewind your events.\n
                 \n\
                 So, if the room requires you press two levers, but they're too far to reach in time, you \
                 will need to hit one lever, rewind, and hit the other. Once both levers are pressed in time, \
                 you will be able to proceed. Best of luck :)"),
-            (widgets::label("Press E to continue"), ReadyToProceed)
+            (widgets::label(""), ReadyToProceed)
         ],
     ));
 }
@@ -98,7 +98,7 @@ fn update_ready_to_proceed_text(
     let mut text = text.single_mut().unwrap();
 
     if level.all_ready() {
-        text.0 = "Press E to continue".to_string();
+        text.0 = "Press [Q] to continue".to_string();
     } else {
         text.0 = format!("Loading Rooms {}/{}", level.num_loaded(), level.length());
     }

@@ -28,11 +28,8 @@ impl Plugin for LevelPlugin {
             .register_type::<Level>();
 
         if self.load_level {
-            app.add_systems(OnEnter(Screen::SpawnLevel), |mut commands: Commands| {
-                commands.trigger(SpawnWorld);
-            })
-            .add_observer(spawn_world)
-            .add_systems(OnExit(Screen::Gameplay), despawn_world);
+            app.add_systems(OnEnter(Screen::SpawnLevel), spawn_world)
+                .add_systems(OnExit(Screen::Gameplay), despawn_world);
         }
     }
 }
@@ -40,11 +37,12 @@ impl Plugin for LevelPlugin {
 /// note that levels start at 0. this is length.
 const NUM_LEVELS: u8 = 2;
 
-#[derive(Event)]
-pub struct SpawnWorld;
-
 #[derive(Resource)]
 pub struct LevelOrigins(HashMap<Level, Vec3>);
+
+// because the level cannot be state scoped
+#[derive(Component)]
+struct WorldPart;
 
 impl LevelOrigins {
     // panics if not found, but like we totally control this.
@@ -108,7 +106,6 @@ impl LevelsLoaded {
 }
 
 fn spawn_world(
-    _trigger: Trigger<SpawnWorld>,
     mut commands: Commands,
     scene_assets: Res<LevelAssets>,
     spawn_points: Res<LevelOrigins>,
@@ -116,6 +113,7 @@ fn spawn_world(
     for (level, scene) in &scene_assets.levels {
         commands
             .spawn((
+                WorldPart,
                 *level,
                 SceneRoot(scene.clone()),
                 Transform::from_translation(spawn_points.get_spawn_point(*level)),
@@ -144,15 +142,11 @@ fn announce_ready(
 
 fn despawn_world(
     mut commands: Commands,
-    scenes: Query<(Entity, Option<&ChildOf>), With<SceneRoot>>,
+    scenes: Query<Entity, With<WorldPart>>,
     mut levels_loaded: ResMut<LevelsLoaded>,
 ) {
     levels_loaded.reset();
-    for (scene, child_of) in scenes {
-        if let Some(child_of) = child_of {
-            commands.entity(child_of.parent()).despawn();
-        } else {
-            commands.entity(scene).despawn();
-        }
+    for part in scenes {
+        commands.entity(part).despawn();
     }
 }
