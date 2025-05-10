@@ -1,5 +1,5 @@
 use animation::PortalAnimation;
-use avian3d::prelude::{Collider, OnCollisionStart};
+use avian3d::prelude::{Collider, CollisionEventsEnabled, OnCollisionStart};
 use bevy::prelude::*;
 
 use crate::level::{Level, LevelOrigins};
@@ -80,7 +80,7 @@ fn insert_portal(
 ) {
     commands
         .entity(trigger.target())
-        .insert(Collider::cuboid(10., 15., 1.))
+        .insert((CollisionEventsEnabled, Collider::cuboid(10., 15., 1.)))
         .observe(portal_me_elsewhere)
         .observe(interact_with_keys);
     let portal_level = levels.get(trigger.target()).unwrap();
@@ -115,6 +115,7 @@ fn portal_me_elsewhere(
     spawn_points: Res<LevelOrigins>,
 ) {
     let Ok((portal, wins_game)) = portals.get(trigger.target()) else {
+        warn!("portal is not open!");
         // the portal isn't open
         return;
     };
@@ -122,6 +123,7 @@ fn portal_me_elsewhere(
     let event = trigger.event();
 
     if player.get(event.collider).is_err() {
+        warn!("collided, but not sure with what");
         return;
     };
 
