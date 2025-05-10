@@ -34,7 +34,7 @@ fn created_by() -> impl Bundle {
         ["Daniel Gallups", "Howdy-doo"],
         [
             "Shane (Pluggerman)",
-            "Is that a lever, or are you just happy to see me?",
+            "Is that a lever or are you just happy to see me?",
         ],
     ])
 }

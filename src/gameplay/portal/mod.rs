@@ -115,8 +115,6 @@ fn portal_me_elsewhere(
     spawn_points: Res<LevelOrigins>,
 ) {
     let Ok((portal, wins_game)) = portals.get(trigger.target()) else {
-        warn!("portal is not open!");
-        // the portal isn't open
         return;
     };
 

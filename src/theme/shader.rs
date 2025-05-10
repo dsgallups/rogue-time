@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_dog::settings::{DoGSettings, PassesSettings};
+use bevy_dog::settings::{DoGSettings, PassesSettings, Thresholding};
 
 use crate::gameplay::time::DEFAULT_DURATION;
 
@@ -18,7 +18,12 @@ fn insert_post_process(query: Query<(Entity), (Added<Camera3d>)>, mut commands: 
             DoGSettings {
                 min_color: Vec3::ZERO,
                 max_color: Vec3::ONE,
-                ..DoGSettings::OUTLINE_DITHER
+                k: 0.5,
+                tau: 32.,
+                phi: 0.8,
+                thresholding: Thresholding::Tanh as i32,
+                thresholds: Vec4::from_array([12., 6., 3., 0.5]),
+                ..DoGSettings::DEFAULT
             },
             PassesSettings::default(),
         ));
