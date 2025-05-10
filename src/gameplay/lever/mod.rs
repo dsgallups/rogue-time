@@ -59,10 +59,7 @@ fn on_interact(
 ) {
     let (mut portal_key, portal) = portal_keys.get_mut(trigger.target()).unwrap();
     portal_key.interacted = !portal_key.interacted;
-    info!(
-        "Interacted with lever!, switched to {}",
-        portal_key.interacted
-    );
+
     if let Ok(animation_to_play) = animations_to_play.get(trigger.target()) {
         for child in children.iter_descendants(trigger.target()) {
             if let Ok(mut player) = players.get_mut(child) {
@@ -75,12 +72,12 @@ fn on_interact(
                 animation.seek_to(seek);
                 // play the animation to the end
                 if portal_key.interacted {
-                    animation.set_speed(1.);
+                    animation.set_speed(4.);
                 } else {
-                    animation.set_speed(-1.);
+                    animation.set_speed(-4.);
                 }
             }
         }
     }
-    commands.entity(portal.0).trigger(Interact);
+    commands.entity(portal.0).trigger(Interact::dont_record());
 }

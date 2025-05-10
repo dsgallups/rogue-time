@@ -115,8 +115,6 @@ fn portal_me_elsewhere(
     spawn_points: Res<LevelOrigins>,
 ) {
     let Ok((portal, wins_game)) = portals.get(trigger.target()) else {
-        warn!("portal is not open!");
-        // the portal isn't open
         return;
     };
 
@@ -138,6 +136,7 @@ fn portal_me_elsewhere(
         spawn_point,
         facing: Some(Dir3::NEG_Z),
     });
+    warn!("Starting countdown from portal");
     commands.trigger(StartCountdown(portal.initial_stopwatch_duration));
 }
 

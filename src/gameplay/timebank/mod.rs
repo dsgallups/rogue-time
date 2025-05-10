@@ -9,8 +9,10 @@ use crate::{gameplay::player::rewind::CanRewind, level::Level};
 
 use super::{
     blender::{BlenderObject, replace_blender_object},
+    interact::Interact,
+    lives::LostLife,
     player::Player,
-    time::LevelTimer,
+    stopwatch::Stopwatch,
 };
 
 pub fn plugin(app: &mut App) {
@@ -19,8 +21,15 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins(animation::plugin);
 
-    app.add_systems(PreUpdate, replace_blender_object::<BlenderTimebank>);
-    app.add_observer(on_add_timebank);
+    app.add_systems(
+        PreUpdate,
+        (
+            replace_blender_object::<BlenderTimebank>,
+            trigger_new_ephemeral_timebanks,
+        ),
+    );
+    app.add_observer(on_add_timebank)
+        .add_observer(reset_on_life_lost);
 }
 
 #[derive(Component, Reflect)]
@@ -64,23 +73,65 @@ fn on_add_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
                 height: 2.,
             },
         ))
-        .observe(collect_timebank);
+        .observe(collide_with_timebank);
 }
+#[derive(Component)]
+struct Used;
 
-fn collect_timebank(
+fn collide_with_timebank(
     trigger: Trigger<OnCollisionStart>,
-    timebanks: Query<&TimeBank>,
+    mut timebanks: Query<(&TimeBank, &mut Visibility), Without<Used>>,
     mut commands: Commands,
-    mut stopwatch: ResMut<LevelTimer>,
     mut player: Query<Entity, With<Player>>,
 ) {
-    let timebank = timebanks.get(trigger.target()).unwrap();
+    let Ok((timebank, mut visibility)) = timebanks.get_mut(trigger.target()) else {
+        //used, ignore
+        return;
+    };
+
     //only if the trigger was the human
     let event = trigger.event();
     //dont use event.body,
     let Ok(player) = player.get_mut(event.collider) else {
         return;
     };
+    *visibility = Visibility::Hidden;
+    commands.entity(trigger.target()).insert(Used);
+
+    commands
+        .spawn(EphemeralTimebank {
+            milliseconds: timebank.milliseconds,
+        })
+        .observe(interact_with_timebank);
+
+    // use insert if new if we allow multiple rewinds
+    commands.entity(player).insert(CanRewind);
+}
+
+// only happens for a real timebank is collected, not when replayed
+fn trigger_new_ephemeral_timebanks(
+    eph: Query<Entity, Added<EphemeralTimebank>>,
+    mut commands: Commands,
+) {
+    for eph in eph {
+        commands.entity(eph).trigger(Interact::default());
+    }
+}
+
+/// will exist after timebank is gone so it can be retriggered
+#[derive(Component)]
+struct EphemeralTimebank {
+    milliseconds: u64,
+}
+
+fn interact_with_timebank(
+    trigger: Trigger<Interact>,
+    timebanks: Query<&EphemeralTimebank>,
+    mut commands: Commands,
+    mut stopwatch: ResMut<Stopwatch>,
+    player: Query<Entity, With<Player>>,
+) {
+    let timebank = timebanks.get(trigger.target()).unwrap();
 
     info!(
         "adding {} milliseconds to stopwatch!",
@@ -88,8 +139,23 @@ fn collect_timebank(
     );
     stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
 
-    commands.entity(trigger.target()).despawn();
+    if let Ok(player) = player.single() {
+        commands.entity(player).insert(CanRewind);
+    }
+}
 
-    // use insert if new if we allow multiple rewinds
-    commands.entity(player).insert(CanRewind);
+fn reset_on_life_lost(
+    _trigger: Trigger<LostLife>,
+    mut commands: Commands,
+    mut timebanks: Query<(Entity, &mut Visibility), With<TimeBank>>,
+    ephemeral_timebanks: Query<Entity, With<EphemeralTimebank>>,
+) {
+    for (timebank, mut visibility) in &mut timebanks {
+        *visibility = Visibility::Inherited;
+        commands.entity(timebank).remove::<Used>();
+    }
+    for eph in ephemeral_timebanks {
+        commands.entity(eph).despawn();
+    }
+    //todo
 }

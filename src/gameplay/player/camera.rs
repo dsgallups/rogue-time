@@ -30,7 +30,7 @@ use crate::{
     screens::Screen,
 };
 
-use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate, rewind::RewindAnimation};
+use super::{PLAYER_FLOAT_HEIGHT, Player, default_input::Rotate, rewind::EndRewind};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<PlayerCamera>();
@@ -236,8 +236,7 @@ fn add_render_layers_to_point_light(trigger: Trigger<OnAdd, PointLight>, mut com
     ));
 }
 
-// may want to split this up into the seperate plugins' systems
-fn add_trauma_on_rewind(_trigger: Trigger<RewindAnimation>, mut shake: Single<&mut Shake>) {
+fn add_trauma_on_rewind(_trigger: Trigger<EndRewind>, mut shake: Single<&mut Shake>) {
     //camera shake? idk. definitely move camera back
     shake.add_trauma(0.2);
 }

@@ -3,14 +3,17 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{screens::Screen, theme::widgets};
+use crate::{
+    screens::Screen,
+    theme::{palette::UsePaletteColor, widgets},
+};
 
 use super::{
     GameSet,
     lives::Lives,
     player::{Player, rewind::CanRewind},
     room::RoomCountdown,
-    time::LevelTimer,
+    stopwatch::Stopwatch,
 };
 
 mod pause;
@@ -65,13 +68,14 @@ fn spawn_game_ui(mut commands: Commands) {
                         justify_content: JustifyContent::Center,
                         ..default()
                     },
-                    BorderColor(BLACK.into()),
+                    UsePaletteColor::dark(),
                     BackgroundColor(WHITE.into()),
                     children![(
                         LivesUi,
                         Text::new("N/A"),
                         font.clone(),
-                        TextColor(BLACK.into())
+                        TextColor(BLACK.into()),
+                        UsePaletteColor::light(),
                     )]
                 ),
                 (
@@ -91,7 +95,8 @@ fn spawn_game_ui(mut commands: Commands) {
                             font_size: 40.,
                             ..default()
                         },
-                        TextColor(BLACK.into())
+                        TextColor(BLACK.into()),
+                        UsePaletteColor::dark(),
                     )]
                 ),
                 (
@@ -113,27 +118,33 @@ fn spawn_game_ui(mut commands: Commands) {
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            BorderColor(BLACK.into()),
-                            BackgroundColor(WHITE.into()),
+                            BackgroundColor(BLACK.into()),
+                            UsePaletteColor::dark(),
                             children![(
                                 StopwatchTimeUi,
                                 Text::new("N/A"),
                                 font.clone(),
-                                TextColor(BLACK.into())
+                                TextColor(BLACK.into()),
+                                UsePaletteColor::light(),
                             )]
                         ),
                         (
                             RewindParent,
                             Node {
-                                border: UiRect::all(Val::Px(10.)),
                                 margin: UiRect::all(Val::Px(20.)),
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            BorderColor(BLACK.into()),
                             BackgroundColor(WHITE.into()),
-                            children![(RewindUi, Text::default(), font, TextColor(BLACK.into()))]
+                            UsePaletteColor::light(),
+                            children![(
+                                RewindUi,
+                                Text::default(),
+                                font,
+                                TextColor(BLACK.into()),
+                                UsePaletteColor::dark(),
+                            )]
                         ),
                     ],
                 )
@@ -142,13 +153,13 @@ fn spawn_game_ui(mut commands: Commands) {
         .insert(BackgroundColor(Color::NONE));
 }
 
-fn update_time_ui(stopwatch: Res<LevelTimer>, mut text: Query<&mut Text, With<StopwatchTimeUi>>) {
+fn update_time_ui(stopwatch: Res<Stopwatch>, mut text: Query<&mut Text, With<StopwatchTimeUi>>) {
     let Ok(mut text) = text.single_mut() else {
         warn!("Missing stopwatch UI!");
         return;
     };
 
-    let time = stopwatch.0.remaining_secs();
+    let time = stopwatch.remaining_secs();
     text.0 = format!("{time:.02}");
 }
 

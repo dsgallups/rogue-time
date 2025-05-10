@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use super::GameSet;
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(on_new_room);
+    app.add_observer(start_countdown);
     app.add_systems(
         Update,
         (update_room_countdown, remove_room_countdown)
@@ -50,7 +50,7 @@ impl Default for RoomCountdown {
     }
 }
 
-fn on_new_room(_trigger: Trigger<StartCountdown>, mut commands: Commands) {
+fn start_countdown(_trigger: Trigger<StartCountdown>, mut commands: Commands) {
     commands.init_resource::<RoomCountdown>();
     info!("Level Countdown: 3");
 }

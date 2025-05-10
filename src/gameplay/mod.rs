@@ -14,9 +14,7 @@ mod portal;
 mod respawn;
 mod room;
 pub mod stopwatch;
-pub mod time;
 mod timebank;
-mod timelines;
 mod ui;
 mod win;
 
@@ -42,7 +40,7 @@ pub enum GameState {
 ///
 /// Following the justifications of foxtrot, thought it would be nice to have now rather than later
 #[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Reflect)]
-enum GameSet {
+pub enum GameSet {
     /// Tick timers
     TickTimers,
     /// Record player input
@@ -66,15 +64,14 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins((
         ui::plugin,
-        stopwatch::plugin,
         player::plugin,
+        interact::plugin,
         room::plugin,
         animation::plugin,
         timebank::plugin,
         respawn::plugin,
         lives::plugin,
-        time::plugin,
-        timelines::plugin,
+        stopwatch::plugin,
         lever::plugin,
         portal::plugin,
         win::plugin,

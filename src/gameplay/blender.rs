@@ -1,4 +1,7 @@
-use crate::level::{Level, LevelOrigins};
+use crate::{
+    level::{Level, LevelOrigins},
+    screens::Screen,
+};
 use bevy::prelude::*;
 
 pub trait BlenderObject: Component {
@@ -17,6 +20,11 @@ pub fn replace_blender_object<T: BlenderObject>(
         let transform = transform.with_translation(transform.translation + origin);
 
         commands.entity(entity).despawn();
-        commands.spawn((object.level(), object.to_component(), transform));
+        commands.spawn((
+            object.level(),
+            object.to_component(),
+            transform,
+            StateScoped(Screen::Gameplay),
+        ));
     }
 }
