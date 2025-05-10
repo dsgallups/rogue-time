@@ -29,6 +29,7 @@ pub fn plugin(app: &mut App) {
 struct BlenderPortal {
     level: Level,
     to: Level,
+    wins: bool,
     initial_stopwatch_duration: u64,
 }
 
@@ -41,6 +42,7 @@ impl BlenderObject for BlenderPortal {
     fn to_component(&self) -> Self::BevyComponent {
         Portal {
             to: self.to,
+            wins: self.wins,
             initial_stopwatch_duration: self.initial_stopwatch_duration,
         }
     }
@@ -54,6 +56,7 @@ pub struct Opened;
 #[reflect(Component)]
 pub struct Portal {
     to: Level,
+    wins: bool,
     initial_stopwatch_duration: u64,
 }
 
@@ -74,13 +77,17 @@ pub struct PortalKeys(Vec<Entity>);
 
 fn insert_portal(
     trigger: Trigger<OnAdd, Portal>,
+    portals: Query<&Portal>,
     mut commands: Commands,
     levels: Query<&Level>,
     portal_keys: Query<(Entity, &Level), With<PortalKey>>,
 ) {
-    commands
-        .entity(trigger.target())
-        .insert((CollisionEventsEnabled, Collider::cuboid(10., 15., 1.)))
+    let portal = portals.get(trigger.target()).unwrap();
+    let mut ec = commands.entity(trigger.target());
+    if portal.wins {
+        ec.insert(GameWin);
+    };
+    ec.insert((CollisionEventsEnabled, Collider::cuboid(10., 15., 1.)))
         .observe(portal_me_elsewhere)
         .observe(interact_with_keys);
     let portal_level = levels.get(trigger.target()).unwrap();
