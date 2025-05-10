@@ -102,6 +102,7 @@ fn insert_portal(
     }
 }
 
+/// Inserts relationship when Portal Key detected
 fn insert_portal_key(
     trigger: Trigger<OnAdd, PortalKey>,
     mut commands: Commands,

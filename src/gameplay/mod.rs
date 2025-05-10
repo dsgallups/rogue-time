@@ -6,6 +6,7 @@ use bevy::{
 
 mod animation;
 mod blender;
+mod elevator;
 mod interact;
 mod lever;
 mod lives;
@@ -74,6 +75,7 @@ pub fn plugin(app: &mut App) {
         stopwatch::plugin,
         lever::plugin,
         portal::plugin,
+        elevator::plugin,
         win::plugin,
     ));
     #[cfg(feature = "dev")]
