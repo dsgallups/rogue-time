@@ -30,10 +30,11 @@ fn spawn_credits_screen(mut commands: Commands) {
 
 fn created_by() -> impl Bundle {
     grid(vec![
-        ["Jo", "Absolutely knackered"],
-        ["Daniel Gallups", "Howdy-doo"],
+        ["Joseph Aghoghovbia (radifire)", "Absolutely knackered"],
+        ["Daniel Gallups (dsgallups)", "Howdy-doo"],
+        ["Anas (Duck165)", "Hating on Jungle"],
         [
-            "Shane (Pluggerman)",
+            "Shane Jones (Pluggerman)",
             "Is that a lever or are you just happy to see me?",
         ],
     ])
@@ -45,6 +46,8 @@ fn assets() -> impl Bundle {
             "Bevy logo",
             "All rights reserved by the Bevy Foundation, permission granted for splash screen use when unmodified",
         ],
+        ["BGM", "Music provided by Duck165"],
+        ["Rewind SFX", "CC0 by Zapslat"],
         ["Button SFX", "CC0 by Jaszunio15"],
         ["Button SFX", "CC0 by Jaszunio15"],
     ])
