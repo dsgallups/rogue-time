@@ -3,6 +3,7 @@ use bitflags::bitflags;
 use level::LevelPlugin;
 
 mod asset_tracking;
+mod audio;
 mod gameplay;
 mod level;
 mod screens;
@@ -64,6 +65,7 @@ impl Plugin for AppPlugin {
             third_party::plugin,
             asset_tracking::plugin,
             theme::plugin,
+            audio::plugin,
             screens::plugin,
             LevelPlugin {
                 load_level: self.load_level,
