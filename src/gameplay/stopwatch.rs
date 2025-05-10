@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::gameplay::{lives::LostLife, room::StartCountdown};
+use crate::{
+    gameplay::{lives::LostLife, room::StartCountdown},
+    screens::Screen,
+};
 
 use super::{
     GameSet, GameState,
@@ -22,6 +25,7 @@ pub fn plugin(app: &mut App) {
                 .run_if(in_state(GameState::Playing)),
         )
         .add_systems(PostUpdate, out_of_time.run_if(in_state(GameState::Playing)))
+        .add_systems(OnExit(Screen::Gameplay), reset_stopwatch)
         .add_observer(start_timer_on_level)
         .add_observer(on_start_rewind)
         .add_observer(on_end_rewind);
@@ -92,7 +96,13 @@ fn start_countdown(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<Stopw
     let event = trigger.event();
     stopwatch.pause();
     stopwatch.reset();
-    stopwatch.set_duration(Duration::from_millis(event.0));
+    let initial_duration = Duration::from_millis(event.0);
+    stopwatch.set_duration(initial_duration);
+    stopwatch.initial_duration = initial_duration;
+}
+
+fn reset_stopwatch(mut stopwatch: ResMut<Stopwatch>) {
+    *stopwatch = Stopwatch::default();
 }
 
 fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: ResMut<Stopwatch>) {

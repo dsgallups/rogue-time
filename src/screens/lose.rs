@@ -8,7 +8,8 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Lose), spawn_win)
         .add_systems(
             Update,
-            proceed_to_credits.run_if(in_state(Screen::Win).and(input_just_pressed(KeyCode::KeyQ))),
+            proceed_to_credits
+                .run_if(in_state(Screen::Lose).and(input_just_pressed(KeyCode::KeyQ))),
         );
 }
 

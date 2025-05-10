@@ -10,6 +10,7 @@ use crate::{gameplay::player::rewind::CanRewind, level::Level};
 use super::{
     blender::{BlenderObject, replace_blender_object},
     interact::Interact,
+    lives::LostLife,
     player::Player,
     stopwatch::Stopwatch,
 };
@@ -27,7 +28,8 @@ pub fn plugin(app: &mut App) {
             trigger_new_ephemeral_timebanks,
         ),
     );
-    app.add_observer(on_add_timebank);
+    app.add_observer(on_add_timebank)
+        .add_observer(reset_on_life_lost);
 }
 
 #[derive(Component, Reflect)]
@@ -73,22 +75,28 @@ fn on_add_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
         ))
         .observe(collide_with_timebank);
 }
+#[derive(Component)]
+struct Used;
 
 fn collide_with_timebank(
     trigger: Trigger<OnCollisionStart>,
-    timebanks: Query<&TimeBank>,
+    mut timebanks: Query<(&TimeBank, &mut Visibility), Without<Used>>,
     mut commands: Commands,
     mut player: Query<Entity, With<Player>>,
 ) {
-    let timebank = timebanks.get(trigger.target()).unwrap();
+    let Ok((timebank, mut visibility)) = timebanks.get_mut(trigger.target()) else {
+        //used, ignore
+        return;
+    };
+
     //only if the trigger was the human
     let event = trigger.event();
     //dont use event.body,
     let Ok(player) = player.get_mut(event.collider) else {
         return;
     };
-
-    commands.entity(trigger.target()).despawn();
+    *visibility = Visibility::Hidden;
+    commands.entity(trigger.target()).insert(Used);
 
     commands
         .spawn(EphemeralTimebank {
@@ -134,4 +142,20 @@ fn interact_with_timebank(
     if let Ok(player) = player.single() {
         commands.entity(player).insert(CanRewind);
     }
+}
+
+fn reset_on_life_lost(
+    _trigger: Trigger<LostLife>,
+    mut commands: Commands,
+    mut timebanks: Query<(Entity, &mut Visibility), With<TimeBank>>,
+    ephemeral_timebanks: Query<Entity, With<EphemeralTimebank>>,
+) {
+    for (timebank, mut visibility) in &mut timebanks {
+        *visibility = Visibility::Inherited;
+        commands.entity(timebank).remove::<Used>();
+    }
+    for eph in ephemeral_timebanks {
+        commands.entity(eph).despawn();
+    }
+    //todo
 }
