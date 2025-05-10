@@ -1,5 +1,5 @@
 use avian3d::prelude::*;
-use bevy::prelude::*;
+use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 
 use crate::gameplay::{GameState, interact::Interact};
 
@@ -8,20 +8,18 @@ use super::{Player, camera::PlayerCamera};
 //todo: give lever a collider
 pub fn plugin(app: &mut App) {
     //todo
-    app.add_systems(Update, interact.run_if(in_state(GameState::Playing)));
+    app.add_systems(
+        Update,
+        interact.run_if(in_state(GameState::Playing).and(input_just_pressed(MouseButton::Left))),
+    );
 }
 
 fn interact(
     mut commands: Commands,
-    buttons: Res<ButtonInput<MouseButton>>,
     spatial_query: SpatialQuery,
     player: Single<Entity, With<Player>>,
     camera: Single<&Transform, With<PlayerCamera>>,
 ) {
-    if !buttons.just_pressed(MouseButton::Left) {
-        return;
-    }
-
     let origin = camera.translation;
     let Ok(direction) = Dir3::new(camera.rotation * -Vec3::Z) else {
         warn!("Couldn't determine direction of interaction!");
