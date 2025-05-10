@@ -46,7 +46,8 @@ impl Default for Palette {
 
 fn update_palette(mut palette: ResMut<Palette>, time: Res<LevelTimer>) {
     let color = NO_TIME_COLOR
-        + (FULL_TIME_COLOR - NO_TIME_COLOR) * time.0.remaining().div_duration_f32(DEFAULT_DURATION);
+        + (FULL_TIME_COLOR - NO_TIME_COLOR)
+            * time.0.remaining().div_duration_f32(time.0.duration());
 
     palette.dark = color;
 }
