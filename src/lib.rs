@@ -41,6 +41,7 @@ impl Plugin for AppPlugin {
                         title: "Rogue Time".to_string(),
                         fit_canvas_to_parent: true,
                         canvas: Some("#bevy".to_owned()),
+                        //resolution: WindowResolution::new(1920., 1080.),
                         // might need to adjust this for WASM
                         mode: WindowMode::Windowed,
                         // Tells wasm not to override default event handling, like F5 and Ctrl+R

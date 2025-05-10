@@ -7,6 +7,7 @@ use crate::level::{Level, LevelOrigins};
 use super::{
     blender::{BlenderObject, replace_blender_object},
     interact::Interact,
+    lives::LostLife,
     player::Player,
     room::{NewRoom, StartCountdown},
     win::GameWin,
@@ -21,7 +22,8 @@ pub fn plugin(app: &mut App) {
         .add_plugins(animation::plugin)
         .add_observer(insert_portal)
         .add_systems(PreUpdate, replace_blender_object::<BlenderPortal>)
-        .add_observer(insert_portal_key);
+        .add_observer(insert_portal_key)
+        .add_observer(reset_on_life_lost);
 }
 
 #[derive(Component, Reflect)]
@@ -198,5 +200,11 @@ fn interact_with_keys(
                 }
             }
         }
+    }
+}
+
+fn reset_on_life_lost(_trigger: Trigger<LostLife>, mut keys: Query<&mut PortalKey>) {
+    for mut key in &mut keys {
+        key.interacted = false;
     }
 }
