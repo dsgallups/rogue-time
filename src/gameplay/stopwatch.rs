@@ -4,7 +4,11 @@ use bevy::prelude::*;
 
 use crate::gameplay::{lives::LostLife, room::StartCountdown};
 
-use super::{GameSet, GameState, room::RoomStarted};
+use super::{
+    GameSet, GameState,
+    player::rewind::{EndRewind, StartRewind},
+    room::RoomStarted,
+};
 
 pub(crate) const DEFAULT_DURATION: Duration = Duration::from_secs(5);
 
@@ -18,20 +22,26 @@ pub fn plugin(app: &mut App) {
                 .run_if(in_state(GameState::Playing)),
         )
         .add_systems(PostUpdate, out_of_time.run_if(in_state(GameState::Playing)))
-        .add_observer(start_timer_on_level);
+        .add_observer(start_timer_on_level)
+        .add_observer(on_start_rewind)
+        .add_observer(on_end_rewind);
 }
 
 #[derive(Resource)]
 pub(crate) struct Stopwatch {
     // this is what's going to display on the screen
     active: Timer,
+    initial_duration: Duration,
 }
 
 impl Default for Stopwatch {
     fn default() -> Self {
         let mut timer = Timer::new(DEFAULT_DURATION, TimerMode::Once);
         timer.pause();
-        Self { active: timer }
+        Self {
+            active: timer,
+            initial_duration: DEFAULT_DURATION,
+        }
     }
 }
 
@@ -103,4 +113,11 @@ fn out_of_time(stopwatch: Res<Stopwatch>, mut commands: Commands) {
 
     commands.trigger(LostLife);
     commands.trigger(StartCountdown(stopwatch.duration_millis()));
+}
+
+fn on_start_rewind(_trigger: Trigger<StartRewind>, mut stopwatch: ResMut<Stopwatch>) {
+    stopwatch.pause();
+}
+fn on_end_rewind(_trigger: Trigger<EndRewind>, mut stopwatch: ResMut<Stopwatch>) {
+    stopwatch.active = Timer::new(stopwatch.initial_duration, TimerMode::Once);
 }
