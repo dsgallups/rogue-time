@@ -9,7 +9,7 @@ use super::{GameSet, GameState, room::RoomStarted};
 pub(crate) const DEFAULT_DURATION: Duration = Duration::from_secs(5);
 
 pub fn plugin(app: &mut App) {
-    app.insert_resource(LevelTimer::default())
+    app.insert_resource(Stopwatch::default())
         .add_observer(start_countdown)
         .add_systems(
             Update,
@@ -23,9 +23,9 @@ pub fn plugin(app: &mut App) {
 }
 
 #[derive(Resource)]
-pub(crate) struct LevelTimer(pub Timer);
+pub(crate) struct Stopwatch(pub Timer);
 
-impl Default for LevelTimer {
+impl Default for Stopwatch {
     fn default() -> Self {
         let mut timer = Timer::new(DEFAULT_DURATION, TimerMode::Once);
         timer.pause();
@@ -34,7 +34,7 @@ impl Default for LevelTimer {
 }
 
 #[allow(dead_code)]
-impl LevelTimer {
+impl Stopwatch {
     pub fn pause(&mut self) {
         self.0.pause();
     }
@@ -59,26 +59,26 @@ impl LevelTimer {
     }
 }
 
-fn tick_stopwatch(mut stopwatch: ResMut<LevelTimer>, time: Res<Time>) {
+fn tick_stopwatch(mut stopwatch: ResMut<Stopwatch>, time: Res<Time>) {
     stopwatch.0.tick(time.delta());
 }
-fn start_countdown(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<LevelTimer>) {
+fn start_countdown(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<Stopwatch>) {
     let event = trigger.event();
     stopwatch.pause();
     stopwatch.reset();
     stopwatch.set_duration(Duration::from_millis(event.0));
 }
 
-fn on_lost_life(_trigger: Trigger<LostLife>, mut commands: Commands, timer: Res<LevelTimer>) {
+fn on_lost_life(_trigger: Trigger<LostLife>, mut commands: Commands, timer: Res<Stopwatch>) {
     commands.trigger(StartCountdown(timer.duration()));
 }
 
-fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: ResMut<LevelTimer>) {
+fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: ResMut<Stopwatch>) {
     info!("Starting stopwatch");
     stopwatch.unpause();
 }
 
-fn out_of_time(stopwatch: Res<LevelTimer>, mut commands: Commands) {
+fn out_of_time(stopwatch: Res<Stopwatch>, mut commands: Commands) {
     if !stopwatch.0.finished() {
         return;
     }

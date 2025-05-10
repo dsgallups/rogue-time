@@ -1,6 +1,6 @@
 use bevy::{ecs::component::Mutable, prelude::*};
 
-use crate::gameplay::{GameSet, time::LevelTimer};
+use crate::gameplay::{GameSet, time::Stopwatch};
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Palette>()
@@ -41,7 +41,7 @@ impl Default for Palette {
     }
 }
 
-fn update_palette(mut palette: ResMut<Palette>, time: Res<LevelTimer>) {
+fn update_palette(mut palette: ResMut<Palette>, time: Res<Stopwatch>) {
     let color = NO_TIME_COLOR
         + (FULL_TIME_COLOR - NO_TIME_COLOR)
             * time.0.remaining().div_duration_f32(time.0.duration());

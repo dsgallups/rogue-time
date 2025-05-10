@@ -9,8 +9,9 @@ use crate::{gameplay::player::rewind::CanRewind, level::Level};
 
 use super::{
     blender::{BlenderObject, replace_blender_object},
+    interact::Interact,
     player::Player,
-    time::LevelTimer,
+    time::Stopwatch,
 };
 
 pub fn plugin(app: &mut App) {
@@ -19,7 +20,13 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins(animation::plugin);
 
-    app.add_systems(PreUpdate, replace_blender_object::<BlenderTimebank>);
+    app.add_systems(
+        PreUpdate,
+        (
+            replace_blender_object::<BlenderTimebank>,
+            trigger_new_ephemeral_timebanks,
+        ),
+    );
     app.add_observer(on_add_timebank);
 }
 
@@ -64,14 +71,14 @@ fn on_add_timebank(trigger: Trigger<OnAdd, TimeBank>, mut commands: Commands) {
                 height: 2.,
             },
         ))
-        .observe(collect_timebank);
+        .observe(collide_with_timebank);
 }
 
-fn collect_timebank(
+fn collide_with_timebank(
     trigger: Trigger<OnCollisionStart>,
     timebanks: Query<&TimeBank>,
     mut commands: Commands,
-    mut stopwatch: ResMut<LevelTimer>,
+    mut stopwatch: ResMut<Stopwatch>,
     mut player: Query<Entity, With<Player>>,
 ) {
     let timebank = timebanks.get(trigger.target()).unwrap();
@@ -90,6 +97,48 @@ fn collect_timebank(
 
     commands.entity(trigger.target()).despawn();
 
+    commands
+        .spawn(EphemeralTimebank {
+            milliseconds: timebank.milliseconds,
+        })
+        .observe(interact_with_timebank);
+
     // use insert if new if we allow multiple rewinds
     commands.entity(player).insert(CanRewind);
+}
+
+// only happens for a real timebank is collected, not when replayed
+fn trigger_new_ephemeral_timebanks(
+    eph: Query<Entity, Added<EphemeralTimebank>>,
+    mut commands: Commands,
+) {
+    for eph in eph {
+        commands.entity(eph).trigger(Interact);
+    }
+}
+
+/// will exist after timebank is gone so it can be retriggered
+#[derive(Component)]
+struct EphemeralTimebank {
+    milliseconds: u64,
+}
+
+fn interact_with_timebank(
+    trigger: Trigger<Interact>,
+    timebanks: Query<&EphemeralTimebank>,
+    mut commands: Commands,
+    mut stopwatch: ResMut<Stopwatch>,
+    player: Query<Entity, With<Player>>,
+) {
+    let timebank = timebanks.get(trigger.target()).unwrap();
+
+    info!(
+        "adding {} milliseconds to level timer!",
+        timebank.milliseconds
+    );
+    stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
+
+    if let Ok(player) = player.single() {
+        commands.entity(player).insert(CanRewind);
+    }
 }
