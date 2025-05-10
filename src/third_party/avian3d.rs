@@ -6,7 +6,7 @@ use bevy::prelude::*;
 /// To view the docs for 0.16, you'll have to clone the main branch
 /// and run `cargo doc --open` :/
 pub fn plugin(app: &mut App) {
-    app.add_plugins((PhysicsPlugins::default()));
+    app.add_plugins(PhysicsPlugins::default());
 }
 
 // /// This is used to determine what things should interact on collision.

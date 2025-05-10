@@ -17,6 +17,8 @@ mod default_input;
 pub mod movement;
 pub mod rewind;
 
+mod interact;
+
 pub fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
@@ -25,6 +27,7 @@ pub fn plugin(app: &mut App) {
         default_input::plugin,
         movement::plugin,
         rewind::plugin,
+        interact::plugin,
     ));
     app.add_observer(setup_player)
         .add_observer(update_transform_on_teleport);

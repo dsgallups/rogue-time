@@ -5,12 +5,13 @@ use std::time::Duration;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
-use crate::{
-    gameplay::player::rewind::CanRewind,
-    level::{Level, LevelOrigins},
-};
+use crate::{gameplay::player::rewind::CanRewind, level::Level};
 
-use super::{player::Player, time::LevelTimer};
+use super::{
+    blender::{BlenderObject, replace_blender_object},
+    player::Player,
+    time::LevelTimer,
+};
 
 pub fn plugin(app: &mut App) {
     app.register_type::<TimeBank>()
@@ -18,7 +19,7 @@ pub fn plugin(app: &mut App) {
 
     app.add_plugins(animation::plugin);
 
-    app.add_systems(PreUpdate, on_add_blender_timebank);
+    app.add_systems(PreUpdate, replace_blender_object::<BlenderTimebank>);
     app.add_observer(on_add_timebank);
 }
 
@@ -29,29 +30,16 @@ pub struct BlenderTimebank {
     pub level: Level,
 }
 
-fn on_add_blender_timebank(
-    mut commands: Commands,
-    blender_timebanks: Query<(Entity, &Transform, &BlenderTimebank)>,
-    level_origins: Res<LevelOrigins>,
-) {
-    for (entity, transform, timebank) in blender_timebanks {
-        // we are going to take this thing,
-        // remove it from the scene entirely,
-        // and then construct it ourselves.
-        //let BlenderTimebank { milliseconds } = blender_timebanks.get(trigger.target()).unwrap();
-        info!("added blender timebank");
+impl BlenderObject for BlenderTimebank {
+    type BevyComponent = TimeBank;
+    fn level(&self) -> Level {
+        self.level
+    }
 
-        let origin = level_origins.get_spawn_point(timebank.level);
-        let transform = transform.with_translation(transform.translation + origin);
-
-        commands.entity(entity).despawn();
-        commands.spawn((
-            timebank.level,
-            TimeBank {
-                milliseconds: timebank.milliseconds,
-            },
-            transform,
-        ));
+    fn to_component(&self) -> Self::BevyComponent {
+        TimeBank {
+            milliseconds: self.milliseconds,
+        }
     }
 }
 

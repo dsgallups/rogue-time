@@ -5,8 +5,9 @@ use bevy::{
 };
 
 mod animation;
-mod door;
-mod interactables;
+mod blender;
+mod interact;
+mod lever;
 mod lives;
 pub mod player;
 mod portal;
@@ -70,13 +71,12 @@ pub fn plugin(app: &mut App) {
         room::plugin,
         animation::plugin,
         timebank::plugin,
-        portal::plugin,
         respawn::plugin,
         lives::plugin,
         time::plugin,
         timelines::plugin,
-        interactables::plugin,
-        door::plugin,
+        lever::plugin,
+        portal::plugin,
         win::plugin,
     ));
     #[cfg(feature = "dev")]
