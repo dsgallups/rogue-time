@@ -1,13 +1,15 @@
 use bevy::prelude::*;
 
 use super::{
+    lives::LostLife,
     player::{Player, TeleportTo},
     room::NewRoom,
 };
 
 pub fn plugin(app: &mut App) {
     app.add_observer(init_respawn_point)
-        .add_observer(set_respawn_point_on_new_room);
+        .add_observer(set_respawn_point_on_new_room)
+        .add_observer(on_lost_life);
 }
 
 #[derive(Component, Reflect)]
@@ -39,4 +41,11 @@ fn set_respawn_point_on_new_room(
             commands.trigger(TeleportTo::new(trigger.spawn_point));
         }
     }
+}
+fn on_lost_life(
+    _trigger: Trigger<LostLife>,
+    mut commands: Commands,
+    current_respawn_point: Single<&RespawnPoint>,
+) {
+    commands.trigger(TeleportTo::new(current_respawn_point.0));
 }

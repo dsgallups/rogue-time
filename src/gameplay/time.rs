@@ -2,18 +2,24 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::gameplay::{player::TeleportTo, room::StartCountdown};
+use crate::gameplay::{lives::LostLife, room::StartCountdown};
 
-use super::{GameSet, GameState, lives::Lives, respawn::RespawnPoint, room::RoomStarted};
+use super::{GameSet, GameState, room::RoomStarted};
 
 pub(crate) const DEFAULT_DURATION: Duration = Duration::from_secs(5);
 
 pub fn plugin(app: &mut App) {
     app.insert_resource(LevelTimer::default())
-        .add_observer(reset_on_new_level)
-        .add_systems(Update, tick_stopwatch.in_set(GameSet::TickTimers))
+        .add_observer(start_countdown)
+        .add_systems(
+            Update,
+            tick_stopwatch
+                .in_set(GameSet::TickTimers)
+                .run_if(in_state(GameState::Playing)),
+        )
         .add_systems(PostUpdate, out_of_time.run_if(in_state(GameState::Playing)))
-        .add_observer(start_timer_on_level);
+        .add_observer(start_timer_on_level)
+        .add_observer(on_lost_life);
 }
 
 #[derive(Resource)]
@@ -56,11 +62,15 @@ impl LevelTimer {
 fn tick_stopwatch(mut stopwatch: ResMut<LevelTimer>, time: Res<Time>) {
     stopwatch.0.tick(time.delta());
 }
-fn reset_on_new_level(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<LevelTimer>) {
+fn start_countdown(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<LevelTimer>) {
     let event = trigger.event();
     stopwatch.pause();
     stopwatch.reset();
     stopwatch.set_duration(Duration::from_millis(event.0));
+}
+
+fn on_lost_life(_trigger: Trigger<LostLife>, mut commands: Commands, timer: Res<LevelTimer>) {
+    commands.trigger(StartCountdown(timer.duration()));
 }
 
 fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: ResMut<LevelTimer>) {
@@ -68,12 +78,7 @@ fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: ResMut<Le
     stopwatch.unpause();
 }
 
-fn out_of_time(
-    stopwatch: Res<LevelTimer>,
-    mut commands: Commands,
-    current_respawn_point: Single<&RespawnPoint>,
-    mut lives: Single<&mut Lives>,
-) {
+fn out_of_time(stopwatch: Res<LevelTimer>, mut commands: Commands) {
     if !stopwatch.0.finished() {
         return;
     }
@@ -84,7 +89,5 @@ fn out_of_time(
         stopwatch.0.elapsed_secs_f64()
     );
 
-    lives.remove_life();
-    commands.trigger(TeleportTo::new(current_respawn_point.0));
-    commands.trigger(StartCountdown(stopwatch.duration()));
+    commands.trigger(LostLife);
 }

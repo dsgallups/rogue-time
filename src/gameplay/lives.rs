@@ -5,10 +5,12 @@ use crate::screens::Screen;
 use super::{GameState, player::Player};
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(setup_lives).add_systems(
-        PreUpdate,
-        on_no_more_lives.run_if(in_state(GameState::Playing)),
-    );
+    app.add_observer(setup_lives)
+        .add_observer(remove_life)
+        .add_systems(
+            PreUpdate,
+            on_no_more_lives.run_if(in_state(GameState::Playing)),
+        );
 }
 
 #[derive(Component)]
@@ -30,6 +32,16 @@ impl Default for Lives {
 
 fn setup_lives(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
     commands.entity(trigger.target()).insert(Lives::default());
+}
+
+/// when out of time
+#[derive(Event)]
+pub struct LostLife;
+
+fn remove_life(_trigger: Trigger<LostLife>, mut lives: Query<&mut Lives>) {
+    for mut life in &mut lives {
+        life.remove_life();
+    }
 }
 
 fn on_no_more_lives(lives: Query<&Lives>, mut next_state: ResMut<NextState<Screen>>) {
