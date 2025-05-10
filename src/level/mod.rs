@@ -28,11 +28,11 @@ impl Plugin for LevelPlugin {
             .register_type::<Level>();
 
         if self.load_level {
-            app.add_systems(OnExit(Screen::Loading), |mut commands: Commands| {
+            app.add_systems(OnEnter(Screen::SpawnLevel), |mut commands: Commands| {
                 commands.trigger(SpawnWorld);
             })
             .add_observer(spawn_world)
-            .add_systems(OnExit(Screen::Gameplay), respawn_world);
+            .add_systems(OnExit(Screen::Gameplay), despawn_world);
         }
     }
 }
@@ -99,6 +99,12 @@ impl LevelsLoaded {
     pub fn all_ready(&self) -> bool {
         self.loaded.iter().all(|l| *l)
     }
+    pub fn length(&self) -> usize {
+        self.loaded.len()
+    }
+    pub fn num_loaded(&self) -> usize {
+        self.loaded.iter().filter(|b| **b).count()
+    }
 }
 
 fn spawn_world(
@@ -136,7 +142,7 @@ fn announce_ready(
     res.set_ready(*scene_level);
 }
 
-fn respawn_world(
+fn despawn_world(
     mut commands: Commands,
     scenes: Query<(Entity, Option<&ChildOf>), With<SceneRoot>>,
     mut levels_loaded: ResMut<LevelsLoaded>,
@@ -149,6 +155,4 @@ fn respawn_world(
             commands.entity(scene).despawn();
         }
     }
-
-    commands.trigger(SpawnWorld);
 }

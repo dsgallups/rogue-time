@@ -22,12 +22,11 @@ pub fn plugin(app: &mut App) {
             Update,
             update_instruction_status
                 .run_if(in_state(Screen::SpawnLevel).and(input_just_pressed(KeyCode::KeyE))),
+        )
+        .add_systems(
+            Update,
+            update_ready_to_proceed_text.run_if(in_state(Screen::SpawnLevel)),
         );
-
-    // app.add_systems(
-    //     Update,
-    //     advance_to_gameplay_screen.run_if(in_state(Screen::SpawnLevel)),
-    // );
 }
 
 fn reset_spawning_status(mut status: ResMut<LevelSpawningStatus>) {
@@ -62,6 +61,9 @@ fn update_instruction_status(mut status: ResMut<LevelSpawningStatus>) {
     status.instructions_read = true;
 }
 
+#[derive(Component)]
+pub struct ReadyToProceed;
+
 fn spawn_spawn_level_screen(mut commands: Commands) {
     commands.spawn((
         widgets::ui_root("Loading Screen"),
@@ -84,7 +86,20 @@ fn spawn_spawn_level_screen(mut commands: Commands) {
                 So, if the room requires you press two levers, but they're too far to reach in time, you \
                 will need to hit one lever, rewind, and hit the other. Once both levers are pressed in time, \
                 you will be able to proceed. Best of luck :)"),
-            widgets::label("Press E to continue")
+            (widgets::label("Press E to continue"), ReadyToProceed)
         ],
     ));
+}
+
+fn update_ready_to_proceed_text(
+    level: Res<LevelsLoaded>,
+    mut text: Query<&mut Text, With<ReadyToProceed>>,
+) {
+    let mut text = text.single_mut().unwrap();
+
+    if level.all_ready() {
+        text.0 = "Press E to continue".to_string();
+    } else {
+        text.0 = format!("Loading Rooms {}/{}", level.num_loaded(), level.length());
+    }
 }
