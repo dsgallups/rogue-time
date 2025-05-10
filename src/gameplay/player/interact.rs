@@ -5,9 +5,7 @@ use crate::gameplay::{GameState, interact::Interact};
 
 use super::{Player, camera::PlayerCamera};
 
-//todo: give lever a collider
 pub fn plugin(app: &mut App) {
-    //todo
     app.add_systems(
         Update,
         interact.run_if(in_state(GameState::Playing).and(input_just_pressed(MouseButton::Left))),
@@ -35,6 +33,4 @@ fn interact(
     };
 
     commands.entity(hit.entity).trigger(Interact);
-
-    //todo
 }
