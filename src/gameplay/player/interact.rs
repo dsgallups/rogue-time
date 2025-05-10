@@ -32,5 +32,5 @@ fn interact(
         return;
     };
 
-    commands.entity(hit.entity).trigger(Interact);
+    commands.entity(hit.entity).trigger(Interact::default());
 }

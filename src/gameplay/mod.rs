@@ -13,9 +13,8 @@ pub mod player;
 mod portal;
 mod respawn;
 mod room;
-pub mod time;
+pub mod stopwatch;
 mod timebank;
-mod timelines;
 mod ui;
 mod win;
 
@@ -66,13 +65,13 @@ pub fn plugin(app: &mut App) {
     app.add_plugins((
         ui::plugin,
         player::plugin,
+        interact::plugin,
         room::plugin,
         animation::plugin,
         timebank::plugin,
         respawn::plugin,
         lives::plugin,
-        time::plugin,
-        timelines::plugin,
+        stopwatch::plugin,
         lever::plugin,
         portal::plugin,
         win::plugin,

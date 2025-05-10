@@ -82,5 +82,5 @@ fn on_interact(
             }
         }
     }
-    commands.entity(portal.0).trigger(Interact);
+    commands.entity(portal.0).trigger(Interact::dont_record());
 }

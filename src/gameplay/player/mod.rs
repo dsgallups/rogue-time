@@ -10,7 +10,7 @@ use default_input::DefaultInputContext;
 
 use crate::screens::Screen;
 
-use super::time::Stopwatch;
+use super::stopwatch::Stopwatch;
 
 pub mod camera;
 mod default_input;

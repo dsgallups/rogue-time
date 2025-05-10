@@ -13,7 +13,7 @@ use super::{
     lives::Lives,
     player::{Player, rewind::CanRewind},
     room::RoomCountdown,
-    time::Stopwatch,
+    stopwatch::Stopwatch,
 };
 
 mod pause;

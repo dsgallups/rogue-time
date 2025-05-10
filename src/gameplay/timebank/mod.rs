@@ -11,7 +11,7 @@ use super::{
     blender::{BlenderObject, replace_blender_object},
     interact::Interact,
     player::Player,
-    time::Stopwatch,
+    stopwatch::Stopwatch,
 };
 
 pub fn plugin(app: &mut App) {
@@ -113,7 +113,7 @@ fn trigger_new_ephemeral_timebanks(
     mut commands: Commands,
 ) {
     for eph in eph {
-        commands.entity(eph).trigger(Interact);
+        commands.entity(eph).trigger(Interact::default());
     }
 }
 
