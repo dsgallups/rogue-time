@@ -40,7 +40,7 @@ impl BlenderObject for BlenderPortal {
 
     fn to_component(&self) -> Self::BevyComponent {
         Portal {
-            to: self.level,
+            to: self.to,
             initial_stopwatch_duration: self.initial_stopwatch_duration,
         }
     }
@@ -129,6 +129,8 @@ fn portal_me_elsewhere(
         commands.trigger(GameWin);
         return;
     }
+
+    info!("Moving to level {:?}", portal.to);
 
     let spawn_point = spawn_points.get_spawn_point(portal.to);
 
