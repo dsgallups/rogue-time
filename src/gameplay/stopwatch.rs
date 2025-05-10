@@ -35,7 +35,8 @@ pub fn plugin(app: &mut App) {
 pub(crate) struct Stopwatch {
     // this is what's going to display on the screen
     active: Timer,
-    initial_duration: Duration,
+    // dont access this please, I just had to make it public for a hack
+    pub initial_duration: Duration,
 }
 
 impl Default for Stopwatch {
@@ -116,7 +117,6 @@ fn out_of_time(stopwatch: Res<Stopwatch>, mut commands: Commands) {
     }
 
     commands.trigger(LostLife);
-    commands.trigger(StartCountdown(stopwatch.initial_duration.as_millis() as u64));
 }
 
 fn on_start_rewind(_trigger: Trigger<StartRewind>, mut stopwatch: ResMut<Stopwatch>) {

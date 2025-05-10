@@ -136,6 +136,7 @@ fn portal_me_elsewhere(
         spawn_point,
         facing: Some(Dir3::NEG_Z),
     });
+    warn!("Starting countdown from portal");
     commands.trigger(StartCountdown(portal.initial_stopwatch_duration));
 }
 

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::screens::Screen;
 
-use super::{GameState, player::Player};
+use super::{GameState, player::Player, room::StartCountdown, stopwatch::Stopwatch};
 
 pub fn plugin(app: &mut App) {
     app.add_observer(setup_lives)
@@ -38,9 +38,20 @@ fn setup_lives(trigger: Trigger<OnAdd, Player>, mut commands: Commands) {
 #[derive(Event)]
 pub struct LostLife;
 
-fn remove_life(_trigger: Trigger<LostLife>, mut lives: Query<&mut Lives>) {
+// this observer is pretty terrible
+// but it's 2am now
+fn remove_life(
+    _trigger: Trigger<LostLife>,
+    stopwatch: Res<Stopwatch>,
+    mut commands: Commands,
+    mut lives: Query<&mut Lives>,
+) {
     for mut life in &mut lives {
         life.remove_life();
+        // must do this or else it'll trigger on the next play
+        if life.0 != 0 {
+            commands.trigger(StartCountdown(stopwatch.initial_duration.as_millis() as u64));
+        }
     }
 }
 
