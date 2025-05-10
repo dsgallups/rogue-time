@@ -43,8 +43,6 @@ impl BlenderObject for BlenderLever {
 pub struct Lever;
 
 fn on_add_lever(trigger: Trigger<OnAdd, Lever>, mut commands: Commands) {
-    //let level = levels.get(trigger.target()).unwrap();
-
     commands
         .entity(trigger.target())
         .insert((PortalKey::default(), Collider::sphere(2.)))

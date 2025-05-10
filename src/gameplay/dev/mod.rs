@@ -2,15 +2,20 @@
 use bevy::prelude::*;
 
 use super::player::camera::PlayerCamera;
-
 mod inspector;
+mod physics;
 mod portal;
 mod test_objects;
 mod timebank;
 
 pub fn plugin(app: &mut App) {
     //make_timebank,
-    app.add_plugins((timebank::plugin, portal::plugin, inspector::gadget));
+    app.add_plugins((
+        timebank::plugin,
+        portal::plugin,
+        inspector::gadget,
+        physics::plugin,
+    ));
     //app.add_systems(Update, query_player_cam);
 }
 

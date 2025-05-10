@@ -73,8 +73,6 @@ fn ready_animation(
         for child in children.iter_descendants(trigger.target()) {
             // Add the animation graph. This only needs to be done once to
             // connect the animation player to the mesh.
-            //
-
             if let Ok(mut player) = players.get_mut(child) {
                 //set the animation, but start it paused.
                 player

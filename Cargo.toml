@@ -7,6 +7,9 @@ default-run = "game"
 [features]
 # use this to spin up brp
 dev = [
+    "avian3d/debug-plugin",
+    "avian3d/bevy_diagnostic",
+    "avian3d/diagnostic_ui",
     "bevy/async_executor",
     "bevy_skein/default",
     "bevy/bevy_gizmos",
