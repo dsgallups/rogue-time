@@ -25,6 +25,7 @@ impl Plugin for LevelPlugin {
 
         app.init_resource::<LevelsLoaded>()
             .init_resource::<LevelOrigins>()
+            .register_type::<LevelOrigins>()
             .register_type::<Level>();
 
         if self.load_level {
@@ -35,9 +36,10 @@ impl Plugin for LevelPlugin {
 }
 
 /// note that levels start at 0. this is length.
-const NUM_LEVELS: u8 = 2;
+const NUM_LEVELS: u8 = 3;
 
-#[derive(Resource)]
+#[derive(Resource, Reflect)]
+#[reflect(Resource)]
 pub struct LevelOrigins(HashMap<Level, Vec3>);
 
 // because the level cannot be state scoped

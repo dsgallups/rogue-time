@@ -5,7 +5,7 @@ use crate::gameplay::{
     room::{NewRoom, RoomStarted},
 };
 
-use super::{Player, camera::PlayerCamera, movement::MovementDisabled};
+use super::{Player, TeleportTo, camera::PlayerCamera, movement::MovementDisabled};
 
 /// How many times per second we record the player position
 pub const LOG_FREQUENCY: f32 = 8.;
@@ -29,6 +29,7 @@ pub(super) fn plugin(app: &mut App) {
                 .run_if(in_state(GameState::Rewinding)),
         )
         .add_observer(on_start_rewind)
+        .add_observer(clear_rewind_on_teleport)
         .add_observer(on_end_rewind);
 }
 
@@ -168,4 +169,11 @@ fn record_movements(
 
     log.player.push(*player_transform);
     log.camera.push(*camera_transform);
+}
+
+fn clear_rewind_on_teleport(_trigger: Trigger<TeleportTo>, mut log: ResMut<MovementLog>) {
+    log.player.clear();
+    log.camera.clear();
+    log.timer.reset();
+    log.timer.pause();
 }
