@@ -159,7 +159,7 @@ fn update_time_ui(stopwatch: Res<Stopwatch>, mut text: Query<&mut Text, With<Sto
         return;
     };
 
-    let time = stopwatch.0.remaining_secs();
+    let time = stopwatch.remaining_secs();
     text.0 = format!("{time:.02}");
 }
 

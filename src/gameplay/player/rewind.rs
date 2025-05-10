@@ -28,14 +28,15 @@ pub(super) fn plugin(app: &mut App) {
                 .in_set(GameSet::RecordInput)
                 .run_if(in_state(GameState::Rewinding)),
         )
-        .add_observer(handle_rewind_event);
+        .add_observer(on_start_rewind)
+        .add_observer(on_end_rewind);
 }
 
 #[derive(Event)]
-pub enum RewindAnimation {
-    Start,
-    End,
-}
+pub struct StartRewind;
+
+#[derive(Event)]
+pub struct EndRewind;
 
 #[derive(Component)]
 pub struct CanRewind;
@@ -106,28 +107,28 @@ fn rewind_input(
     }
     commands.entity(entity).remove::<CanRewind>();
 
-    commands.trigger(RewindAnimation::Start);
+    commands.trigger(StartRewind);
 }
 
 /// Sets state depending on rewind trigger
-fn handle_rewind_event(
-    trigger: Trigger<RewindAnimation>,
+fn on_start_rewind(
+    _trigger: Trigger<StartRewind>,
     mut next_state: ResMut<NextState<GameState>>,
     mut log: ResMut<MovementLog>,
 ) {
-    match trigger.event() {
-        RewindAnimation::Start => {
-            next_state.set(GameState::Rewinding);
+    next_state.set(GameState::Rewinding);
+    log.timer.pause();
+    log.timer.reset();
+}
 
-            log.timer.pause();
-            log.timer.reset();
-        }
-        RewindAnimation::End => {
-            next_state.set(GameState::Playing);
-
-            log.timer.unpause();
-        }
-    }
+/// Sets state depending on rewind trigger
+fn on_end_rewind(
+    _trigger: Trigger<EndRewind>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut log: ResMut<MovementLog>,
+) {
+    next_state.set(GameState::Playing);
+    log.timer.unpause();
 }
 
 /// reads out [`MovementLog`] LIFO fashion
@@ -143,7 +144,7 @@ fn play_logged_recording(
 
     let (Some(player_transform), Some(camera_transfrom)) = (log.player.pop(), log.camera.pop())
     else {
-        commands.trigger(RewindAnimation::End);
+        commands.trigger(EndRewind);
         return;
     };
     *camera = camera_transfrom;

@@ -18,49 +18,65 @@ pub fn plugin(app: &mut App) {
                 .run_if(in_state(GameState::Playing)),
         )
         .add_systems(PostUpdate, out_of_time.run_if(in_state(GameState::Playing)))
-        .add_observer(start_timer_on_level)
-        .add_observer(on_lost_life);
+        .add_observer(start_timer_on_level);
 }
 
 #[derive(Resource)]
-pub(crate) struct Stopwatch(pub Timer);
+pub(crate) struct Stopwatch {
+    // this is what's going to display on the screen
+    active: Timer,
+}
 
 impl Default for Stopwatch {
     fn default() -> Self {
         let mut timer = Timer::new(DEFAULT_DURATION, TimerMode::Once);
         timer.pause();
-        Self(timer)
+        Self { active: timer }
     }
 }
 
 #[allow(dead_code)]
 impl Stopwatch {
     pub fn pause(&mut self) {
-        self.0.pause();
+        self.active.pause();
     }
     pub fn unpause(&mut self) {
-        self.0.unpause();
+        self.active.unpause();
+    }
+    pub fn remaining(&self) -> Duration {
+        self.active.remaining()
+    }
+    pub fn duration(&self) -> Duration {
+        self.active.duration()
+    }
+    pub fn elapsed(&self) -> Duration {
+        self.active.elapsed()
     }
     pub fn add_time(&mut self, time: Duration) {
-        let current_duration = self.0.duration();
+        let current_duration = self.active.duration();
 
         let new_duration = current_duration + time;
-        self.0.set_duration(new_duration);
+        self.active.set_duration(new_duration);
     }
     pub fn set_duration(&mut self, new_duration: Duration) {
-        self.0.set_duration(new_duration);
+        self.active.set_duration(new_duration);
     }
     /// returns in millis
-    pub fn duration(&self) -> u64 {
-        self.0.duration().as_millis() as u64
+    pub fn duration_millis(&self) -> u64 {
+        self.active.duration().as_millis() as u64
+    }
+
+    pub fn remaining_secs(&self) -> f32 {
+        self.active.remaining_secs()
     }
     pub fn reset(&mut self) {
-        self.0.reset();
+        self.active.reset();
     }
 }
 
 fn tick_stopwatch(mut stopwatch: ResMut<Stopwatch>, time: Res<Time>) {
-    stopwatch.0.tick(time.delta());
+    let delta = time.delta();
+    stopwatch.active.tick(delta);
 }
 fn start_countdown(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<Stopwatch>) {
     let event = trigger.event();
@@ -69,25 +85,22 @@ fn start_countdown(trigger: Trigger<StartCountdown>, mut stopwatch: ResMut<Stopw
     stopwatch.set_duration(Duration::from_millis(event.0));
 }
 
-fn on_lost_life(_trigger: Trigger<LostLife>, mut commands: Commands, timer: Res<Stopwatch>) {
-    commands.trigger(StartCountdown(timer.duration()));
-}
-
 fn start_timer_on_level(_trigger: Trigger<RoomStarted>, mut stopwatch: ResMut<Stopwatch>) {
     info!("Starting stopwatch");
     stopwatch.unpause();
 }
 
 fn out_of_time(stopwatch: Res<Stopwatch>, mut commands: Commands) {
-    if !stopwatch.0.finished() {
+    if !stopwatch.active.finished() {
         return;
     }
 
     error!(
         "Stopwatch stuff: {} {}",
-        stopwatch.0.duration().as_secs_f64(),
-        stopwatch.0.elapsed_secs_f64()
+        stopwatch.active.duration().as_secs_f64(),
+        stopwatch.active.elapsed_secs_f64()
     );
 
     commands.trigger(LostLife);
+    commands.trigger(StartCountdown(stopwatch.duration_millis()));
 }
