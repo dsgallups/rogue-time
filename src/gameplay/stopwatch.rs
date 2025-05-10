@@ -105,14 +105,8 @@ fn out_of_time(stopwatch: Res<Stopwatch>, mut commands: Commands) {
         return;
     }
 
-    error!(
-        "Stopwatch stuff: {} {}",
-        stopwatch.active.duration().as_secs_f64(),
-        stopwatch.active.elapsed_secs_f64()
-    );
-
     commands.trigger(LostLife);
-    commands.trigger(StartCountdown(stopwatch.duration_millis()));
+    commands.trigger(StartCountdown(stopwatch.initial_duration.as_millis() as u64));
 }
 
 fn on_start_rewind(_trigger: Trigger<StartRewind>, mut stopwatch: ResMut<Stopwatch>) {

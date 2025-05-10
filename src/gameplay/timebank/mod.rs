@@ -78,7 +78,6 @@ fn collide_with_timebank(
     trigger: Trigger<OnCollisionStart>,
     timebanks: Query<&TimeBank>,
     mut commands: Commands,
-    mut stopwatch: ResMut<Stopwatch>,
     mut player: Query<Entity, With<Player>>,
 ) {
     let timebank = timebanks.get(trigger.target()).unwrap();
@@ -88,12 +87,6 @@ fn collide_with_timebank(
     let Ok(player) = player.get_mut(event.collider) else {
         return;
     };
-
-    info!(
-        "adding {} milliseconds to stopwatch!",
-        timebank.milliseconds
-    );
-    stopwatch.add_time(Duration::from_millis(timebank.milliseconds));
 
     commands.entity(trigger.target()).despawn();
 
@@ -133,7 +126,7 @@ fn interact_with_timebank(
     let timebank = timebanks.get(trigger.target()).unwrap();
 
     info!(
-        "adding {} milliseconds to level timer!",
+        "adding {} milliseconds to stopwatch!",
         timebank.milliseconds
     );
     stopwatch.add_time(Duration::from_millis(timebank.milliseconds));

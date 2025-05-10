@@ -71,6 +71,7 @@ fn on_rewind(_trigger: Trigger<EndRewind>, mut interactions: ResMut<Interactions
     let present_actions = interactions.present.clone();
     interactions.present.clear();
     interactions.past.extend(present_actions);
+    interactions.past.sort_by_key(|a| a.1);
     interactions.cursor = 0;
 }
 
@@ -92,6 +93,7 @@ fn replay(
         return;
     };
     if *duration <= stopwatch.elapsed() {
+        warn!("Replaying event!");
         commands.entity(*entity).trigger(Interact::dont_record());
         interactions.cursor += 1;
     }

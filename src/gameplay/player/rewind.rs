@@ -160,7 +160,6 @@ fn record_movements(
     if !log.timer.just_finished() {
         return;
     }
-    warn!("Recorded!");
     let (Ok(camera_transform), Ok(player_transform)) =
         (camera_transform.single(), player_transform.single())
     else {
