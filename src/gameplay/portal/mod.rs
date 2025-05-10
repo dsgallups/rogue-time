@@ -1,5 +1,5 @@
 use animation::PortalAnimation;
-use avian3d::prelude::OnCollisionStart;
+use avian3d::prelude::{Collider, OnCollisionStart};
 use bevy::prelude::*;
 
 use crate::level::{Level, LevelOrigins};
@@ -80,6 +80,7 @@ fn insert_portal(
 ) {
     commands
         .entity(trigger.target())
+        .insert(Collider::cuboid(10., 15., 1.))
         .observe(portal_me_elsewhere)
         .observe(interact_with_keys);
     let portal_level = levels.get(trigger.target()).unwrap();
