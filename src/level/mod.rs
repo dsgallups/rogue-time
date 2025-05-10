@@ -36,7 +36,7 @@ impl Plugin for LevelPlugin {
 }
 
 /// note that levels start at 0. this is length.
-const NUM_LEVELS: u8 = 3;
+const NUM_LEVELS: u8 = 2;
 
 #[derive(Resource, Reflect)]
 #[reflect(Resource)]
