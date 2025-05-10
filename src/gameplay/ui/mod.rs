@@ -3,7 +3,10 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{screens::Screen, theme::widgets};
+use crate::{
+    screens::Screen,
+    theme::{palette::UsePaletteColor, widgets},
+};
 
 use super::{
     GameSet,
@@ -65,13 +68,14 @@ fn spawn_game_ui(mut commands: Commands) {
                         justify_content: JustifyContent::Center,
                         ..default()
                     },
-                    BorderColor(BLACK.into()),
+                    UsePaletteColor::dark(),
                     BackgroundColor(WHITE.into()),
                     children![(
                         LivesUi,
                         Text::new("N/A"),
                         font.clone(),
-                        TextColor(BLACK.into())
+                        TextColor(BLACK.into()),
+                        UsePaletteColor::light(),
                     )]
                 ),
                 (
@@ -91,7 +95,8 @@ fn spawn_game_ui(mut commands: Commands) {
                             font_size: 40.,
                             ..default()
                         },
-                        TextColor(BLACK.into())
+                        TextColor(BLACK.into()),
+                        UsePaletteColor::dark(),
                     )]
                 ),
                 (
@@ -113,27 +118,33 @@ fn spawn_game_ui(mut commands: Commands) {
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            BorderColor(BLACK.into()),
-                            BackgroundColor(WHITE.into()),
+                            BackgroundColor(BLACK.into()),
+                            UsePaletteColor::dark(),
                             children![(
                                 StopwatchTimeUi,
                                 Text::new("N/A"),
                                 font.clone(),
-                                TextColor(BLACK.into())
+                                TextColor(BLACK.into()),
+                                UsePaletteColor::light(),
                             )]
                         ),
                         (
                             RewindParent,
                             Node {
-                                border: UiRect::all(Val::Px(10.)),
                                 margin: UiRect::all(Val::Px(20.)),
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
                                 ..default()
                             },
-                            BorderColor(BLACK.into()),
                             BackgroundColor(WHITE.into()),
-                            children![(RewindUi, Text::default(), font, TextColor(BLACK.into()))]
+                            UsePaletteColor::light(),
+                            children![(
+                                RewindUi,
+                                Text::default(),
+                                font,
+                                TextColor(BLACK.into()),
+                                UsePaletteColor::dark(),
+                            )]
                         ),
                     ],
                 )

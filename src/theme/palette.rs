@@ -75,14 +75,14 @@ impl UsePalette for TextColor {
 
 fn update_palette_colors<T: UsePalette>(
     palette: Res<Palette>,
-    mut palette_user: Query<(&mut T, Option<&UsePaletteColor>)>,
+    mut palette_user: Query<(&mut T, &UsePaletteColor)>,
 ) {
     for (mut user, color) in &mut palette_user {
         if user.is_clear() {
             continue;
         }
-        let UsePaletteColor(light) = color.copied().unwrap_or(UsePaletteColor(false));
-        if light {
+        let UsePaletteColor(light) = color;
+        if *light {
             user.update(palette.light.into());
         } else {
             user.update(palette.dark.into());

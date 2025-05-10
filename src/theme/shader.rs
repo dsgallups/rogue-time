@@ -5,8 +5,6 @@ use crate::gameplay::GameSet;
 
 use super::palette::Palette;
 
-use crate::gameplay::time::LevelTimer;
-
 pub fn plugin(app: &mut App) {
     app.add_plugins((bevy_dog::plugin::DoGPlugin,))
         .add_systems(Update, (insert_post_process,))
@@ -23,7 +21,7 @@ fn insert_post_process(query: Query<Entity, Added<Camera3d>>, mut commands: Comm
                 tau: 32.,
                 phi: 0.2,
                 thresholding: Thresholding::Quantization as i32,
-                //thresholds: Vec4::from_array([12., 6., 3., 0.5]),
+                thresholds: Vec4::from_array([12., 6., 3., 0.5]),
                 ..DoGSettings::DEFAULT
             },
             PassesSettings::default(),
