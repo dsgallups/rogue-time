@@ -37,7 +37,7 @@ pub(crate) fn header(text: impl Into<String>) -> impl Bundle {
         Text(text.into()),
         TextFont::from_font_size(40.0),
         TextColor(FULL_TIME_COLOR.into()),
-        UsePaletteColor::dark(),
+        UsePaletteColor::light(),
     )
 }
 
