@@ -75,9 +75,9 @@ fn on_interact(
                 animation.seek_to(seek);
                 // play the animation to the end
                 if portal_key.interacted {
-                    animation.set_speed(1.);
+                    animation.set_speed(4.);
                 } else {
-                    animation.set_speed(-1.);
+                    animation.set_speed(-4.);
                 }
             }
         }
