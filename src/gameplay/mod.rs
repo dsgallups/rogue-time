@@ -42,7 +42,7 @@ pub enum GameState {
 ///
 /// Following the justifications of foxtrot, thought it would be nice to have now rather than later
 #[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Reflect)]
-enum GameSet {
+pub enum GameSet {
     /// Tick timers
     TickTimers,
     /// Record player input
